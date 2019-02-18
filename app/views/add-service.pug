@@ -1,0 +1,53 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Add New Service
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+                .section
+                form(action="/admin/add-service" method="post" enctype="application/x-www-form-urlencoding")
+                    .row                    
+                        .input-field.col.s12
+                            i.material-icons.prefix edit
+                            input#name.validate(name="name" type="text" required="" aria-required="true")
+                            label(for="name") Service Name
+                            span.helper-text(data-error="Required")
+                    .row                    
+                        .input-field.col.s12
+                            i.material-icons.prefix description
+                            textarea.materialize-textarea#desc.validate(name="desc" type="text" required="" aria-required="true")
+                            label(for="desc") Description
+                            span.helper-text(data-error="Required")
+                    .row                    
+                        .input-field.col.s12
+                            i.material-icons.prefix edit
+                            input#prefix.validate(name="prefix" type="text" required="" aria-required="true")
+                            label(for="prefix") Log Format (regex)
+                            span.helper-text(data-error="Required")
+                    .row                    
+                        .input-field.col.s12
+                            i.material-icons.prefix color_lens
+                            input#color.validate(name="color" type="text" required="" aria-required="true")
+                            label(for="color") Color
+                            span.helper-text(data-error="Required")
+                    .row
+                        .input-field.col.s6
+                            button.btn.grey.waves-effect.col.s12.white-text(type="submit")
+                                strong Add Service
+                        .input-field.col.s6
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="/admin/services")
+                                strong Cancel
+                .section
+            
+        

@@ -1,0 +1,60 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Log Management
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            .col.s12
+                if logs && logs.length>0
+                    ul.collapsible
+                        each log in logs
+                            li
+                                - var statusClass = log.status.toLowerCase()
+                                .collapsible-header
+                                    .col.s3 File Name
+                                    .col.s9(style="font-weight: bolder")= log.file_name
+                                    .col.s3.right-align(class=statusClass)= log.status
+                                if log.status=='IMPORTING'
+                                    .progress.red(style="margin: 0px;")
+                                        .indeterminate
+                                .collapsible-body.hoverable
+                                    .section
+                                        .row
+                                            .col.s3 Created At
+                                            .col.s9(style="font-weight: bolder").
+                                                #{new Date(log.create_time).toLocaleString()}
+                                        .row
+                                            .col.s3 Last Import
+                                            .col.s9(style="font-weight: bolder").
+                                                #{new Date(log.update_time).toLocaleString()}
+                                        .row
+                                            .col.s3 Total Lines Read
+                                            .col.s9(style="font-weight: bolder").
+                                                #{parseInt(log.lines_read).toLocaleString()}
+                                        .row
+                                            .col.s3 Valid Lines
+                                            .col.s9(style="font-weight: bolder").
+                                                #{parseInt(log.lines_valid).toLocaleString()}
+                                        .row
+                                            .col.s3 Continous Import
+                                            .col.s9
+                                                .switch
+                                                    label
+                                                        span Off
+                                                        input.tail(type="checkbox", checked=log.tail, value=log.file_id)
+                                                        span.lever
+                                                        span On
+                else
+                    +alert('No Logs Imported Yet', 'click here to start log import', 'error')

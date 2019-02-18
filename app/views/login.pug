@@ -1,0 +1,43 @@
+extends layout.pug
+
+block title
+    title Login Billing: Login
+
+block content
+    .section
+    .row.container.center
+        .col.z-depth-6.card-panel.s10.offset-s1.m8.offset-m2.l6.offset-l3
+            .section
+            //i.material-icons.medium.prefix account_circle
+            h5 Login to the Dashboard
+            if error
+                .red-text
+                    strong= error
+            if message
+                .green-text
+                    strong= message
+            .section
+            .divider
+            .section
+            form(action="/authenticate" method="post" enctype="application/x-www-form-urlencoding")
+                .row                    
+                    .input-field.col.s10.offset-s1
+                        i.material-icons.prefix mail_outline
+                        input#email.validate(name="email" type="text" required="" aria-required="true")
+                        label(for="email") Email Address
+                        span.helper-text(data-error="Invalid Email")
+                .row
+                    .input-field.col.s10.offset-s1
+                        i.material-icons.prefix lock_outline
+                        input#password.validate(name="password" type="password" required="" aria-required="true")
+                        label(for="password") Password
+                        span.helper-text(data-error="Required")
+                        .margin.right-align.medium-small
+                            a(href="/forget-password") Forget Password
+                            | &nbsp;|&nbsp;
+                            a(href="/register") Register
+                .row
+                    .input-field.col.s10.offset-s1
+                        button.btn.grey.waves-effect.col.s12.white-text(type="submit")
+                            strong Login
+            .section

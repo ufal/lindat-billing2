@@ -1,0 +1,14 @@
+.importing {
+    font-weight: bolder;
+    color: #f57f17;
+}
+
+.error {
+    font-weight: bolder;
+    color: #f44336;    
+}
+
+.completed {
+    font-weight: bolder;
+    color: #4caf50;
+}

@@ -1,0 +1,94 @@
+extends layout.pug
+
+block title
+    title Login Billing: Dashboard
+
+block custom-css
+    link(rel="stylesheet" href="/css/custom.css")
+    style(type="text/css").
+        header, main, footer {
+            padding-left: 300px;
+        }
+
+        @media only screen and (max-width : 992px) {
+            header, main, footer {
+                padding-left: 0;
+            }
+        }
+
+append js
+    script(src='/js/custom.js')
+    script(src='/js/Chart.min.js')
+
+block navigation
+    include includes/navigation.pug
+
+block sidebar
+    include includes/sidebar.pug
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Dashboard
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            if servicecounts && Object.keys(servicecounts).length
+                - var data = {};
+                - var sum = {};
+                - var colors = {};
+                - var labels = Array.from(new Array(31),(val,index)=>index+1);
+                each s in servicecounts
+                    -
+                        if(!data[s.name]) {
+                            data[s.name] = Array.from(Array(31), () => 0);
+                            sum[s.name] = 0;
+                        }
+                        data[s.name][s.month-1] = s.count;
+                        sum[s.name] = sum[s.name] + parseInt(s.count);
+                        colors[s.name] = '#' + parseInt(s.color).toString(16);
+                each d, s in data
+                    .col.s12.m6.l4
+                        .card-panel(style="padding: 0px;")
+                            .section.container                            
+                                .flow-text= s
+                                .flow=text= sum[s]
+                            canvas(id=s+'_monthly')
+                            script.
+                                ctx = document.getElementById('#{s}_monthly').getContext('2d');
+                                chart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: [#{labels}],                                        
+                                        datasets: [{
+                                            data: [#{d}],
+                                            backgroundColor: '#{colors[s]}'
+                                        }],
+                                    },
+                                    options: {
+                                        showLine: false,
+                                        legend: {
+                                            display: false
+                                        },
+                                        scales: {
+                                            xAxes: [{
+                                                display: false
+                                            }],
+                                            yAxes: [{
+                                                display: false
+                                            }]
+                                        },
+                                        elements: { point: { radius: 0.5 } },
+                                        layout: {
+                                            padding: {left: 0, right: 0, top: 0, bottom: 0},
+                                        }                             
+                                    }
+                                });
+            else
+                +alert('No Data to Display', 'Please check if you have added any EndPoints', 'error')

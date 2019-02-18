@@ -1,0 +1,10 @@
+mixin alert(heading, message, icon)
+    .row
+        .col.s12.m10.offset-m1
+            .card-panel.orange.lighten-5
+                .row.valign-wrapper(style="margin-bottom: 0px;")
+                    i.material-icons.prefix.medium.red-text.left= icon
+                    div
+                        .flow-text.red-text= heading
+                        div
+                            strong= message

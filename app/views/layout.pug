@@ -1,0 +1,38 @@
+include mixins/alert.pug
+
+doctype html  
+html
+ head
+    block title
+        title Lindat Billing
+    block css
+        link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+        link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+    block js
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+        script(src="https://code.jquery.com/jquery-3.3.1.min.js")
+
+    style(type="text/css").
+        .input-field {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+    block custom-css
+ body
+    header
+        block navigation
+            .navbar-fixed
+                nav.grey.darken-1.row
+                    .nav-wrapper.col.s12
+                        a.brand-logo(href="/") Lindat Billing
+                        ul.right.hide-on-med-and-down
+    main
+        block sidebar
+        block content
+    footer
+        block footer
+            script(type='text/javascript').
+                document.addEventListener('DOMContentLoaded', function() {
+                    var elems = document.querySelectorAll('.collapsible');
+                    var instances = M.Collapsible.init(elems);
+                });

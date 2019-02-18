@@ -1,0 +1,54 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 User EndPoints
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            .col.s12
+                if endpoints && endpoints.length>0
+                    ul.collapsible
+                        each endpoint in endpoints
+                            li
+                                .collapsible-header
+                                    strong= endpoint.name
+                                    if(endpoint.is_verified)
+                                        span.new.badge.green(data-badge-caption="")
+                                            strong Verified
+                                    else
+                                        span.new.badge.red(data-badge-caption="")
+                                            strong Not Verified                     
+                                .collapsible-body
+                                    div.row
+                                        .flow-text.col.s12.m4= endpoint.ip
+                                        .row.hide-on-med-and-up
+                                        .col.s12.m8
+                                            if(endpoint.is_verified)
+                                                .span.btn-floating.green.right
+                                                    i.material-icons check
+                                            else
+                                                strong To verify call the following from the same IP
+                                                pre(style="white-space: pre-wrap;")
+                                                    -
+                                                        var command = "curl -X POST http://localhost:3021/api/verify-endpoint"
+                                                        + " -H 'Content-Type: application/x-www-form-urlencoded'"
+                                                        + " -H 'x-access-token: " + endpoint.verification_code + "'"
+                                                        + " -d id=" + endpoint.endpoint_id
+                                                    code= command
+                else
+                    +alert('No End Points Defined', 'Click on the plus sign to add a new one.', 'error')
+
+    .fixed-action-btn
+        a.btn-floating.btn-large.red(href="/add-endpoint")
+            i.material-icons.large add_circle
