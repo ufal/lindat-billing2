@@ -1,0 +1,46 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Users
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            if users && users.length>0
+                .col.s12
+                    table.highlight.responsive-table
+                        thead
+                            tr
+                                td
+                                th Name
+                                th Email
+                                th Organization
+                                td
+                        tbody
+                            each usr in users
+                                tr
+                                    td
+                                        if usr.is_admin
+                                           i.material-icons settings
+                                    td= usr.first_name + ' ' + usr.last_name
+                                    td= usr.email
+                                    td= usr.organization
+                                    td
+                                        a.teal-text(href='/admin/edit-user/' + usr.user_id)
+                                            i.material-icons edit
+            else
+                +alert('No Users Defined', 'Click on the plus sign to add a new one.', 'error')
+
+    .fixed-action-btn
+        a.btn-floating.btn-large.red(href="/admin/add-user")
+            i.material-icons.large add_circle

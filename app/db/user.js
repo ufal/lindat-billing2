@@ -96,3 +96,33 @@ exports.verifyAccount = (email, code) => {
     });
   });
 };
+
+
+exports.get = () => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.any('SELECT * FROM users')
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No users returned',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};    
