@@ -124,11 +124,7 @@ router.get('/', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
   if(user.is_admin){
-    adminController.getMonthlyCountsByService('2018-11-01')
-    .then(data => {
-      res.render('dashboard', {user: user, servicecounts: data, dashboard_active: true});
-    })
-    .catch(err => {
+    getAdminDashboard(user, res).catch(err => {
       logger.error(err);
     });
   } else {
@@ -183,5 +179,10 @@ router.post('/add-endpoint', function (req, res, next) {
 });
 
 
+async function getAdminDashboard(user, res){
+  const monthly = await adminController.getMonthlyCountsByService('2019-01-01');
+  const period = await adminController.getCountsByService('2019-01-01','2019-01-31');
+  res.render('dashboard', {user: user, servicecounts: monthly, servicecounts2: period, dashboard_active: true});
+}
 
 module.exports = router;

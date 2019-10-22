@@ -58,6 +58,18 @@ exports.getMonthlyCountsByService = (year) => {
   });
 };
 
+exports.getCountsByService = (startDate,endDate) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.logs.getCountsByService(startDate, endDate)
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
 exports.getLogFiles = () => {
   logger.trace();
   return new promise((resolve, reject) => {

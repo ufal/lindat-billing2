@@ -162,3 +162,43 @@ exports.getMonthlyCountsByService = (year) => {
         });
   });
 };
+
+exports.getCountsByService = (startDate,endDate) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    const days_list = `
+    with days as ( 
+      select generate_series( 
+        date_trunc('day', timestamp $1), 
+        date_trunc('day', timestamp $2), 
+        '1 day'::interval
+      ) as day
+    ) `;
+    db.any(
+      days_list 
+      + `
+      SELECT 
+        s.name AS name, 
+        s.color AS color, 
+        days.day AS day, 
+        count(l.line_number) AS count 
+      FROM 
+        days 
+        cross join services s
+        left join log_file_entries l on date_trunc('day', l.time_local) = days.day and s.service_id = l.service_id
+      GROUP BY s.name, s.color, days.day`, 
+      [startDate,endDate])
+        .then(data => {
+            logger.trace();
+            resolve(data); // data
+        })
+        .catch(error => {
+          logger.trace();
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};

@@ -18,6 +18,7 @@ block custom-css
 
 append js
     script(src='/js/custom.js')
+    script(src='/js/moment.min.js')
     script(src='/js/Chart.min.js')
 
 block navigation
@@ -87,8 +88,32 @@ block content
                                         elements: { point: { radius: 0.5 } },
                                         layout: {
                                             padding: {left: 0, right: 0, top: 0, bottom: 0},
-                                        }                             
+                                        }
                                     }
                                 });
-            else
-                +alert('No Data to Display', 'Please check if you have added any EndPoints', 'error')
+        .row
+            h2 Detailed View
+            if servicecounts2 && Object.keys(servicecounts2).length
+                - var data = {};
+                - var sum = {};
+                - var colors = {};
+                each s in servicecounts2
+                    -
+                        if(!data[s.name]) {
+                            data[s.name] =[];
+                            sum[s.name] = 0;
+                        }
+                        data[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.count}); // TODO !!!
+                        sum[s.name] = sum[s.name] + parseInt(s.count);
+                        colors[s.name] = '#' + parseInt(s.color).toString(16);
+                - console.log(servicecounts2);
+                - console.log(data);
+                each d, s in data
+                    .col.s12.m6.l12
+                        .card-panel(style="padding: 0px;")
+                            .section.container
+                                .flow-text= s
+                                .flow=text= sum[s]
+                            canvas(id=s+'_days')
+                            script.
+                                showServiceCountsSeries('#{s}_days', !{JSON.stringify(d)}, '#{colors[s]}')
