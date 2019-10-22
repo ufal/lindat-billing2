@@ -38,6 +38,10 @@ function showServiceCountsSeries(elementId, data, color){
                     ticks: {
                         source: 'data',
                         //autoSkip: true
+                    },
+                    time: {
+                        unit: 'day',
+                        unitStepSize: 1
                     }
                 }],
                 yAxes: [{
