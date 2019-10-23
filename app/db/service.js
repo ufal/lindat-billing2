@@ -6,7 +6,7 @@ const db = require('./connection');
 exports.add = (name, desc, prefix, color) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.one('INSERT INTO services(name, description, prefix, color) VALUES($1, $2, $3, x\'$4\'::INT) RETURNING service_id',
+    db.one('INSERT INTO services(name, description, prefix, color) VALUES($1, $2, $3, x$4::INT) RETURNING service_id',
         [name, desc, prefix, color])
         .then(data => {
           logger.trace();
