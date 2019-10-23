@@ -1,0 +1,50 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 User Detail  
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            if user_detail
+                .col.s12
+                    .card
+                        .card-image
+                          a.btn-floating.halfway-fab.light-green(href='/admin/user/' + user_detail.user_id + '/edit')
+                            i.material-icons edit
+                        .card-content
+                            .row.card-title
+                                .col= user_detail.first_name + ' ' + user_detail.last_name + ' '
+                                .col.right
+                                    i.material-icons= user_detail.is_active ? 'work_on' : 'work_off'
+                                .col.right
+                                    i.material-icons= user_detail.is_admin ? 'settings' : ''     
+                            .divider
+                            p= user_detail.email +" | " + user_detail.organization
+                .col.s12
+                    .card
+                        .card-content
+                            .card-title Service Pricing
+                            p TODO
+                .col.s12
+                    .card
+                        .card-content
+                            .card-title Endpoints
+                            p TODO
+                .col.s12
+                    .card
+                        .card-content
+                            .card-title Activity Log
+                            p TODO
+            else
+                +alert('User not defined', '', 'error')

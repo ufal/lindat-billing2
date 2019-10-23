@@ -83,6 +83,18 @@ router.get('/admin/users', function (req, res, next) {
   });
 });
 
+router.get('/admin/user/:userId', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  adminController.getUser(user.user_id, req.params.userId)
+  .then(data => {
+    res.render('user-detail', {user: user, user_detail: data, users_active: true});
+  })
+  .catch(err => {
+    res.render('user-detail', {user: user, error: 'No User Found', users_active: true});
+  });
+});
+
 router.get('/admin/logmanagement', function (req, res, next) {
   logger.trace();
   let user = req.session.user;

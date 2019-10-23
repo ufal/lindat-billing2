@@ -36,8 +36,8 @@ block content
                                     td= usr.email
                                     td= usr.organization
                                     td
-                                        a.teal-text(href='/admin/edit-user/' + usr.user_id)
-                                            i.material-icons edit
+                                        a.light-green-text(href='/admin/user/' + usr.user_id)
+                                            i.material-icons info
             else
                 +alert('No Users Defined', 'Click on the plus sign to add a new one.', 'error')
 

@@ -45,6 +45,20 @@ exports.getUsers = (userId) => {
   });
 };
 
+exports.getUser = (userId, id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.user.getSingleUser(id)
+    .then(data => {
+      db.user.logAction(userId, 'userDetail');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 exports.getMonthlyCountsByService = (year) => {
   logger.trace();
   return new promise((resolve, reject) => {

@@ -97,6 +97,35 @@ exports.verifyAccount = (email, code) => {
   });
 };
 
+exports.lastLogin = (id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.one('select max(create_time) from user_logs where action=login and user_id=$1', [id])
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No login date for user_id returned',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
 
 exports.get = () => {
   logger.trace();
@@ -126,3 +155,32 @@ exports.get = () => {
         });
   });
 };    
+
+exports.getSingleUser = (id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.one('SELECT * FROM users WHERE user_id = $1',[id])
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No user with given user_id',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
