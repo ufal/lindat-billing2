@@ -212,3 +212,54 @@ exports.getCountsByService = (startDate,endDate) => {
         });
   });
 };
+
+
+exports.getCounts = (serviceId,startDate,duration,interval) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    const days_list = `
+    with intervals as ( 
+      select generate_series( 
+        date_trunc('${interval}', timestamp $1), 
+        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}'), 
+        '1 ${interval}'::interval
+      ) as interval
+    ) `;
+    db.any(
+      days_list 
+      + `
+      SELECT
+        u.name,
+        u.color,
+        u.interval,
+        least(count(u.interval),sum(u.uniq)) AS users,
+        sum(u.uniq) as requests 
+      FROM
+        (
+          SELECT 
+            s.name AS name, 
+            s.color AS color, 
+            intervals.interval AS interval, 
+            count(l.line_number) AS uniq
+          FROM 
+            intervals 
+            cross join (SELECT * FROM services WHERE service_id = $2) s
+            left join log_file_entries l on date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
+          GROUP BY s.name, s.color, intervals.interval, l.remote_addr
+        ) AS u 
+      GROUP BY u.name, u.color, u.interval`, 
+      [startDate,serviceId])
+        .then(data => {
+            logger.trace();
+            resolve(data); // data
+        })
+        .catch(error => {
+          logger.trace();
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};

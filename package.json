@@ -26,6 +26,7 @@
 		"materialize-css": "^1.0.0",
 		"md5": "^2.2.1",
 		"md5-file": "^4.0.0",
+		"moment": "^2.24.0",
 		"n-readlines": "^1.0.0",
 		"nginx-log-parser": "0.0.4",
 		"node-nthline": "^1.0.0",

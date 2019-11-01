@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+var moment = require('moment');
 var requestIp = require('request-ip');
 const logger = require('../logger');
 const userController = require('../controllers/userController');
 const adminController = require('../controllers/adminController');
+const dataController = require('../controllers/dataController');
 
 router.post('/api/authenticate', function (req, res, next) {  
   let email = req.body.email;
@@ -103,6 +105,61 @@ router.post('/api/tail-file', function (req, res, next) {
   }    
 });
 
+// logged admin user !!!
+router.use('/api/data', function (req, res, next) {
+  let user = req.session.user;
+  if (!user) {
+    logger.trace();
+    res.status(401);
+    res.send({
+        status : false,
+        error : 'Unauthorized Request.'
+      });
+  }
+  next()
+});
+
+router.param('serviceId',function (req, res, next, serviceId){
+  const value = Math.floor(Number(serviceId));
+  if(value === Infinity || String(value) !== serviceId || value < 0){
+    throw new Error('Invalid Service id.');
+  }
+  next();
+})
+
+router.param('period',function (req, res, next, period){
+  if(period.indexOf('--') != -1) throw new Error('Invalid period format.');
+  const dateParts = period.split('-');
+  if(dateParts.length  >  3) throw new Error('Invalid period format.');
+  const date = [...dateParts,'01','01'].slice(0,3).join('-');
+  if(! moment(date, 'YYYY-MM-DD',true).isValid()) throw new Error('Invalid period format.');
+  const periods = ["year", "month", "day", "hour"];
+  req.params.interval = periods[dateParts.length];
+  req.params.duration = periods[dateParts.length - 1];
+  req.params.date = date;
+  req.params.datePath = dateParts;
+  next();
+})
+
+router.get('/api/data/:serviceId/:period', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (!user.is_admin) {// TODO filter only users data !!!
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  }
+  dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
+    res.json({
+      status : true,
+      log: data
+    });
+  }).catch();
+
+  
+});
 
 // run for every request
 router.use('/api', function (req, res, next) {
@@ -137,5 +194,8 @@ getToken = (userId) => {
   );
   return token;
 };
+
+
+
 
 module.exports = router;
