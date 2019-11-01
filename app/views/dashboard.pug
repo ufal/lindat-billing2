@@ -95,19 +95,23 @@ block content
             h2 Detailed View
             if servicecounts2 && Object.keys(servicecounts2).length
                 - var data = {};
+                - var unqdata = {};
                 - var sum = {};
                 - var colors = {};
+                - var labels = {};
                 each s in servicecounts2
                     -
                         if(!data[s.name]) {
                             data[s.name] =[];
+                            unqdata[s.name] =[];
+                            labels[s.name] =[];
                             sum[s.name] = 0;
                         }
-                        data[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.count}); // TODO !!!
+                        labels[s.name].push(s.day);
+                        data[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.count});
+                        unqdata[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.uniq});
                         sum[s.name] = sum[s.name] + parseInt(s.count);
                         colors[s.name] = '#' + parseInt(s.color).toString(16);
-                - console.log(servicecounts2);
-                - console.log(data);
                 each d, s in data
                     .col.s12.m6.l12
                         .card-panel(style="padding: 0px;")
@@ -116,4 +120,4 @@ block content
                                 .flow=text= sum[s]
                             canvas(id=s+'_days')
                             script.
-                                showServiceCountsSeries('#{s}_days', !{JSON.stringify(d)}, '#{colors[s]}')
+                                showServiceCountsSeries('#{s}_days', !{JSON.stringify(d)},!{JSON.stringify(unqdata[s])},!{JSON.stringify(labels[s])}, '#{colors[s]}')

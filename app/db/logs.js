@@ -177,16 +177,26 @@ exports.getCountsByService = (startDate,endDate) => {
     db.any(
       days_list 
       + `
-      SELECT 
-        s.name AS name, 
-        s.color AS color, 
-        days.day AS day, 
-        count(l.line_number) AS count 
-      FROM 
-        days 
-        cross join services s
-        left join log_file_entries l on date_trunc('day', l.time_local) = days.day and s.service_id = l.service_id
-      GROUP BY s.name, s.color, days.day`, 
+      SELECT
+        u.name,
+        u.color,
+        u.day,
+        least(count(u.day),sum(u.uniq)) AS uniq,
+        sum(u.uniq) as count
+      FROM
+        (
+          SELECT
+            s.name AS name,
+            s.color AS color,
+            days.day AS day,
+            count(l.line_number) AS uniq
+          FROM
+            days
+            cross join services s
+            left join log_file_entries l on date_trunc('day', l.time_local) = days.day AND s.service_id = l.service_id
+          GROUP BY s.name, s.color, days.day, l.remote_addr
+        ) AS u
+      GROUP BY u.name, u.color, u.day`,
       [startDate,endDate])
         .then(data => {
             logger.trace();
