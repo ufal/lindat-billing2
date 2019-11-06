@@ -157,8 +157,24 @@ router.get('/api/data/:serviceId/:period', function (req, res, next) {
       log: data
     });
   }).catch();
+});
 
-  
+router.get('/api/services', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (!user.is_admin) {// TODO filter only users data !!!
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  }
+  dataController.getServices().then(data => {
+    res.json({
+      status : true,
+      services: data
+    });
+  }).catch();
 });
 
 // run for every request

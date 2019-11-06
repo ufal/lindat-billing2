@@ -31,6 +31,19 @@ exports.getPeriodCounts = (serviceId, date, duration, interval, datePath) => {
 };
 
 
+exports.getServices = () => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.service.get()
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 function data2path(field, data, path){
   var result = {};
   var position = result;
