@@ -20,6 +20,7 @@ append js
     script(src='/js/custom.js')
     script(src='/js/moment.min.js')
     script(src='/js/Chart.min.js')
+    script(src='/js/timeline-chart.js')
 
 block navigation
     include includes/navigation.pug
@@ -43,6 +44,7 @@ block content
             if servicecounts && Object.keys(servicecounts).length
                 - var data = {};
                 - var sum = {};
+                - var ids = {};
                 - var colors = {};
                 - var labels = Array.from(new Array(31),(val,index)=>index+1);
                 each s in servicecounts
@@ -54,19 +56,26 @@ block content
                         data[s.name][s.month-1] = s.count;
                         sum[s.name] = sum[s.name] + parseInt(s.count);
                         colors[s.name] = '#' + parseInt(s.color).toString(16);
+                        ids[s.name] = s.service_id
                 each d, s in data
-                    .col.s12.m6.l4
-                        .card-panel(style="padding: 0px;")
-                            .section.container                            
-                                .flow-text= s
+                    .col.s12.m6.l4(id=s+'_main')
+                        .card(style="padding: 0px;")
+                            .card-content
+                                .card-title.activator= s
+                                    i.material-icons.right more_vert
                                 .flow=text= sum[s]
-                            canvas(id=s+'_monthly')
+                            .card-reveal
+                                .card-title= s
+                                    i.material-icons.right close
+                                div(type='timeline-chart' data-url='/api/data/'+ids[s] data-initview=initialview data-lines='["users","requests"]')
+                            .card-image
+                                canvas(id=s+'_monthly')
                             script.
                                 ctx = document.getElementById('#{s}_monthly').getContext('2d');
                                 chart = new Chart(ctx, {
                                     type: 'line',
                                     data: {
-                                        labels: [#{labels}],                                        
+                                        labels: [#{labels}],
                                         datasets: [{
                                             data: [#{d}],
                                             backgroundColor: '#{colors[s]}'
@@ -91,33 +100,15 @@ block content
                                         }
                                     }
                                 });
-        .row
-            h2 Detailed View
-            if servicecounts2 && Object.keys(servicecounts2).length
-                - var data = {};
-                - var unqdata = {};
-                - var sum = {};
-                - var colors = {};
-                - var labels = {};
-                each s in servicecounts2
-                    -
-                        if(!data[s.name]) {
-                            data[s.name] =[];
-                            unqdata[s.name] =[];
-                            labels[s.name] =[];
-                            sum[s.name] = 0;
-                        }
-                        labels[s.name].push(s.day);
-                        data[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.count});
-                        unqdata[s.name].push( {t: Date.parse(s.day).valueOf() ,y: s.uniq});
-                        sum[s.name] = sum[s.name] + parseInt(s.count);
-                        colors[s.name] = '#' + parseInt(s.color).toString(16);
-                each d, s in data
-                    .col.s12.m6.l12
-                        .card-panel(style="padding: 0px;")
-                            .section.container
-                                .flow-text= s
-                                .flow=text= sum[s]
-                            canvas(id=s+'_days')
                             script.
-                                showServiceCountsSeries('#{s}_days', !{JSON.stringify(d)},!{JSON.stringify(unqdata[s])},!{JSON.stringify(labels[s])}, '#{colors[s]}')
+                                $('##{s}_main .card .card-content').click(()=>{
+                                    $('##{s}_main').addClass('m12').addClass('l12').removeClass('m6').removeClass('l4');
+                                    $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                                    $('##{s}_main .card').addClass('large');
+                                });
+                                $('##{s}_main .card .card-reveal .card-title').click(()=>{
+                                    $('##{s}_main').removeClass('m12').removeClass('l12').addClass('m6').addClass('l4');
+                                    $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                                    $('##{s}_main .card').removeClass('large');
+                                });
+

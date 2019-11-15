@@ -54,7 +54,7 @@ router.post('/register', function (req, res, next) {
     res.render('register', {error: 'All the fields are required'});
   }
   userController.register(email, password, fname, lname, org)
-    .then(data => {      
+    .then(data => {
       logger.trace();
       emailController.verifyAccount(email, fname, lname, data.verification_code)
       .then(data => {
@@ -146,21 +146,21 @@ router.get('/endpoints', function (req, res, next) {
 
 router.get('/add-endpoint', function (req, res, next) {
   logger.trace();
-  let user = req.session.user;  
+  let user = req.session.user;
   res.render('add-endpoint', {user: user, endpoints_active: true});
 });
 
 router.post('/add-endpoint', function (req, res, next) {
   logger.trace();
   let name = req.body.name;
-  let IP = req.body.ip;  
+  let IP = req.body.ip;
   let user = req.session.user;
   if(!name || !IP) {
     logger.trace();
     res.render('/add-endpoint', {error: 'All the fields are required', endpoints_active: true});
   }
   userController.addUserEndpoint(user.user_id, name, IP)
-    .then(data => {      
+    .then(data => {
       logger.trace();
       userController.getUserEndpoints(user.user_id)
       .then(data => {
@@ -168,21 +168,20 @@ router.post('/add-endpoint', function (req, res, next) {
       })
       .catch(err => {
         res.render('endpoints', {user: user, endpoints_active: true, error: 'No EndPoints Found'});
-      });            
+      });
     })
     .catch(err => {
       logger.trace();
       if(err.extra.constraint=='user_endpoints_ip_key') {
         res.render('add-endpoint', {user: user, endpoints_active: true, error: 'A endpoint with this IP already exists'});
       }
-    }); 
+    });
 });
 
 
 async function getAdminDashboard(user, res){
   const monthly = await adminController.getMonthlyCountsByService('2019-01-01');
-  const period = await adminController.getCountsByService('2019-01-01','2019-01-31');
-  res.render('dashboard', {user: user, servicecounts: monthly, servicecounts2: period, dashboard_active: true});
+  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', dashboard_active: true});
 }
 
 module.exports = router;
