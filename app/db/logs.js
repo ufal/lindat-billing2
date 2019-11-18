@@ -87,7 +87,7 @@ exports.updateLogFile = (fileId, lastReadLineChecksum, linesRead) => {
 exports.setLogTail = (fileId, tail) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.one('UPDATE log_files SET tail = $2, WHERE file_id = $1 RETURNING file_id', [fileId, tail])
+    db.one('UPDATE log_files SET tail = $2 WHERE file_id = $1 RETURNING file_id', [fileId, tail])
         .then(data => {
             logger.trace();
             resolve(data); // data
