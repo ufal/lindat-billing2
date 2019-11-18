@@ -100,6 +100,10 @@ TimelineChart.prototype.showData = function(period) {
             legend: {
                 display: false
             },
+            tooltips: {
+                // mode: 'x', // show all points tooltips on x axes
+                intersect: false
+            },
             point:{
                 borderWidth: 1,
 
@@ -142,7 +146,13 @@ TimelineChart.prototype.showData = function(period) {
 //loads data and set them to cache (this.cached_data)
 TimelineChart.prototype.loadData = function(period) {
   var self = this;
-  // TODO test if data is cached
+  var cached = true;
+  for(let i in self.data_lines) {
+    if(! self.cached_data_list[self.data_lines[i]+period]) cached = false;
+  }
+  if(cached){
+    return Promise.resolve();
+  }
   return jQuery.getJSON(self.data_url + "/" + period, function(data) {
     for(let i in self.data_lines) {
       const line = self.data_lines[i];
