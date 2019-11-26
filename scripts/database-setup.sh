@@ -33,7 +33,7 @@ if [ -z $PORT ]; then
 	PORT="5432"
 fi
 
-psql -p $PORT -q -v "ON_ERROR_STOP=1" $DB_NAME << EOF
+psql -p $PORT -q -v "ON_ERROR_STOP=1" postgres << EOF
 
 DO
 \$do\$
