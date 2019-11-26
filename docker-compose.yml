@@ -13,16 +13,19 @@ services:
     ports:
       - 5432:5432
     platform: linux
-  #billing_frontend:
-  #  build:
-  #      context: .
-  #      target: base
-  #  ports:
-  #    - 1043:1043
-  #  depends_on:
-  #    - postgres
-  #  volumes:
-  #  command: /bin/bash
-  #  platform: linux
+  billing_frontend:
+    build:
+        dockerfile: ./Docker/frontend/Dockerfile
+        context: .
+    environment:
+    - HOST=billing_db
+    - DB=billing
+    - USER=billing
+    - PASS=pass
+    ports:
+      - 3021:3021
+    depends_on:
+      - billing_db
+    platform: linux
 volumes:
   pgdata:
