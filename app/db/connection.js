@@ -8,6 +8,9 @@ const pgp = require('pg-promise')(
             logger.debug('QUERY:', pgp.as.format(e.query,e.params));
         }
 });
+const types = require('pg-types');
+pgp.pg.types.setTypeParser(types.builtins.INT8, parseInt);
+//pgp.pg.types.setTypeParser(20, parseInt);
 
 // Database connection details;
 let db = pgp(config.db);
