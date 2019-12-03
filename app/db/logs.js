@@ -126,9 +126,9 @@ exports.addLogEntries = (obj) => {
   //logger.trace();
   return new promise((resolve, reject) => {
     db.one('INSERT INTO log_file_entries('
-        +'file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent)'
-        + 'VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING time_local',
-        [obj.file_id, obj.service_id, obj.line_number, obj.line_checksum, obj.remote_addr, obj.remote_user, obj.time_local, obj.method, obj.request, obj.protocol, obj.status, obj.body_bytes_sent, obj.http_referer, obj.http_user_agent])
+        +'file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit)'
+        + 'VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING time_local',
+        [obj.file_id, obj.service_id, obj.line_number, obj.line_checksum, obj.remote_addr, obj.remote_user, obj.time_local, obj.method, obj.request, obj.protocol, obj.status, obj.body_bytes_sent, obj.http_referer, obj.http_user_agent, obj.unit])
         .then(data => {
             //logger.trace();
             resolve(data); // data

@@ -85,13 +85,13 @@ CREATE TABLE user_endpoints
 	is_active BOOLEAN DEFAULT FALSE,
 	create_time TIMESTAMP DEFAULT NOW(),
 	update_time TIMESTAMP DEFAULT NOW()
-); 
+);
 
 CREATE TABLE user_logs
 (
 	user_log_id BIGSERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(user_id),
-	action TEXT NOT NULL, 
+	action TEXT NOT NULL,
 	create_time TIMESTAMP DEFAULT NOW()
 );
 
@@ -117,7 +117,7 @@ CREATE TABLE service_pricing
 	valid_from TIMESTAMP NOT NULL,
 	valid_till TIMESTAMP DEFAULT NULL,
 	create_time TIMESTAMP DEFAULT NOW(),
-	update_time TIMESTAMP DEFAULT NOW()	
+	update_time TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE log_files
@@ -131,7 +131,7 @@ CREATE TABLE log_files
 	tail BOOLEAN DEFAULT FALSE,
 	status VARCHAR(20) DEFAULT 'IMPORTING',
 	create_time TIMESTAMP DEFAULT NOW(),
-	update_time TIMESTAMP DEFAULT NOW()			
+	update_time TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE log_file_entries
@@ -150,6 +150,7 @@ CREATE TABLE log_file_entries
 	http_referer TEXT,
 	http_user_agent TEXT,
 	service_id INTEGER NOT NULL REFERENCES services(service_id),
+	unit INTEGER NOT NULL,
 	create_time TIMESTAMP DEFAULT NOW()
 );
 
@@ -163,9 +164,9 @@ CREATE TABLE billing
 	billing_id BIGSERIAL PRIMARY KEY,
 	endpoint_id INTEGER NOT NULL REFERENCES user_endpoints(endpoint_id),
 	period_start_date TIMESTAMP NOT NULL,
-	period_end_date TIMESTAMP NOT NULL,	
+	period_end_date TIMESTAMP NOT NULL,
 	create_time TIMESTAMP DEFAULT NOW(),
-	update_time TIMESTAMP DEFAULT NOW()			
+	update_time TIMESTAMP DEFAULT NOW()
 );
 
 CREATE OR REPLACE FUNCTION trigger_update_time_column()
@@ -173,7 +174,7 @@ RETURNS TRIGGER AS
 	\$\$
 	BEGIN
     	NEW.update_time = now();
-    	RETURN NEW;   
+    	RETURN NEW;
 	END;
 	\$\$
 LANGUAGE plpgsql;
@@ -210,7 +211,7 @@ CREATE EXTENSION pg_partman SCHEMA partman;
 
 GRANT ALL ON ALL TABLES IN SCHEMA partman TO $USER_NAME;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA partman TO $USER_NAME;
-GRANT ALL ON SCHEMA partman TO $USER_NAME; 
+GRANT ALL ON SCHEMA partman TO $USER_NAME;
 
 \q
 EOF

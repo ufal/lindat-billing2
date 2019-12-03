@@ -134,6 +134,7 @@ parseLogLine = (line) => {
   obj.request = req[1];
   obj.protocol = req[2];
   obj.time_local = obj.time_local.replace(/[\[\]]/g, '');
+  obj.unit = 1; // Temporary
   return obj;
 };
 
