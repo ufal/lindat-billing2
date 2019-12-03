@@ -21,7 +21,7 @@
 	  "path": "input_logs",
 	  "tail": "access.log",
 	  "ignore": "\\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$",
-	  "import_on_startup": false		
+	  "import_on_startup": true
 	},
 	"mail": {
 	  "smtp": {

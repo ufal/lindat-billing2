@@ -14,17 +14,38 @@ const parser = require('nginx-log-parser')('$remote_addr - $remote_user [$time_l
 
 var services = {};
 
+filesChangesMonitor = async (dir) => {
+  fs.watch(dir, (event,file) => {
+    // if(event == 'rename'){} // new file or file rename (implemented in change)
+    if(event == 'change'){
+      try {
+        services = {};
+        db.service.get()
+          .then(data => {
+            for(i in data) {
+              services[data[i].service_id] = data[i].prefix;
+            }
+            logger.debug(services);
+        });
+      } catch(err) {
+        logger.error(err);
+        return;
+      }
+      readFile(dir + "/" + file);
+    }
+  });
+}
 
 readFiles = async (dir) => {
   try {
     await db.service.get()
       .then(data => {
-        for(i in data) {          
+        for(i in data) {
           services[data[i].service_id] = data[i].prefix;
         }
         logger.debug(services);
       });
-  }catch(err) {
+  } catch(err) {
     logger.error(err);
     return;
   }
@@ -47,14 +68,14 @@ readFile = async (file) => {
   logger.trace();
   let fileName = path.basename(file);
   var firstLine = await nth(1, file);
-  var firstLineChecksum = md5(firstLine);  
+  var firstLineChecksum = md5(firstLine);
   var from = 1;
-  try {    
+  try {
     var logFile = await db.logs.getLogFile(fileName, firstLineChecksum);
     from = logFile.lines_read + 1;
   }catch(err){
-    var logFile = await db.logs.addLogFile(fileName, firstLineChecksum).catch(err => {throw err;});
-  }  
+    var logFile = await db.logs.addLogFile(fileName, firstLineChecksum, true).catch(err => {throw err;});
+  }
   logger.debug('File ID = ' + logFile.file_id);
   await readLines(logFile.file_id, file, from);
   logger.debug(logFile);
@@ -66,7 +87,7 @@ readLines = async (fileId, file, from) => {
   for(var ln=1;ln<from;ln++){
     liner.next();
   }
-  while (line = liner.next()) {    
+  while (line = liner.next()) {
     line = line.toString('utf8');
     var lineChecksum = md5(line);
     let obj = parseLogLine(line);
@@ -95,7 +116,7 @@ readLines = async (fileId, file, from) => {
       }
       obj.service_id = serviceId;
       try{
-        var logLine = await db.logs.checkLogEntry(obj);        
+        var logLine = await db.logs.checkLogEntry(obj);
       }catch(err){
         await db.logs.addLogEntries(obj);
         await db.logs.updateLogFile(fileId, lineChecksum, ln);
@@ -112,8 +133,8 @@ parseLogLine = (line) => {
   obj.method = req[0];
   obj.request = req[1];
   obj.protocol = req[2];
-  obj.time_local = obj.time_local.replace(/[\[\]]/g, '');  
+  obj.time_local = obj.time_local.replace(/[\[\]]/g, '');
   return obj;
 };
 
-module.exports = { readFiles, readFile };
+module.exports = { filesChangesMonitor, readFiles, readFile };

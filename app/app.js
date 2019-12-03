@@ -35,8 +35,10 @@ app.set('views', __dirname + '/views');
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(cookieParser());
 
+
 if(config.logs.import_on_startup) {
-  logManager.readFiles(config.logs.path);
+  logManager.filesChangesMonitor(config.logs.path);
+  // logManager.readFiles(config.logs.path);
 }
 
 app.use(cookeParser());

@@ -45,10 +45,10 @@ exports.getLogFile = (fileName, firstLineChecksum) => {
 };
 
 
-exports.addLogFile = (fileName, firstLineChecksum) => {
+exports.addLogFile = (fileName, firstLineChecksum, tail=false) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.one('INSERT INTO log_files(file_name, first_line_checksum) VALUES($1, $2) RETURNING file_id', [fileName, firstLineChecksum])
+    db.one('INSERT INTO log_files(file_name, first_line_checksum, tail) VALUES($1, $2, $3) RETURNING file_id', [fileName, firstLineChecksum, tail])
         .then(data => {
             logger.trace();
             logger.debug('Initialized file in DB ' + fileName);
