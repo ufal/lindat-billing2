@@ -11,8 +11,8 @@ ul.sidenav.sidenav-fixed
                     span(style="font-weight: bolder;") User Panel
                 .collapsible-body
                     ul
-                        li(class=dashboard_active?'active':'')
-                            a.waves-effect(href="/")
+                        li(class=user_dashboard_active?'active':'')
+                            a.waves-effect(href="/user/dashboard")
                                 i.material-icons dashboard
                                 span Overview
                         li(class=endpoints_active?'active':'')
@@ -28,6 +28,10 @@ ul.sidenav.sidenav-fixed
                         span(style="font-weight: bolder;") Admin Panel
                     .collapsible-body
                         ul
+                            li(class=admin_dashboard_active?'active':'')
+                                a.waves-effect(href="/admin/dashboard")
+                                    i.material-icons dashboard
+                                    span Admin Overview
                             li(class=services_active?'active':'')
                                 a.waves-effect(href="/admin/services")
                                     i.material-icons important_devices

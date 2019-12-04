@@ -67,7 +67,7 @@ block content
                             .card-reveal
                                 .card-title= s
                                     i.material-icons.right close
-                                div(type='timeline-chart' data-url='/api/data/'+ids[s] data-initview=initialview data-lines='["users","requests"]')
+                                div(type='timeline-chart' data-url='/api/data/'+filteruser+'/'+ids[s] data-initview=initialview data-lines='["users","requests"]')
                             .card-image
                                 canvas(id=s+'_monthly')
                             script.

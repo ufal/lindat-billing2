@@ -7,9 +7,9 @@ const userController = require('../controllers/userController');
 const adminController = require('../controllers/adminController');
 const dataController = require('../controllers/dataController');
 
-router.post('/api/authenticate', function (req, res, next) {  
+router.post('/api/authenticate', function (req, res, next) {
   let email = req.body.email;
-  let password = req.body.password;  
+  let password = req.body.password;
   userController.authenticate(email, password)
     .then(data => {
       logger.trace();
@@ -28,8 +28,8 @@ router.post('/api/authenticate', function (req, res, next) {
       res.json({
         status : false,
         message : err.error
-      });      
-    });  
+      });
+    });
 });
 
 router.post('/api/verify-endpoint', function (req, res, next) {
@@ -44,7 +44,7 @@ router.post('/api/verify-endpoint', function (req, res, next) {
       res.json({
         status : true,
         message : 'EndPoint Successfully Verified.'
-      });      
+      });
     } else {
       logger.trace();
       res.status(422);
@@ -79,7 +79,7 @@ router.post('/api/tail-file', function (req, res, next) {
     logger.trace();
     res.status(401);
     res.redirect("/login");
-  } else 
+  } else
   if (!user.is_admin){
     res.redirect("/login", {error: "Permission Denied"})
   } else {
@@ -102,7 +102,7 @@ router.post('/api/tail-file', function (req, res, next) {
         message : 'Unknown Error'
       });
     });
-  }    
+  }
 });
 
 // logged admin user !!!
@@ -118,6 +118,11 @@ router.use('/api/data', function (req, res, next) {
   }
   next()
 });
+
+router.param('filterUser',function (req, res, next, user){
+  //TODO 'all' or 'userid'
+  next();
+})
 
 router.param('serviceId',function (req, res, next, serviceId){
   const value = Math.floor(Number(serviceId));
@@ -141,7 +146,7 @@ router.param('period',function (req, res, next, period){
   next();
 })
 
-router.get('/api/data/:serviceId/:period', function (req, res, next) {
+router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
   if (!user.is_admin) {// TODO filter only users data !!!
@@ -202,7 +207,7 @@ router.use('/api', function (req, res, next) {
 });
 
 getToken = (userId) => {
-  logger.trace();  
+  logger.trace();
   let token = jwt.sign(
       { userId: userId },
         config.jwt.secret,

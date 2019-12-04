@@ -124,11 +124,36 @@ router.get('/', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
   if(user.is_admin){
+    //getAdminDashboard(user, res).catch(err => {
+    //  logger.error(err);
+    //});
+    req.url = '/admin/dashboard';
+    next();
+  } else {
+    req.url = '/user/dashboard';
+    next();
+  }
+});
+
+router.get('/user/dashboard', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  getUserDashboard(user, res).catch(err => {
+    logger.error(err);
+  });
+});
+
+router.get('/admin/dashboard', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+
+  if(user.is_admin){
     getAdminDashboard(user, res).catch(err => {
       logger.error(err);
     });
   } else {
-    res.render('dashboard', {user: user, dashboard_active: true});
+    res.status(401);
+    res.redirect("/login");
   }
 });
 
@@ -181,7 +206,11 @@ router.post('/add-endpoint', function (req, res, next) {
 
 async function getAdminDashboard(user, res){
   const monthly = await adminController.getMonthlyCountsByService('2019-01-01');
-  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', dashboard_active: true});
+  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', admin_dashboard_active: true, filteruser: 'all'});
+}
+
+async function getUserDashboard(user, res){
+  res.render('dashboard', {user: user, user_dashboard_active: true});
 }
 
 module.exports = router;
