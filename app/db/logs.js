@@ -144,10 +144,27 @@ exports.addLogEntries = (obj) => {
   });
 };
 
-exports.getMonthlyCountsByService = (year) => {
+exports.getMonthlyCountsByService = (date, filter) => {
   logger.trace();
+  logger.debug("TODO implement filter");
+  const {query, values} = createFilter(filter);
   return new promise((resolve, reject) => {
-    db.any("SELECT s.name AS name, s.service_id AS service_id, s.color AS color, date_part('day', l.time_local) AS month, count(1) AS count FROM log_file_entries l, services s WHERE l.service_id=s.service_id AND date_part('year', l.time_local) = date_part('year', timestamp $1) AND date_part('month', l.time_local) = date_part('month', timestamp $1) GROUP BY name, s.service_id, color, month", [year])
+    db.any(`
+      SELECT
+        s.name AS name,
+        s.service_id AS service_id,
+        s.color AS color,
+        date_part('day', l.time_local) AS month,
+        count(1) AS count
+      FROM
+        log_file_entries l
+        JOIN services s on l.service_id=s.service_id
+        ` + query + `
+      WHERE
+        date_part('year', l.time_local) = date_part('year', timestamp $1)
+        AND date_part('month', l.time_local) = date_part('month', timestamp $1)
+      GROUP BY name, s.service_id, color, month
+      `, [date, ...values])
         .then(data => {
             logger.trace();
             resolve(data); // data
@@ -162,6 +179,20 @@ exports.getMonthlyCountsByService = (year) => {
         });
   });
 };
+
+function createFilter(filter){
+  var query="";
+  var values=[];
+  if('user_id' in filter) {
+    //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
+    query = ' JOIN (SELECT ip FROM user_endpoints WHERE user_id=$2 AND is_verified=TRUE) e ON l.remote_addr = e.ip '; // TODO is_active !!!
+    values.push(filter['user_id'])
+  }
+  return {
+    query: query,
+    values: values
+  }
+}
 
 exports.getCountsByService = (startDate,endDate) => {
   logger.trace();
@@ -251,6 +282,69 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
         ) AS u
       GROUP BY u.name, u.color, u.interval`,
       [startDate,serviceId])
+        .then(data => {
+            logger.trace();
+            resolve(data); // data
+        })
+        .catch(error => {
+          logger.trace();
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
+
+exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    const days_list = `
+    with intervals as (
+      select generate_series(
+        date_trunc('${interval}', timestamp $1),
+        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}'),
+        '1 ${interval}'::interval
+      ) as interval
+    ) `;
+    db.any(
+      days_list
+      + `
+      SELECT
+        u.name,
+        u.color,
+        u.interval,
+        u.price * u.units AS prices,
+        u.units AS units,
+        sum(u.uniq) as requests
+      FROM
+        (
+          SELECT
+            s.name AS name,
+            s.color AS color,
+            intervals.interval AS interval,
+            count(l.line_number) AS uniq,
+            sum(l.unit) AS units,
+            coalesce(sp.price, 0) AS price
+          FROM
+            intervals
+            cross join (SELECT * FROM services WHERE service_id = $2) s
+            left join
+              (
+                SELECT
+                  fe.*
+                FROM
+                  log_file_entries fe
+                  JOIN user_endpoints ue ON fe.remote_addr = ue.ip
+                WHERE ue.user_id = $3
+              )  l ON date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
+            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (valid_till = NULL OR l.time_local < sp.valid_from)
+          GROUP BY s.name, s.color, intervals.interval, sp.price
+        ) AS u
+      GROUP BY u.name, u.color, u.interval, u.price, u.units`,
+      [startDate, serviceId, userId])
         .then(data => {
             logger.trace();
             resolve(data); // data

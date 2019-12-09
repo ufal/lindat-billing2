@@ -31,6 +31,20 @@ exports.getPeriodCounts = (serviceId, date, duration, interval, datePath) => {
 };
 
 
+exports.getPeriodPrices = (serviceId, date, duration, interval, datePath, userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.logs.getPricesCounts(serviceId, date, duration, interval, userId)
+    .then(data => {
+      resolve({prices: data2path('prices', data, datePath), requests: data2path('requests', data, datePath)});
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
+
 exports.getServices = () => {
   logger.trace();
   return new promise((resolve, reject) => {

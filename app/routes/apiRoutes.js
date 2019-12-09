@@ -149,12 +149,21 @@ router.param('period',function (req, res, next, period){
 router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
-  if (!user.is_admin) {// TODO filter only users data !!!
+  if (req.params.filterUser != user.user_id && !user.is_admin) {// TODO filter only users data !!!
       res.status(403);
       res.send({
         status : false,
         error : 'Permission Denied.'
       });
+  }
+  if (req.params.filterUser != 'all') {
+    // get price instead of request count and user count
+    dataController.getPeriodPrices(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath, req.params.filterUser).then(data => {
+      res.json({
+        status : true,
+        log: data
+      });
+  }).catch();
   }
   dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
     res.json({

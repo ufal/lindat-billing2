@@ -206,11 +206,12 @@ router.post('/add-endpoint', function (req, res, next) {
 
 async function getAdminDashboard(user, res){
   const monthly = await adminController.getMonthlyCountsByService('2019-01-01');
-  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', admin_dashboard_active: true, filteruser: 'all'});
+  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', admin_dashboard_active: true, filteruser: 'all', datalines: ["users","requests"]});
 }
 
 async function getUserDashboard(user, res){
-  res.render('dashboard', {user: user, user_dashboard_active: true});
+  const monthly = await userController.getMonthlyCountsByService(user.user_id, '2019-01-01');
+  res.render('dashboard', {user: user, servicecounts: monthly, initialview: '2019-01', user_dashboard_active: true, filteruser: user.user_id, datalines: ["prices","requests"]});
 }
 
 module.exports = router;

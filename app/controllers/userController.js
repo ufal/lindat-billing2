@@ -8,7 +8,7 @@ exports.authenticate = (email, password) => {
   return new promise((resolve, reject) => {
     db.user.authenticate(email, password)
     .then(data => {
-      db.user.logAction(data.user_id, 'login');      
+      db.user.logAction(data.user_id, 'login');
       resolve(data);
     })
     .catch(err => {
@@ -91,4 +91,18 @@ exports.verifyEndpoint = (endpointId, IP, code) => {
 
 exports.logout = (userId) => {
   db.user.logAction(userId, 'logout');
+};
+
+exports.getMonthlyCountsByService = (userId, date) => {
+  logger.trace();
+  console.log(date,userId);
+  return new promise((resolve, reject) => {
+    db.logs.getMonthlyCountsByService(date, {user_id: userId})
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
 };

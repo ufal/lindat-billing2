@@ -59,10 +59,10 @@ exports.getUser = (userId, id) => {
   });
 };
 
-exports.getMonthlyCountsByService = (year) => {
+exports.getMonthlyCountsByService = (date) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.logs.getMonthlyCountsByService(year)
+    db.logs.getMonthlyCountsByService(date, {})
     .then(data => {
       resolve(data);
     })
@@ -107,5 +107,5 @@ exports.tailLog = (fileId, tail) => {
     .catch(err => {
       reject(err);
     });
-  }); 
+  });
 }
