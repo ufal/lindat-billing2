@@ -120,6 +120,11 @@ CREATE TABLE service_pricing
 	update_time TIMESTAMP DEFAULT NOW()
 );
 
+ALTER TABLE service_pricing ADD CONSTRAINT service_pricing_correct_valid_interval CHECK (valid_from < coalesce(valid_till, 'infinity'::timestamp));
+
+ALTER TABLE service_pricing ADD CONSTRAINT service_pricing_no_overlapping_time_ranges_for_single_service
+EXCLUDE USING GIST (service_id WITH =, user_id WITH =, tsrange(valid_from, coalesce(valid_till, 'infinity'::timestamp)) WITH &&);
+
 CREATE TABLE log_files
 (
 	file_id SERIAL PRIMARY KEY,
