@@ -223,5 +223,11 @@ GRANT ALL ON SCHEMA partman TO $USER_NAME;
 \q
 EOF
 
+DBGFILE="/create-debug-user.sh"
+if [ -f $DBGFILE ]; then
+       echo "CREATING DEBUG USER !!!"
+       psql -U $USER_NAME -p $PORT -q -v "ON_ERROR_STOP=1" $DB_NAME < $DBGFILE
+fi
+
 
 echo 'DATABASE SUCCESSFULLY CREATED';
