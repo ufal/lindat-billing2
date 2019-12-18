@@ -2,6 +2,7 @@ const config = require('config');
 const promise = require('bluebird');
 const logger = require('../logger');
 const db = require('../db');
+const moment = require('moment');
 
 exports.addService = (userId, name, desc, prefix, color) => {
   logger.trace();
@@ -58,6 +59,57 @@ exports.getUser = (userId, id) => {
     });
   });
 };
+
+
+exports.getPrices = (userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.pricing.get()
+    .then(data => {
+      db.user.logAction(userId, 'listPrices');
+      for(var i=0; i < data.length; i++) {
+        logger.log(i,data[i]['valid_from'])
+        data[i]['valid_from'] = moment(data[i]['valid_from']).format('YYYY-MM-DD');
+        if(data[i]['valid_till']) data[i]['valid_till'] = moment(data[i]['valid_till']).format('YYYY-MM-DD');
+      }
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
+exports.getPricing = (userId, id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.pricing.getSinglePricing(id)
+    .then(data => {
+      db.user.logAction(userId, 'pricingDetail');
+      data['valid_from'] = moment(data['valid_from']).format('YYYY-MM-DD');
+      if(data['valid_till']) data['valid_till'] = moment(data['valid_till']).format('YYYY-MM-DD');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
+exports.addPricing = (userId, service_id, user_id, price, unit, valid_from, valid_till) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.pricing.add(service_id, user_id, price, unit, valid_from, valid_till)
+    .then(data => {
+      db.user.logAction(userId, 'addPricing');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 
 exports.getMonthlyCountsByService = (date) => {
   logger.trace();

@@ -1,0 +1,69 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+
+block content
+    .container
+        .row
+            .col.s12
+                h5= (action=='update') ? 'Update Pricing' : 'Add New Pricing'
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+                .section
+                form(action="/admin/add-pricing" method=(action=="update")?"put":"post" enctype="application/x-www-form-urlencoding")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix important_devices
+                            .select-wrapper
+                              select.browser-default#service(name="service" required="")
+                                option(value="", disabled="", selected= (pricing.service_id == null) ? 'selected' : false)
+                                each serv in services
+                                    option(value=serv.service_id, selected= (serv.service_id==pricing.service_id) ? 'selected' : false)= serv.name
+                            label(for="service") Service Name
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix people
+                            .select-wrapper
+                              select.browser-default#user(name="user")
+                                option(value="", selected= (pricing.user_id == null) ? 'selected' : false)
+                                each usr in users
+                                    option(value=usr.user_id,  selected= (usr.user_id==pricing.user_id) ? 'selected' : false)= usr.first_name + ' ' + usr.last_name
+                            label(for="user") User Name
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix attach_money
+                            input#price.validate(name="price" type="number" step="1" min="0" required="" aria-required="true" value=pricing.price)
+                            label(for="price") Price
+                            span.helper-text(data-error="Nonnegative Integer Required")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix library_music
+                            input#unit.validate(name="unit" type="number" step="1" min="0" required="" aria-required="true"  value=pricing.unit)
+                            label(for="unit") Units for Given Price
+                            span.helper-text(data-error="Nonnegative Integer Required")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix date_range
+                            input#valid_from.validate(name="valid_from" type="date" required="" aria-required="true" value=pricing.valid_from)
+                            label(for="valid_from") Price Is Valid from Date
+                            span.helper-text(data-error="Date Required")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix date_range
+                            input#valid_till.validate(name="valid_till" type="date" pattern="\d{4}-\d{2}-\d{2}" value=pricing.valid_till)
+                            label(for="valid_till") Price Is Valid till date (excluded)
+                            span.helper-text(data-error="Date")
+                    .row
+                        .input-field.col.s6
+                            button.btn.grey.waves-effect.col.s12.white-text(type="submit")
+                                strong Add Pricing
+                        .input-field.col.s6
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="/admin/pricing")
+                                strong Cancel

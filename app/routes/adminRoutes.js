@@ -6,14 +6,13 @@ const querystring = require('querystring');
 const logger = require('../logger');
 const adminController = require('../controllers/adminController');
 
-
 router.use("/admin", function (req, res, next) {
   let user = req.session.user;
   if (!user) {
     logger.trace();
     res.status(401);
     res.redirect("/login");
-  } else 
+  } else
   if (!user.is_admin){
     res.redirect("/login", {error: "Permission Denied"})
   } else {
@@ -52,7 +51,7 @@ router.post('/admin/add-service', function (req, res, next) {
     res.render('/admin/add-service', {services_active: true, error: 'All the fields are required'});
   }
   adminController.addService(user.user_id, name, desc, prefix, color)
-    .then(data => {      
+    .then(data => {
       logger.trace();
       adminController.getServices(user.user_id)
       .then(data => {
@@ -60,7 +59,7 @@ router.post('/admin/add-service', function (req, res, next) {
       })
       .catch(err => {
         res.render('services', {user: user, services_active: true, error: 'No Service Found'});
-      });            
+      });
     })
     .catch(err => {
       logger.trace();
@@ -95,6 +94,85 @@ router.get('/admin/user/:userId', function (req, res, next) {
   });
 });
 
+router.get('/admin/pricing', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  adminController.getPrices(user.user_id)
+  .then(data => {
+    logger.debug(data, data.length);
+    res.render('pricing', {user: user, pricing: data, pricing_active: true});
+  })
+  .catch(err => {
+    res.render('pricing', {user: user, error: 'No Pricing Found', pricing_active: true});
+  });
+});
+
+router.get('/admin/add-pricing', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  var users = adminController.getUsers(user.user_id);
+  var services = adminController.getServices(user.user_id);
+  var pricing = adminController.getPricing(user.user_id, null);
+  const action = 'new';
+  Promise.all([users, services, pricing])
+    .then(values => {
+      console.log(values);
+      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action});
+    })
+    .catch(err => {
+    res.render('add-pricing', {user: user, error: '', pricing_active: true, action: action});
+  });
+});
+
+router.post('/admin/add-pricing', function (req, res, next) {
+  logger.trace();
+  let service_id = req.body.service;
+  let user_id = req.body.user;
+  let price = req.body.price;
+  let unit = req.body.unit;
+  let valid_from = req.body.valid_from;
+  let valid_till = req.body.valid_till;
+  let user = req.session.user;
+  if(!service_id || !price || !unit || !valid_from) {
+    logger.trace();
+    res.render('/admin/add-pricing', {services_active: true, error: 'Fill required fields'});
+  }
+  adminController.addPricing(user.user_id, service_id, user_id, price, unit, valid_from, valid_till)
+    .then(data => {
+      logger.trace();
+      adminController.getPrices(user.user_id)
+      .then(data => {
+        res.render('pricing', {user: user, pricing: data, pricing_active: true});
+      })
+      .catch(err => {
+        res.render('pricing', {user: user, error: 'No Pricing Found', pricing_active: true});
+      });
+    })
+    .catch(err => {
+      logger.trace();
+      logger.debug("== ERR ", err);
+
+    });
+});
+
+router.get('/admin/edit-pricing/:pricingId', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  var users = adminController.getUsers(user.user_id);
+  var services = adminController.getServices(user.user_id);
+  var pricing = adminController.getPricing(user.user_id, req.params.pricingId);
+  const action = 'update';
+  Promise.all([users, services, pricing])
+    .then(values => {
+      console.log(values);
+      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action});
+    })
+    .catch(err => {
+    res.render('add-pricing', {user: user, error: '', pricing_active: true, action: action});
+  });
+});
+
+
 router.get('/admin/logmanagement', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
@@ -106,7 +184,7 @@ router.get('/admin/logmanagement', function (req, res, next) {
   .catch(err => {
     logger.trace();
     res.render('logmanagement', {user: user, logmanagement_active: true});
-  })  
+  })
 });
 
 module.exports = router;

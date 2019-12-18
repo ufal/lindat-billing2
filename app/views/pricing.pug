@@ -1,0 +1,51 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Pricing
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            if pricing && pricing.length>0
+                .col.s12
+                    table.highlight.responsive-table
+                        thead
+                            tr
+                                th
+                                th  Service
+                                th User
+                                th Price
+                                th From
+                                th Till
+                        tbody
+                            each pr in pricing
+                                tr
+                                    td
+                                        a.light-green-text(href='/admin/edit-pricing/' + pr.pricing_id)
+                                            i.material-icons edit
+                                    td= pr.service_name
+                                    td
+                                        if pr.user_id
+                                           a.light-green-text(href='/admin/user/' + pr.user_id)= pr.user_name
+                                        else
+                                           i.material-icons people
+
+                                    td= pr.price
+                                    td= pr.valid_from
+                                    td= pr.valid_till
+            else
+                +alert('No Pricing Defined', 'Click on the plus sign to add a new one.', 'error')
+
+    .fixed-action-btn
+        a.btn-floating.btn-large.red(href="/admin/add-pricing")
+            i.material-icons.large add_circle
