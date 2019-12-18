@@ -4,8 +4,5 @@
 	  "database": "DB",
 	  "user": "USER",
 	  "password": "PASS"
-	},
-	"logs": {
-	  "path": "LOGS_DIR"
 	}
 }
