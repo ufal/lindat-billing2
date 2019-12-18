@@ -155,8 +155,7 @@ router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next)
         status : false,
         error : 'Permission Denied.'
       });
-  }
-  if (req.params.filterUser != 'all') {
+  } else if (req.params.filterUser != 'all') {
     // get price instead of request count and user count
     dataController.getPeriodPrices(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath, req.params.filterUser).then(data => {
       res.json({
@@ -164,13 +163,14 @@ router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next)
         log: data
       });
   }).catch();
+  } else {
+    dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
+      res.json({
+        status : true,
+        log: data
+      });
+    }).catch();
   }
-  dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
-    res.json({
-      status : true,
-      log: data
-    });
-  }).catch();
 });
 
 router.get('/api/services', function (req, res, next) {
@@ -182,13 +182,14 @@ router.get('/api/services', function (req, res, next) {
         status : false,
         error : 'Permission Denied.'
       });
+  } else {
+    dataController.getServices().then(data => {
+      res.json({
+        status : true,
+        services: data
+      });
+    }).catch();
   }
-  dataController.getServices().then(data => {
-    res.json({
-      status : true,
-      services: data
-    });
-  }).catch();
 });
 
 // run for every request
