@@ -30,6 +30,6 @@ docker-compose up
 ## Inspect database
 
 ```
-psql -U billing billing
+psql -h localhost -U billing billing
 ```
 we use the fact that the default postgres port is mapped to the proper container.
