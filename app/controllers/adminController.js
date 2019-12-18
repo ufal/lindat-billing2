@@ -111,6 +111,21 @@ exports.addPricing = (userId, service_id, user_id, price, unit, valid_from, vali
 };
 
 
+exports.updatePricing = (userId, pricing_id, service_id, user_id, price, unit, valid_from, valid_till) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.pricing.update(pricing_id, service_id, user_id, price, unit, valid_from, valid_till)
+    .then(data => {
+      db.user.logAction(userId, 'updatePricing');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
+
 exports.getMonthlyCountsByService = (date) => {
   logger.trace();
   return new promise((resolve, reject) => {

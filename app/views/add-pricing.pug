@@ -17,7 +17,7 @@ block content
                         strong= message
                 .divider
                 .section
-                form(action="/admin/add-pricing" method=(action=="update")?"put":"post" enctype="application/x-www-form-urlencoding")
+                form(action=(action=="update")?"/admin/pricing/"+pricing.pricing_id+"?_method=PUT":"/admin/pricing?_method=POST" method="post" enctype="application/x-www-form-urlencoding")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix important_devices
@@ -62,8 +62,9 @@ block content
                             span.helper-text(data-error="Date")
                     .row
                         .input-field.col.s6
+                            input#_method(name="_method" type="hidden" value=(action=="update")?"PUT":"POST")
                             button.btn.grey.waves-effect.col.s12.white-text(type="submit")
-                                strong Add Pricing
+                                strong= (action=='update') ? 'Update Pricing' : 'Add Pricing'
                         .input-field.col.s6
                             a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="/admin/pricing")
                                 strong Cancel

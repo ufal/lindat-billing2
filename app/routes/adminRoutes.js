@@ -124,7 +124,7 @@ router.get('/admin/add-pricing', function (req, res, next) {
   });
 });
 
-router.post('/admin/add-pricing', function (req, res, next) {
+router.post('/admin/pricing', function (req, res, next) {
   logger.trace();
   let service_id = req.body.service;
   let user_id = req.body.user;
@@ -155,7 +155,7 @@ router.post('/admin/add-pricing', function (req, res, next) {
     });
 });
 
-router.get('/admin/edit-pricing/:pricingId', function (req, res, next) {
+router.get('/admin/pricing/:pricingId', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
   var users = adminController.getUsers(user.user_id);
@@ -170,6 +170,39 @@ router.get('/admin/edit-pricing/:pricingId', function (req, res, next) {
     .catch(err => {
     res.render('add-pricing', {user: user, error: '', pricing_active: true, action: action});
   });
+});
+
+router.put('/admin/pricing/:pricingId', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  let pricing_id = req.params.pricingId;
+  let service_id = req.body.service;
+  let user_id = req.body.user;
+  let price = req.body.price;
+  let unit = req.body.unit;
+  let valid_from = req.body.valid_from;
+  let valid_till = req.body.valid_till;
+  if(!service_id || !price || !unit || !valid_from) {
+    logger.trace();
+    res.render('/admin/pricing/'+pricing_id, {services_active: true, error: 'Fill required fields'});
+  }
+  adminController.updatePricing(user.user_id, pricing_id, service_id, user_id, price, unit, valid_from, valid_till)
+    .then(data => {
+      logger.trace();
+      adminController.getPrices(user.user_id)
+      .then(data => {
+        res.render('pricing', {user: user, pricing: data, pricing_active: true});
+      })
+      .catch(err => {
+        res.render('pricing', {user: user, error: 'No Pricing Found', pricing_active: true});
+      });
+    })
+    .catch(err => {
+      logger.trace();
+      logger.debug("== ERR ", err);
+
+    });
+
 });
 
 

@@ -37,6 +37,48 @@ exports.add = (service_id, user_id, price, unit, valid_from, valid_till) => {
   });
 };
 
+exports.update = (pricing_id, service_id, user_id, price, unit, valid_from, valid_till) => {
+  logger.trace();
+  valid_till = valid_till || null;
+  user_id = user_id ==="" ? null : user_id;
+  return new promise((resolve, reject) => {
+    db.one(`
+      UPDATE service_pricing
+      SET
+        service_id = $2,
+        user_id = $3,
+        price = $4,
+        unit = $5,
+        valid_from = $6,
+        valid_till = $7
+      WHERE pricing_id = $1
+      RETURNING pricing_id`,
+        [pricing_id,service_id, user_id, price, unit, valid_from, valid_till])
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No pricing_id returned',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
 exports.get = () => {
   logger.trace();
   return new promise((resolve, reject) => {
