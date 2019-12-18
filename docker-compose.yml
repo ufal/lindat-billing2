@@ -22,6 +22,9 @@ services:
     - DB=billing
     - USER=billing
     - PASS=pass
+    - LOGS_DIR=/logs
+    volumes:
+      - ./logs:/logs
     ports:
       - 3021:3021
     depends_on:
