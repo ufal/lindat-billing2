@@ -340,7 +340,7 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
                   JOIN user_endpoints ue ON fe.remote_addr = ue.ip
                 WHERE ue.user_id = $3
               )  l ON date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
-            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (valid_till = NULL OR l.time_local < sp.valid_from)
+            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till = NULL OR l.time_local < sp.valid_from)
           GROUP BY s.name, s.color, intervals.interval, sp.price
         ) AS u
       GROUP BY u.name, u.color, u.interval, u.price, u.units`,
