@@ -67,6 +67,9 @@ readFiles = async (dir) => {
 readFile = async (file) => {
   logger.trace();
   let fileName = path.basename(file);
+  if (fs.statSync(file).size === 0) {
+    return;
+  }
   var firstLine = await nth(1, file);
   var firstLineChecksum = md5(firstLine);
   var from = 1;
