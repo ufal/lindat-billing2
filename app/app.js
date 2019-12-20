@@ -40,8 +40,9 @@ app.set('views', __dirname + '/views');
 
 
 if(config.logs.import_on_startup) {
+  logManager.readAndMonitorFiles(config.logs.path);
+} else {
   logManager.filesChangesMonitor(config.logs.path);
-  // logManager.readFiles(config.logs.path);
 }
 
 app.use(cookeParser());

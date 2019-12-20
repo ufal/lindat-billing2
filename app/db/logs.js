@@ -65,25 +65,6 @@ exports.addLogFile = (fileName, firstLineChecksum, tail=false) => {
   });
 };
 
-exports.updateLogFile = (fileId, lastReadLineChecksum, linesRead) => {
-  logger.trace();
-  return new promise((resolve, reject) => {
-    db.one('UPDATE log_files SET last_read_line_checksum = $2, lines_read = $3 WHERE file_id = $1 RETURNING file_id', [fileId, lastReadLineChecksum, linesRead])
-        .then(data => {
-            logger.trace();
-            resolve(data); // data
-        })
-        .catch(error => {
-          logger.trace();
-          reject({
-              state: 'failure',
-              reason: 'Database error',
-              extra: error
-          });
-        });
-  });
-};
-
 exports.setLogTail = (fileId, tail) => {
   logger.trace();
   return new promise((resolve, reject) => {
