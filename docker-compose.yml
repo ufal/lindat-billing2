@@ -1,0 +1,34 @@
+version: '2.4'
+services:
+  billing_db:
+    build: 
+        dockerfile: ./Docker/postgres/Dockerfile
+        context: .
+    environment:
+    - USER_NAME=billing
+    - DB_NAME=billing
+    - PASSWORD=pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    platform: linux
+  billing_frontend:
+    build:
+        dockerfile: ./Docker/frontend/Dockerfile
+        context: .
+    environment:
+    - HOST=billing_db
+    - DB_NAME=billing
+    - USER_NAME=billing
+    - PASSWORD=pass
+    - JWT_SECRET
+    volumes:
+      - ${LOGS_DIR:-./input_logs}:/web/input_logs
+    ports:
+      - 3021:3021
+    depends_on:
+      - billing_db
+    platform: linux
+volumes:
+  pgdata:

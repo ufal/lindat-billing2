@@ -1,0 +1,11 @@
+{
+	"db": {
+	  "host": "HOST",
+	  "database": "DB_NAME",
+	  "user": "USER_NAME",
+	  "password": "PASSWORD"
+	},
+	"jwt": {
+		"secret": "JWT_SECRET"
+	}
+}
