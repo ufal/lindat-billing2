@@ -19,9 +19,10 @@ services:
         context: .
     environment:
     - HOST=billing_db
-    - DB=billing
-    - USER=billing
-    - PASS=pass
+    - DB_NAME=billing
+    - USER_NAME=billing
+    - PASSWORD=pass
+    - JWT_SECRET
     volumes:
       - ${LOGS_DIR:-./input_logs}:/web/input_logs
     ports:

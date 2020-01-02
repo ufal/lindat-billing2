@@ -2,3 +2,4 @@
 logs
 scripts/create-debug-user.sh
 config/local*.json
+.env
