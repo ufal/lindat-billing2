@@ -286,7 +286,7 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
     with intervals as (
       select generate_series(
         date_trunc('${interval}', timestamp $1),
-        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}'),
+        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}' - interval '1 ${interval}'),
         '1 ${interval}'::interval
       ) as interval
     ) `;
@@ -307,7 +307,7 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
             s.color AS color,
             intervals.interval AS interval,
             count(l.line_number) AS uniq,
-            sum(l.unit) AS units,
+            coalesce(sum(l.unit),0) AS units,
             coalesce(sp.price, 0) AS price
           FROM
             intervals
@@ -321,7 +321,7 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
                   JOIN user_endpoints ue ON fe.remote_addr = ue.ip
                 WHERE ue.user_id = $3
               )  l ON date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
-            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till = NULL OR l.time_local < sp.valid_from)
+            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till IS NULL OR l.time_local < sp.valid_till)
           GROUP BY s.name, s.color, intervals.interval, sp.price
         ) AS u
       GROUP BY u.name, u.color, u.interval, u.price, u.units`,
