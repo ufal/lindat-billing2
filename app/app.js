@@ -16,6 +16,8 @@ const logManager = require('./log-manager/importLogs')
 
 const app = express();
 
+if(!config.has('jwt.secret')){logger.error('Please set jwt.secret in your local.json file');}
+
 /*var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', 'example.com');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
