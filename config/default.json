@@ -14,12 +14,10 @@
 	  "port": 3021
 	},
 	"jwt": {
-	  "secret": "d650740fd4814d697a3a27a0028443de",
 	  "expiresIn": 3600
 	},
 	"logs": {
 	  "path": "input_logs",
-	  "tail": "access.log",
 	  "ignore": "\\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$",
 	  "import_on_startup": true
 	},

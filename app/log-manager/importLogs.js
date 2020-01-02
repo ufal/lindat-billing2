@@ -67,6 +67,9 @@ readFiles = async (dir) => {
 readFile = async (file) => {
   logger.trace();
   let fileName = path.basename(file);
+  if (fs.statSync(file).size === 0) {
+    return;
+  }
   var firstLine = await nth(1, file);
   var firstLineChecksum = md5(firstLine);
   var from = 1;
@@ -119,7 +122,6 @@ readLines = async (fileId, file, from) => {
         var logLine = await db.logs.checkLogEntry(obj);
       }catch(err){
         await db.logs.addLogEntries(obj);
-        await db.logs.updateLogFile(fileId, lineChecksum, ln);
       }
     }
     ln++;
@@ -138,4 +140,9 @@ parseLogLine = (line) => {
   return obj;
 };
 
-module.exports = { filesChangesMonitor, readFiles, readFile };
+readAndMonitorFiles = async (dir) => {
+  await readFiles(dir);
+  filesChangesMonitor(dir);
+};
+
+module.exports = { filesChangesMonitor, readFiles, readFile, readAndMonitorFiles };

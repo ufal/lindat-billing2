@@ -16,6 +16,8 @@ const logManager = require('./log-manager/importLogs')
 
 const app = express();
 
+if(!config.has('jwt.secret')){logger.error('Please set jwt.secret in your local.json file');}
+
 /*var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', 'example.com');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -40,8 +42,9 @@ app.set('views', __dirname + '/views');
 
 
 if(config.logs.import_on_startup) {
+  logManager.readAndMonitorFiles(config.logs.path);
+} else {
   logManager.filesChangesMonitor(config.logs.path);
-  // logManager.readFiles(config.logs.path);
 }
 
 app.use(cookeParser());

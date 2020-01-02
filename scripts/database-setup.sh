@@ -134,7 +134,7 @@ CREATE TABLE log_files
 	first_line_checksum UUID,
 	last_read_line_checksum UUID,
 	lines_read BIGINT,
-	lines_valid BIGINT,
+	lines_valid BIGINT DEFAULT 0,
 	tail BOOLEAN DEFAULT FALSE,
 	status VARCHAR(20) DEFAULT 'IMPORTING',
 	create_time TIMESTAMP DEFAULT NOW(),
@@ -165,6 +165,28 @@ CREATE INDEX ON log_file_entries(time_local);
 CREATE INDEX ON log_file_entries(remote_addr);
 CREATE INDEX ON log_file_entries(line_number);
 CREATE INDEX ON log_file_entries(line_checksum);
+
+
+CREATE OR REPLACE FUNCTION trigger_update_log_files()
+RETURNS TRIGGER AS
+	\$\$
+	BEGIN
+      UPDATE log_files
+      SET
+        last_read_line_checksum = NEW.line_checksum,
+        lines_read = NEW.line_number,
+        lines_valid = lines_valid + 1
+      WHERE
+        file_id = NEW.file_id;
+      RETURN NEW;
+	END;
+	\$\$
+LANGUAGE plpgsql;
+
+
+CREATE TRIGGER log_files_lines_read AFTER INSERT ON log_file_entries EXECUTE PROCEDURE trigger_update_log_files();
+
+
 
 CREATE TABLE billing
 (
