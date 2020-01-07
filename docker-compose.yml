@@ -1,13 +1,17 @@
 version: '2.4'
 services:
   billing_db:
-    build: 
+    build:
         dockerfile: ./Docker/postgres/Dockerfile
         context: .
     environment:
+    - DB_HOST=billing_db
     - USER_NAME=billing
     - DB_NAME=billing
     - PASSWORD=pass
+    - SERVER_HOST
+    - SERVER_PORT
+    - SERVER_BASE_URL
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
