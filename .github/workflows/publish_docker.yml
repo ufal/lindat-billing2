@@ -1,14 +1,26 @@
 name: Publish Docker image to GitHub Package Registry
-on: push
+on: 
+  push:
+    branches: master
+  pull_request:
+    branches: master
 jobs:
   build:
     runs-on: ubuntu-latest 
-    if: github.ref == 'refs/heads/master' 
     
     steps:
+    - name: Get docker tag
+      id: tag
+      run: |
+        MYTAG=$(echo $GITHUB_REF | sed -e 's#refs/heads/master#latest#' | sed -e 's#refs/pull/\([^/]*\)/.*#pr_\1#')
+        echo "MYTAG=$MYTAG"
+        echo "::set-output name=DOCKER_TAG::$MYTAG"
+      env:
+        GITHUB_REF: ${{ github.ref }}
+        
     - name: Copy Repo Files
       uses: actions/checkout@v2
-
+                 
      #This Action Emits 2 Variables, IMAGE_SHA_NAME and IMAGE_URL 
      #which you can reference in subsequent steps
     - name: Publish Docker Image to GPR
@@ -16,7 +28,7 @@ jobs:
       id: docker
       with:
         IMAGE_NAME: 'lindat-billing'
-        TAG: 'latest'
+        TAG: ${{ steps.tag.outputs.DOCKER_TAG }}
         DOCKERFILE_PATH: 'Docker/frontend/Dockerfile'
         BUILD_CONTEXT: './'
       env:
