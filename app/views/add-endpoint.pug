@@ -16,14 +16,14 @@ block content
                         strong= message
                 .divider
                 .section
-                form(action="/add-endpoint" method="post" enctype="application/x-www-form-urlencoding")
-                    .row                    
+                form(action="add-endpoint" method="post" enctype="application/x-www-form-urlencoding")
+                    .row
                         .input-field.col.s12
                             i.material-icons.prefix edit
                             input#name.validate(name="name" type="text" required="" aria-required="true")
                             label(for="name") EndPoint Name
                             span.helper-text(data-error="Required")
-                    .row                    
+                    .row
                         .input-field.col.s12
                             i.material-icons.prefix my_location
                             input#ip.validate(name="ip" type="text" required="" aria-required="true")
@@ -34,8 +34,7 @@ block content
                             button.btn.grey.waves-effect.col.s12.white-text(type="submit")
                                 strong Add EndPoint
                         .input-field.col.s6
-                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="/endpoints")
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="endpoints")
                                 strong Cancel
                 .section
-            
-        
+

@@ -2,7 +2,7 @@ ul.sidenav.sidenav-fixed
     li
         nav.grey.darken-1.row
             .nav-wrapper.col.s12
-                a.brand-logo.hide-on-med-and-down(href="/") Lindat Billing
+                a.brand-logo.hide-on-med-and-down(href=".") Lindat Billing
     li
         ul.collapsible.collapsible-accordion
             li.bold.active
@@ -12,11 +12,11 @@ ul.sidenav.sidenav-fixed
                 .collapsible-body
                     ul
                         li(class=user_dashboard_active?'active':'')
-                            a.waves-effect(href="/user/dashboard")
+                            a.waves-effect(href="user/dashboard")
                                 i.material-icons dashboard
                                 span Overview
                         li(class=endpoints_active?'active':'')
-                            a.waves-effect(href="/endpoints")
+                            a.waves-effect(href="endpoints")
                                 i.material-icons settings_input_component
                                 span Endpoints
     if user && user.is_admin
@@ -29,22 +29,22 @@ ul.sidenav.sidenav-fixed
                     .collapsible-body
                         ul
                             li(class=admin_dashboard_active?'active':'')
-                                a.waves-effect(href="/admin/dashboard")
+                                a.waves-effect(href="admin/dashboard")
                                     i.material-icons dashboard
                                     span Admin Overview
                             li(class=services_active?'active':'')
-                                a.waves-effect(href="/admin/services")
+                                a.waves-effect(href="admin/services")
                                     i.material-icons important_devices
                                     span Services
                             li(class=users_active?'active':'')
-                                a.waves-effect(href="/admin/users")
+                                a.waves-effect(href="admin/users")
                                     i.material-icons people
                                     span Users
                             li(class=pricing_active?'active':'')
-                                a.waves-effect(href="/admin/pricing")
+                                a.waves-effect(href="admin/pricing")
                                     i.material-icons money
                                     span Pricing
                             li(class=logmanagement_active?'active':'')
-                                a.waves-effect(href="/admin/logmanagement")
+                                a.waves-effect(href="admin/logmanagement")
                                     i.material-icons list
                                     span Log Management

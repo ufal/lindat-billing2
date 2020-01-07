@@ -19,8 +19,8 @@ block content
             .section
             .divider
             .section
-            form(action="/authenticate" method="post" enctype="application/x-www-form-urlencoding")
-                .row                    
+            form(action="authenticate" method="post" enctype="application/x-www-form-urlencoding")
+                .row
                     .input-field.col.s10.offset-s1
                         i.material-icons.prefix mail_outline
                         input#email.validate(name="email" type="text" required="" aria-required="true")
@@ -33,9 +33,9 @@ block content
                         label(for="password") Password
                         span.helper-text(data-error="Required")
                         .margin.right-align.medium-small
-                            a(href="/forget-password") Forget Password
+                            a(href="forget-password") Forget Password
                             | &nbsp;|&nbsp;
-                            a(href="/register") Register
+                            a(href="register") Register
                 .row
                     .input-field.col.s10.offset-s1
                         button.btn.grey.waves-effect.col.s12.white-text(type="submit")

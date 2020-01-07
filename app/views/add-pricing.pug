@@ -17,7 +17,7 @@ block content
                         strong= message
                 .divider
                 .section
-                form(action=(action=="update")?"/admin/pricing/"+pricing.pricing_id+"?_method=PUT":"/admin/pricing?_method=POST" method="post" enctype="application/x-www-form-urlencoding")
+                form(action=(action=="update")?"admin/pricing/"+pricing.pricing_id+"?_method=PUT":"admin/pricing?_method=POST" method="post" enctype="application/x-www-form-urlencoding")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix important_devices
@@ -66,5 +66,5 @@ block content
                             button.btn.grey.waves-effect.col.s12.white-text(type="submit")
                                 strong= (action=='update') ? 'Update Pricing' : 'Add Pricing'
                         .input-field.col.s6
-                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="/admin/pricing")
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="admin/pricing")
                                 strong Cancel

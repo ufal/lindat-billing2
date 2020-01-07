@@ -2,13 +2,13 @@ block navigation
     .navbar
         nav.grey.darken-1.row
             .nav-wrapper.col.s12
-                a.brand-logo.hide-on-large-only(href="/") Lindat Billing
+                a.brand-logo.hide-on-large-only(href=".") Lindat Billing
                 ul.right.hide-on-med-and-down
                     if user
                         - var full_name = user.first_name + ' ' + user.last_name;
-                        li 
+                        li
                             a
                                 strong= full_name
                     li
-                        a(href="/logout")
+                        a(href="logout")
                             i.material-icons logout

@@ -98,7 +98,7 @@ router.post('/authenticate', function (req, res, next) {
     .then(data => {
       logger.trace();
       req.session.user = data;
-      res.redirect('/');
+      res.redirect(res.app.locals.baseUrl);
     })
     .catch(err => {
       logger.trace();
@@ -113,7 +113,7 @@ router.use("/", function (req, res, next) {
   if (!user) {
     logger.trace();
     res.status(401);
-    res.redirect("/login");
+    res.redirect(res.app.locals.baseUrl + "login");
   } else {
     logger.trace();
     next();
@@ -153,7 +153,7 @@ router.get('/admin/dashboard', function (req, res, next) {
     });
   } else {
     res.status(401);
-    res.redirect("/login");
+    res.redirect(res.app.locals.baseUrl + "login");
   }
 });
 

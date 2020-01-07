@@ -31,12 +31,12 @@ block content
                             each pr in pricing
                                 tr
                                     td
-                                        a.light-green-text(href='/admin/pricing/' + pr.pricing_id)
+                                        a.light-green-text(href='admin/pricing/' + pr.pricing_id)
                                             i.material-icons edit
                                     td= pr.service_name
                                     td
                                         if pr.user_id
-                                           a.light-green-text(href='/admin/user/' + pr.user_id)= pr.user_name
+                                           a.light-green-text(href='admin/user/' + pr.user_id)= pr.user_name
                                         else
                                            i.material-icons people
 
@@ -47,5 +47,5 @@ block content
                 +alert('No Pricing Defined', 'Click on the plus sign to add a new one.', 'error')
 
     .fixed-action-btn
-        a.btn-floating.btn-large.red(href="/admin/add-pricing")
+        a.btn-floating.btn-large.red(href="admin/add-pricing")
             i.material-icons.large add_circle

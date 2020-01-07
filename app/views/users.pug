@@ -36,11 +36,11 @@ block content
                                     td= usr.email
                                     td= usr.organization
                                     td
-                                        a.light-green-text(href='/admin/user/' + usr.user_id)
+                                        a.light-green-text(href='admin/user/' + usr.user_id)
                                             i.material-icons info
             else
                 +alert('No Users Defined', 'Click on the plus sign to add a new one.', 'error')
 
     .fixed-action-btn
-        a.btn-floating.btn-large.red(href="/admin/add-user")
+        a.btn-floating.btn-large.red(href="admin/add-user")
             i.material-icons.large add_circle

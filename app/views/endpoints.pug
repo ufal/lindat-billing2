@@ -28,7 +28,7 @@ block content
                                             strong Verified
                                     else
                                         span.new.badge.red(data-badge-caption="")
-                                            strong Not Verified                     
+                                            strong Not Verified
                                 .collapsible-body
                                     div.row
                                         .flow-text.col.s12.m4= endpoint.ip
@@ -41,7 +41,7 @@ block content
                                                 strong To verify call the following from the same IP
                                                 pre(style="white-space: pre-wrap;")
                                                     -
-                                                        var command = "curl -X POST http://localhost:3021/api/verify-endpoint"
+                                                        var command = "curl -X POST " + locals.serverUrl + locals.baseUrl + "api/verify-endpoint"
                                                         + " -H 'Content-Type: application/x-www-form-urlencoded'"
                                                         + " -H 'x-access-token: " + endpoint.verification_code + "'"
                                                         + " -d id=" + endpoint.endpoint_id
@@ -50,5 +50,5 @@ block content
                     +alert('No End Points Defined', 'Click on the plus sign to add a new one.', 'error')
 
     .fixed-action-btn
-        a.btn-floating.btn-large.red(href="/add-endpoint")
+        a.btn-floating.btn-large.red(href="add-endpoint")
             i.material-icons.large add_circle
