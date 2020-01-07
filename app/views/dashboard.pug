@@ -4,7 +4,7 @@ block title
     title Login Billing: Dashboard
 
 block custom-css
-    link(rel="stylesheet" href="/css/custom.css")
+    link(rel="stylesheet" href="css/custom.css")
     style(type="text/css").
         header, main, footer {
             padding-left: 300px;
@@ -17,10 +17,10 @@ block custom-css
         }
 
 append js
-    script(src='/js/custom.js')
-    script(src='/js/moment.min.js')
-    script(src='/js/Chart.min.js')
-    script(src='/js/timeline-chart.js')
+    script(src='js/custom.js')
+    script(src='js/moment.min.js')
+    script(src='js/Chart.min.js')
+    script(src='js/timeline-chart.js')
 
 block navigation
     include includes/navigation.pug
@@ -67,7 +67,7 @@ block content
                             .card-reveal
                                 .card-title= s
                                     i.material-icons.right close
-                                div(type='timeline-chart' data-url='/api/data/'+filteruser+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
+                                div(type='timeline-chart' data-url='api/data/'+filteruser+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
                             .card-image
                                 canvas(id=s+'_monthly')
                             script.

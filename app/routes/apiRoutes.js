@@ -78,10 +78,10 @@ router.post('/api/tail-file', function (req, res, next) {
   if (!user) {
     logger.trace();
     res.status(401);
-    res.redirect("/login");
+    res.redirect(res.app.locals.baseUrl + "login");
   } else
   if (!user.is_admin){
-    res.redirect("/login", {error: "Permission Denied"})
+    res.redirect(res.app.locals.baseUrl + "login", {error: "Permission Denied"})
   } else {
     logger.trace();
     let fileId = req.body.id;
@@ -149,7 +149,7 @@ router.param('period',function (req, res, next, period){
 router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
-  if (req.params.filterUser != user.user_id && !user.is_admin) {// TODO filter only users data !!!
+  if (req.params.filterUser != user.user_id && !user.is_admin) {
       res.status(403);
       res.send({
         status : false,
@@ -164,6 +164,7 @@ router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next)
       });
   }).catch();
   } else {
+    // TODO get prices !!!
     dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
       res.json({
         status : true,

@@ -7,7 +7,7 @@ block content
     .container
         .row
             .col.s12
-                h5 User Detail  
+                h5 User Detail
                 if error
                     .red-text
                         strong= error
@@ -20,7 +20,7 @@ block content
                 .col.s12
                     .card
                         .card-image
-                          a.btn-floating.halfway-fab.light-green(href='/admin/user/' + user_detail.user_id + '/edit')
+                          a.btn-floating.halfway-fab.light-green(href='admin/user/' + user_detail.user_id + '/edit')
                             i.material-icons edit
                         .card-content
                             .row.card-title
@@ -28,7 +28,7 @@ block content
                                 .col.right
                                     i.material-icons= user_detail.is_active ? 'work_on' : 'work_off'
                                 .col.right
-                                    i.material-icons= user_detail.is_admin ? 'settings' : ''     
+                                    i.material-icons= user_detail.is_admin ? 'settings' : ''
                             .divider
                             p= user_detail.email +" | " + user_detail.organization
                 .col.s12

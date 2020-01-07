@@ -19,8 +19,8 @@ block content
             .section
             .divider
             .section
-            form(action="/register" method="post" enctype="application/x-www-form-urlencoding")
-                .row                    
+            form(action="register" method="post" enctype="application/x-www-form-urlencoding")
+                .row
                     .input-field.col.s12.m6
                         i.material-icons.prefix mail_outline
                         input#email.validate(name="email" type="text" required="" aria-required="true")
@@ -31,7 +31,7 @@ block content
                         input#password.validate(name="password" type="password" required="" aria-required="true")
                         label(for="password") Password
                         span.helper-text(data-error="Required")
-                .row                    
+                .row
                     .input-field.col.s12.m6
                         i.material-icons.prefix person
                         input#fname.validate(name="fname" type="text" required="" aria-required="true")
@@ -42,7 +42,7 @@ block content
                         input#lname.validate(name="lname" type="text" required="" aria-required="true")
                         label(for="lname") Last Name
                         span.helper-text(data-error="Required")
-                .row                    
+                .row
                     .input-field.col.s12.m8.offset-m2
                         i.material-icons.prefix account_balance
                         input#org.validate(name="org" type="text" required="" aria-required="true")
@@ -54,7 +54,7 @@ block content
                             strong Register
                 .row
                     .margin.right-center.medium-small
-                        | Already have an account then 
+                        | Already have an account then
                         strong
-                            a(href="/login") Login
+                            a(href="login") Login
             .section

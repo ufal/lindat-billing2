@@ -11,7 +11,8 @@
 	},
 	"server": {
 	  "host": "localhost",
-	  "port": 3021
+	  "port": 3021,
+	  "base_url": "/"
 	},
 	"jwt": {
 	  "expiresIn": 3600

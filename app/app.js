@@ -26,7 +26,17 @@ if(!config.has('jwt.secret')){logger.error('Please set jwt.secret in your local.
 }
 app.use(allowCrossDomain);*/
 
-app.use(express.static(path.join(__dirname, 'public')));
+const base_url = config.has('server.base_url') ? config.server.base_url : '/';
+const server_url = config.server.host + (config.has('server.port') ? ':' + config.server.port : '');
+
+if(base_url.match(/.*(?<!\/)$/)){logger.error('POSSIBLE ROUTING PROBLEM: server.base_url should end with "/"');}
+
+app.locals.baseUrl = base_url;
+app.locals.serverUrl = server_url;
+
+app.set('base', base_url);
+
+app.use(base_url, express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
@@ -57,6 +67,8 @@ app.use(session(
     cookie: { maxAge: 30 * 60 * 10000 }
   })
 );
-app.use(routes);
+
+
+app.use(base_url, routes);
 
 module.exports = app;
