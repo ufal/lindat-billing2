@@ -195,7 +195,7 @@ router.get('/api/users', function (req, res, next) {
       });
   } else {
     dataController.getUsers(user.user_id).then(data => {
-      res.json(data);
+      res.json({"data": data});
     }).catch();
   }
 });

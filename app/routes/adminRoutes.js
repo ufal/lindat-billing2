@@ -72,14 +72,7 @@ router.post('/admin/add-service', function (req, res, next) {
 router.get('/admin/users', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
-  adminController.getUsers(user.user_id)
-  .then(data => {
-    console.log(data);
-    res.render('users', {user: user, users: data, users_active: true});
-  })
-  .catch(err => {
-    res.render('users', {user: user, error: 'No User Found', users_active: true});
-  });
+  res.render('users', {user: user, users_active: true});
 });
 
 router.get('/admin/user/:userId', function (req, res, next) {
