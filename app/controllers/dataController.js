@@ -58,6 +58,21 @@ exports.getServices = () => {
   });
 };
 
+exports.getUsers = (userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.user.get()
+    .then(data => {
+      db.user.logAction(userId, 'listUsers');
+      var table = data.map(usr => ['user_id', 'email', 'first_name', 'last_name', 'organization', 'is_admin'].map(e => usr[e]));
+      resolve(table);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 function data2path(field, data, path){
   var result = {};
   var position = result;
