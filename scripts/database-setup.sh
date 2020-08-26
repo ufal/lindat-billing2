@@ -133,7 +133,7 @@ CREATE TABLE log_files
 	file_name TEXT NOT NULL UNIQUE,
 	first_line_checksum UUID,
 	last_read_line_checksum UUID,
-	lines_read BIGINT,
+	lines_read BIGINT DEFAULT 0,
 	lines_valid BIGINT DEFAULT 0,
 	tail BOOLEAN DEFAULT FALSE,
 	status VARCHAR(20) DEFAULT 'IMPORTING',
@@ -171,6 +171,7 @@ CREATE OR REPLACE FUNCTION trigger_update_log_files()
 RETURNS TRIGGER AS
 	\$\$
 	BEGIN
+	  RAISE NOTICE 'Updating file : % ', NEW.file_id;
       UPDATE log_files
       SET
         last_read_line_checksum = NEW.line_checksum,
@@ -184,7 +185,7 @@ RETURNS TRIGGER AS
 LANGUAGE plpgsql;
 
 
-CREATE TRIGGER log_files_lines_read AFTER INSERT ON log_file_entries EXECUTE PROCEDURE trigger_update_log_files();
+CREATE TRIGGER log_files_lines_read AFTER INSERT ON log_file_entries FOR ROW EXECUTE PROCEDURE trigger_update_log_files();
 
 
 
