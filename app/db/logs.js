@@ -261,7 +261,8 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
             left join log_file_entries l on date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
           GROUP BY s.name, s.color, intervals.interval, l.remote_addr
         ) AS u
-      GROUP BY u.name, u.color, u.interval`,
+      GROUP BY u.name, u.color, u.interval
+      ORDER BY u.interval ASC`,
       [startDate,serviceId])
         .then(data => {
             logger.trace();
@@ -324,7 +325,8 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
             LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till IS NULL OR l.time_local < sp.valid_till)
           GROUP BY s.name, s.color, intervals.interval, sp.price
         ) AS u
-      GROUP BY u.name, u.color, u.interval, u.price, u.units`,
+      GROUP BY u.name, u.color, u.interval, u.price, u.units
+      ORDER BY u.interval ASC`,
       [startDate, serviceId, userId])
         .then(data => {
             logger.trace();
