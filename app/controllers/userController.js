@@ -106,3 +106,17 @@ exports.getMonthlyCountsByService = (userId, date) => {
     });
   });
 };
+
+exports.getWeeklyCountsByService = (userId, date) => {
+  logger.trace();
+  console.log(date,userId);
+  return new promise((resolve, reject) => {
+    db.logs.getWeeklyCountsByService(date, {user_id: userId})
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};

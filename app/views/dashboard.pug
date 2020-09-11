@@ -46,14 +46,14 @@ block content
                 - var sum = {};
                 - var ids = {};
                 - var colors = {};
-                - var labels = Array.from(new Array(31),(val,index)=>index+1);
+                - var labels = Array.from(new Array(14),(val,index)=>index+1);
                 each s in servicecounts
                     -
                         if(!data[s.name]) {
-                            data[s.name] = Array.from(Array(31), () => 0);
+                            data[s.name] = Array.from(Array(14), () => 0);
                             sum[s.name] = 0;
                         }
-                        data[s.name][s.month-1] = s.count;
+                        data[s.name][parseInt(s.ord)-1] = parseInt(s.count);
                         sum[s.name] = sum[s.name] + parseInt(s.count);
                         colors[s.name] = '#' + parseInt(s.color).toString(16);
                         ids[s.name] = s.service_id

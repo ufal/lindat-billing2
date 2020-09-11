@@ -161,6 +161,59 @@ exports.getMonthlyCountsByService = (date, filter) => {
   });
 };
 
+exports.getWeeklyCountsByService = (date, filter) => {
+  logger.trace();
+  logger.debug("TODO implement filter");
+  const {query, values} = createFilter(filter);
+  return new promise((resolve, reject) => {
+    const days_list = `
+    with days as (
+      SELECT ROW_NUMBER () OVER (ORDER BY day) as ord, day FROM generate_series(
+        date_trunc('day', timestamp $1 - interval '13 day'),
+        date_trunc('day', timestamp $1),
+        '1 day'::interval
+      ) as day
+    ) `;
+    db.any(
+      days_list
+      + `
+      SELECT
+        s.name AS name,
+        s.service_id AS service_id,
+        s.color AS color,
+        d.day AS day,
+        d.ord AS ord,
+        count(1) AS count
+      FROM
+        days d
+        CROSS JOIN services s
+        LEFT JOIN
+            (
+              SELECT *, date_trunc('day',time_local) as day
+              FROM log_file_entries
+              WHERE time_local >= timestamp $1 - interval '13 day'
+                AND time_local < timestamp $1 + interval '1 day'
+                ` + query +`
+            )  l
+         ON l.service_id=s.service_id AND l.day=d.day
+      GROUP BY name, s.service_id, color, d.day, d.ord
+      `, [date, ...values])
+        .then(data => {
+            logger.trace();
+            resolve(data); // data
+        })
+        .catch(error => {
+          logger.trace();
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
+
 function createFilter(filter){
   var query="";
   var values=[];
@@ -235,7 +288,7 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
     with intervals as (
       select generate_series(
         date_trunc('${interval}', timestamp $1),
-        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}'),
+        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}' - interval '1 ${interval}'),
         '1 ${interval}'::interval
       ) as interval
     ) `;
