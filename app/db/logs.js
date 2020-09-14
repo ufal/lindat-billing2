@@ -183,7 +183,7 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
         s.color AS color,
         d.day AS day,
         d.ord AS ord,
-        count(1) AS count
+        count(l.line_number) AS count
       FROM
         days d
         CROSS JOIN services s
