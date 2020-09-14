@@ -161,7 +161,7 @@ exports.getMonthlyCountsByService = (date, filter) => {
   });
 };
 
-exports.getWeeklyCountsByService = (date, filter) => {
+exports.getWeeklyCountsByService = (date, len, filter) => {
   logger.trace();
   logger.debug("TODO implement filter");
   const {query, values} = createFilter(filter);
@@ -169,7 +169,7 @@ exports.getWeeklyCountsByService = (date, filter) => {
     const days_list = `
     with days as (
       SELECT ROW_NUMBER () OVER (ORDER BY day) as ord, day FROM generate_series(
-        date_trunc('day', timestamp $1 - interval '13 day'),
+        date_trunc('day', timestamp $1 - interval '$2 day'),
         date_trunc('day', timestamp $1),
         '1 day'::interval
       ) as day
@@ -191,13 +191,13 @@ exports.getWeeklyCountsByService = (date, filter) => {
             (
               SELECT *, date_trunc('day',time_local) as day
               FROM log_file_entries
-              WHERE time_local >= timestamp $1 - interval '13 day'
+              WHERE time_local >= timestamp $1 - interval '$2 day'
                 AND time_local < timestamp $1 + interval '1 day'
                 ` + query +`
             )  l
          ON l.service_id=s.service_id AND l.day=d.day
       GROUP BY name, s.service_id, color, d.day, d.ord
-      `, [date, ...values])
+      `, [date, len-1, ...values])
         .then(data => {
             logger.trace();
             resolve(data); // data

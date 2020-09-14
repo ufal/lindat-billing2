@@ -205,13 +205,15 @@ router.post('/add-endpoint', function (req, res, next) {
 
 
 async function getAdminDashboard(user, res){
-  const weekly = await adminController.getWeeklyCountsByService('2019-01-15');
-  res.render('dashboard', {user: user, servicecounts: weekly, initialview: '2019-01', admin_dashboard_active: true, filteruser: 'all', datalines: ["users","requests"]});
+  const len = 21;
+  const weekly = await adminController.getWeeklyCountsByService('2019-01-15', len);
+  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, initialview: '2019-01', admin_dashboard_active: true, filteruser: 'all', datalines: ["users","requests"]});
 }
 
 async function getUserDashboard(user, res){
-  const weekly = await userController.getWeeklyCountsByService(user.user_id, '2019-01-15');
-  res.render('dashboard', {user: user, servicecounts: weekly, initialview: '2019-01', user_dashboard_active: true, filteruser: user.user_id, datalines: ["prices","requests"]});
+  const len = 21;
+  const weekly = await userController.getWeeklyCountsByService(user.user_id, '2019-01-15', len);
+  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, initialview: '2019-01', user_dashboard_active: true, filteruser: user.user_id, datalines: ["prices","requests"]});
 }
 
 module.exports = router;

@@ -46,11 +46,11 @@ block content
                 - var sum = {};
                 - var ids = {};
                 - var colors = {};
-                - var labels = Array.from(new Array(14),(val,index)=>index+1);
+                - var labels = Array.from(new Array(period_length),(val,index)=>index+1);
                 each s in servicecounts
                     -
                         if(!data[s.name]) {
-                            data[s.name] = Array.from(Array(14), () => 0);
+                            data[s.name] = Array.from(Array(period_length), () => 0);
                             sum[s.name] = 0;
                         }
                         data[s.name][parseInt(s.ord)-1] = parseInt(s.count);
@@ -73,7 +73,7 @@ block content
                             script.
                                 ctx = document.getElementById('#{s}_monthly').getContext('2d');
                                 chart = new Chart(ctx, {
-                                    type: 'line',
+                                    type: 'bar',
                                     data: {
                                         labels: [#{labels}],
                                         datasets: [{
