@@ -46,12 +46,15 @@ block content
                 - var sum = {};
                 - var ids = {};
                 - var colors = {};
-                - var labels = Array.from(new Array(period_length),(val,index)=>index+1);
+                - var labels = Array.from(new Array(period_length),(val,index)=>  (date + 24*60*60*1000*( index + 1 - period_length)) );
                 each s in servicecounts
                     -
                         if(!data[s.name]) {
                             data[s.name] = Array.from(Array(period_length), () => 0);
                             sum[s.name] = 0;
+                        }
+                        if(!colors[s.name]) {
+                            colors[s.name] = Array.from(Array(period_length), () => '#aaaaaa');
                         }
                         data[s.name][parseInt(s.ord)-1] = parseInt(s.count);
                         sum[s.name] = sum[s.name] + parseInt(s.count);
@@ -75,10 +78,12 @@ block content
                                 chart = new Chart(ctx, {
                                     type: 'bar',
                                     data: {
-                                        labels: [#{labels}],
+                                        labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
                                         datasets: [{
                                             data: [#{d}],
-                                            backgroundColor: '#{colors[s]}'
+                                            backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
+                                            borderColor: '#{colors[s]}',
+                                            borderWidth: 1
                                         }],
                                     },
                                     options: {
