@@ -73,6 +73,22 @@ exports.getUsers = (userId) => {
   });
 };
 
+
+exports.getPricings = (userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.pricing.get()
+    .then(data => {
+      db.user.logAction(userId, 'listPricings');
+      var table = data.map(pricing => ['pricing_id', 'service_name', 'user_name', 'price', 'valid_from', 'valid_till', 'user_id'].map(e => pricing[e]));
+      resolve(table);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 function data2path(field, data, path){
   var result = {};
   var position = result;

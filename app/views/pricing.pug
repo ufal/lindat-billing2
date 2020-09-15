@@ -45,6 +45,28 @@ block content
                                     td= pr.valid_till
             else
                 +alert('No Pricing Defined', 'Click on the plus sign to add a new one.', 'error')
+        .row
+            .col.s12
+                table(type='lb-datatable' data-url='api/pricings' data-header='["", "Service", "User", "Price", "From", "Till"]' )
+                  script.
+                    [ {
+                      "targets": 0,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return '<a class="light-green-text" href="admin/pricing/'+row[0]+'"><i class="material-icons">edit</i></a>';}
+                    }, {
+                      "targets": 2,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {
+                            const user_id = data[6];
+                            return user_id
+                              ? '<a class="light-green-text" href="admin/user/'+user_id+'">'+row[meta['col']]+'</a>'
+                              : '<i class="material-icons">people</i>';
+                          }
+                    }, {
+                      "targets": [4,5],
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                    } ]
 
     .fixed-action-btn
         a.btn-floating.btn-large.red(href="admin/add-pricing")
