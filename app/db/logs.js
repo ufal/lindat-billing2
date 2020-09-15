@@ -191,9 +191,10 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
             (
               SELECT *, date_trunc('day',time_local) as day
               FROM log_file_entries
+
               WHERE time_local >= timestamp $1 - interval '$2 day'
                 AND time_local < timestamp $1 + interval '1 day'
-                ` + query +`
+                 ` + query +`
             )  l
          ON l.service_id=s.service_id AND l.day=d.day
       GROUP BY name, s.service_id, color, d.day, d.ord
@@ -219,7 +220,7 @@ function createFilter(filter){
   var values=[];
   if('user_id' in filter) {
     //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
-    query = ' JOIN (SELECT ip FROM user_endpoints WHERE user_id=$2 AND is_verified=TRUE) e ON l.remote_addr = e.ip '; // TODO is_active !!!
+    query = ' AND  remote_addr IN (SELECT ip FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) '; // TODO is_active !!!
     values.push(filter['user_id'])
   }
   return {
