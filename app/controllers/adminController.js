@@ -139,6 +139,19 @@ exports.getMonthlyCountsByService = (date) => {
   });
 };
 
+exports.getWeeklyCountsByService = (date, len) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.logs.getWeeklyCountsByService(date, len, {})
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 exports.getCountsByService = (startDate,endDate) => {
   logger.trace();
   return new promise((resolve, reject) => {

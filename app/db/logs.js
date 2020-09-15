@@ -161,12 +161,66 @@ exports.getMonthlyCountsByService = (date, filter) => {
   });
 };
 
+exports.getWeeklyCountsByService = (date, len, filter) => {
+  logger.trace();
+  logger.debug("TODO implement filter");
+  const {query, values} = createFilter(filter);
+  return new promise((resolve, reject) => {
+    const days_list = `
+    with days as (
+      SELECT ROW_NUMBER () OVER (ORDER BY day) as ord, day FROM generate_series(
+        date_trunc('day', timestamp $1 - interval '$2 day'),
+        date_trunc('day', timestamp $1),
+        '1 day'::interval
+      ) as day
+    ) `;
+    db.any(
+      days_list
+      + `
+      SELECT
+        s.name AS name,
+        s.service_id AS service_id,
+        s.color AS color,
+        d.day AS day,
+        d.ord AS ord,
+        count(l.line_number) AS count
+      FROM
+        days d
+        CROSS JOIN services s
+        LEFT JOIN
+            (
+              SELECT *, date_trunc('day',time_local) as day
+              FROM log_file_entries
+
+              WHERE time_local >= timestamp $1 - interval '$2 day'
+                AND time_local < timestamp $1 + interval '1 day'
+                 ` + query +`
+            )  l
+         ON l.service_id=s.service_id AND l.day=d.day
+      GROUP BY name, s.service_id, color, d.day, d.ord
+      `, [date, len-1, ...values])
+        .then(data => {
+            logger.trace();
+            resolve(data); // data
+        })
+        .catch(error => {
+          logger.trace();
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
+
 function createFilter(filter){
   var query="";
   var values=[];
   if('user_id' in filter) {
     //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
-    query = ' JOIN (SELECT ip FROM user_endpoints WHERE user_id=$2 AND is_verified=TRUE) e ON l.remote_addr = e.ip '; // TODO is_active !!!
+    query = ' AND  remote_addr IN (SELECT ip FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) '; // TODO is_active !!!
     values.push(filter['user_id'])
   }
   return {
@@ -235,7 +289,7 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
     with intervals as (
       select generate_series(
         date_trunc('${interval}', timestamp $1),
-        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}'),
+        date_trunc('${interval}', timestamp $1 + interval '1 ${duration}' - interval '1 ${interval}'),
         '1 ${interval}'::interval
       ) as interval
     ) `;
@@ -261,7 +315,8 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
             left join log_file_entries l on date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
           GROUP BY s.name, s.color, intervals.interval, l.remote_addr
         ) AS u
-      GROUP BY u.name, u.color, u.interval`,
+      GROUP BY u.name, u.color, u.interval
+      ORDER BY u.interval ASC`,
       [startDate,serviceId])
         .then(data => {
             logger.trace();
@@ -324,7 +379,8 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
             LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till IS NULL OR l.time_local < sp.valid_till)
           GROUP BY s.name, s.color, intervals.interval, sp.price
         ) AS u
-      GROUP BY u.name, u.color, u.interval, u.price, u.units`,
+      GROUP BY u.name, u.color, u.interval, u.price, u.units
+      ORDER BY u.interval ASC`,
       [startDate, serviceId, userId])
         .then(data => {
             logger.trace();
