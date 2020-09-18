@@ -72,14 +72,7 @@ router.post('/admin/add-service', function (req, res, next) {
 router.get('/admin/users', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
-  adminController.getUsers(user.user_id)
-  .then(data => {
-    console.log(data);
-    res.render('users', {user: user, users: data, users_active: true});
-  })
-  .catch(err => {
-    res.render('users', {user: user, error: 'No User Found', users_active: true});
-  });
+  res.render('users', {user: user, users_active: true});
 });
 
 router.get('/admin/user/:userId', function (req, res, next) {
@@ -109,15 +102,18 @@ router.get('/admin/pricing', function (req, res, next) {
 
 router.get('/admin/add-pricing', function (req, res, next) {
   logger.trace();
+  const subaction = req.query.action;
+  const pricing_id = req.query.pricing_id;
   let user = req.session.user;
   var users = adminController.getUsers(user.user_id);
   var services = adminController.getServices(user.user_id);
-  var pricing = adminController.getPricing(user.user_id, null);
+  var pricing = adminController.getPricing(user.user_id, pricing_id ? pricing_id : null);
   const action = 'new';
+  console.log(action, subaction, pricing_id);
   Promise.all([users, services, pricing])
     .then(values => {
       console.log(values);
-      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action});
+      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action, subaction: subaction});
     })
     .catch(err => {
     res.render('add-pricing', {user: user, error: '', pricing_active: true, action: action});
@@ -162,10 +158,11 @@ router.get('/admin/pricing/:pricingId', function (req, res, next) {
   var services = adminController.getServices(user.user_id);
   var pricing = adminController.getPricing(user.user_id, req.params.pricingId);
   const action = 'update';
+  const subaction = req.query.action;
   Promise.all([users, services, pricing])
     .then(values => {
       console.log(values);
-      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action});
+      res.render('add-pricing', {user: user, users: values[0], services: values[1], pricing: values[2], pricing_active: true, action: action, subaction: subaction});
     })
     .catch(err => {
     res.render('add-pricing', {user: user, error: '', pricing_active: true, action: action});
@@ -182,6 +179,7 @@ router.put('/admin/pricing/:pricingId', function (req, res, next) {
   let unit = req.body.unit;
   let valid_from = req.body.valid_from;
   let valid_till = req.body.valid_till;
+  const subaction = req.body.subaction;
   if(!service_id || !price || !unit || !valid_from) {
     logger.trace();
     res.render('/admin/pricing/'+pricing_id, {services_active: true, error: 'Fill required fields'});
@@ -189,13 +187,17 @@ router.put('/admin/pricing/:pricingId', function (req, res, next) {
   adminController.updatePricing(user.user_id, pricing_id, service_id, user_id, price, unit, valid_from, valid_till)
     .then(data => {
       logger.trace();
-      adminController.getPrices(user.user_id)
-      .then(data => {
-        res.render('pricing', {user: user, pricing: data, pricing_active: true});
-      })
-      .catch(err => {
-        res.render('pricing', {user: user, error: 'No Pricing Found', pricing_active: true});
-      });
+      if(subaction == 'split') {
+        res.redirect('/admin/add-pricing?action=newcopy&pricing_id='+req.params.pricingId);
+      } else {
+        adminController.getPrices(user.user_id)
+          .then(data => {
+          res.render('pricing', {user: user, pricing: data, pricing_active: true});
+        })
+        .catch(err => {
+          res.render('pricing', {user: user, error: 'No Pricing Found', pricing_active: true});
+        });
+      }
     })
     .catch(err => {
       logger.trace();

@@ -168,6 +168,25 @@ router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next)
   }
 });
 
+
+router.get('/api/pricings', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (req.query.user != user.user_id && !user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    dataController.getPricings(user.user_id).then(data => {
+      res.json({"data":data});
+    }).catch();
+  }
+});
+
+
+
 router.get('/api/services', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
@@ -180,6 +199,22 @@ router.get('/api/services', function (req, res, next) {
   } else {
     dataController.getServices().then(data => {
       res.json(data);
+    }).catch();
+  }
+});
+
+router.get('/api/users', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (!user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    dataController.getUsers(user.user_id).then(data => {
+      res.json({"data": data});
     }).catch();
   }
 });

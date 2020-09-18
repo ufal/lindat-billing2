@@ -87,7 +87,8 @@ exports.get = () => {
         sp.*,
         u.user_id as user_id,
         CONCAT(u.first_name, ' ', u.last_name) as user_name,
-        s.name as service_name
+        s.name as service_name,
+        ( valid_from < CURRENT_TIMESTAMP and (valid_till IS NULL OR valid_till > CURRENT_TIMESTAMP)) as is_active
       FROM
         service_pricing sp
         LEFT JOIN users u ON u.user_id = sp.user_id

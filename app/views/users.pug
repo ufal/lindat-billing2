@@ -16,30 +16,14 @@ block content
                         strong= message
                 .divider
         .row
-            if users && users.length>0
-                .col.s12
-                    table.highlight.responsive-table
-                        thead
-                            tr
-                                td
-                                th Name
-                                th Email
-                                th Organization
-                                td
-                        tbody
-                            each usr in users
-                                tr
-                                    td
-                                        if usr.is_admin
-                                           i.material-icons settings
-                                    td= usr.first_name + ' ' + usr.last_name
-                                    td= usr.email
-                                    td= usr.organization
-                                    td
-                                        a.light-green-text(href='admin/user/' + usr.user_id)
-                                            i.material-icons info
-            else
-                +alert('No Users Defined', 'Click on the plus sign to add a new one.', 'error')
+            .col.s12
+                table(type='lb-datatable' data-url='api/users' data-header='["", "Email", "First Name", "Last Name", "Organization"]' )
+                  script.
+                    [ {
+                      "targets": 0,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="light-green-text" href="admin/user/'+data[0]+'"><i class="material-icons">' +(is_admin?'info':'info_outline')+'</i></a>';}
+                    } ]
 
     .fixed-action-btn
         a.btn-floating.btn-large.red(href="admin/add-user")

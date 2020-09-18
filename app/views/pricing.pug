@@ -16,35 +16,37 @@ block content
                         strong= message
                 .divider
         .row
-            if pricing && pricing.length>0
-                .col.s12
-                    table.highlight.responsive-table
-                        thead
-                            tr
-                                th
-                                th  Service
-                                th User
-                                th Price
-                                th From
-                                th Till
-                        tbody
-                            each pr in pricing
-                                tr
-                                    td
-                                        a.light-green-text(href='admin/pricing/' + pr.pricing_id)
-                                            i.material-icons edit
-                                    td= pr.service_name
-                                    td
-                                        if pr.user_id
-                                           a.light-green-text(href='admin/user/' + pr.user_id)= pr.user_name
-                                        else
-                                           i.material-icons people
-
-                                    td= pr.price
-                                    td= pr.valid_from
-                                    td= pr.valid_till
-            else
-                +alert('No Pricing Defined', 'Click on the plus sign to add a new one.', 'error')
+            .col.s12
+                table(type='lb-datatable' data-url='api/pricings' data-header='["", "Service", "User", "Price", "From", "Till", "Active"]' )
+                  script.
+                    [ {
+                      "targets": 0,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return '<a class="light-green-text" href="admin/pricing/'+row[0]+'"><i class="material-icons">edit</i></a>';}
+                    }, {
+                      "targets": 2,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {
+                            const user_id = data[6];
+                            return user_id
+                              ? '<a class="light-green-text" href="admin/user/'+user_id+'">'+row[meta['col']]+'</a>'
+                              : '<i class="material-icons">people</i>';
+                          }
+                    }, {
+                      "targets": [4],
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                    }, {
+                      "targets": [5],
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '<a class="light-green-text" href="admin/pricing/'+row[0]+'?action=split" title="Split"><i class="material-icons">last_page</i><i class="light-green-text material-icons">keyboard_arrow_right</i></a>';}
+                    }, {
+                      "targets": 6,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {
+                            return  row[7] ? '<i class="light-green-text material-icons">directions_run</i>': '';
+                          }
+                    } ]
 
     .fixed-action-btn
         a.btn-floating.btn-large.red(href="admin/add-pricing")
