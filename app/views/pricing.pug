@@ -33,9 +33,13 @@ block content
                               : '<i class="material-icons">people</i>';
                           }
                     }, {
-                      "targets": [4,5],
+                      "targets": [4],
                       "data": null,
                       "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                    }, {
+                      "targets": [5],
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '<a class="light-green-text" href="admin/pricing/'+row[0]+'?action=split" title="Split"><i class="material-icons">last_page</i><i class="light-green-text material-icons">keyboard_arrow_right</i></a>';}
                     }, {
                       "targets": 6,
                       "data": null,

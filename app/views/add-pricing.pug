@@ -8,7 +8,7 @@ block content
     .container
         .row
             .col.s12
-                h5= (action=='update') ? 'Update Pricing' : 'Add New Pricing'
+                h5= (action=='update') ? 'Update Pricing'+(subaction=='split' ? ' - Splitting':'') : 'Add New Pricing'+(subaction=='newcopy' ? ' - Splitting':'')
                 if error
                     .red-text
                         strong= error
@@ -18,11 +18,25 @@ block content
                 .divider
                 .section
                 form(action=(action=="update")?"admin/pricing/"+pricing.pricing_id+"?_method=PUT":"admin/pricing?_method=POST" method="post" enctype="application/x-www-form-urlencoding")
+                    - splitattributes = {};
+                    - newcopyattributes = {};
+                    - freezepairattributes = {};
+                    if subaction == "split"
+                        - splitattributes.style = 'pointer-events:none;';
+                        - splitattributes.tabindex = '-1';
+                        - freezepairattributes.style = 'pointer-events:none;';
+                        - freezepairattributes.tabindex = '-1';
+                    if subaction == "newcopy"
+                        - newcopyattributes.style = 'pointer-events:none;';
+                        - newcopyattributes.tabindex = '-1';
+                        - freezepairattributes.style = 'pointer-events:none;';
+                        - freezepairattributes.tabindex = '-1';
+
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix important_devices
                             .select-wrapper
-                              select.browser-default#service(name="service" required="")
+                              select.browser-default#service(name="service" required="")&attributes(freezepairattributes)
                                 option(value="", disabled="", selected= (pricing.service_id == null) ? 'selected' : false)
                                 each serv in services
                                     option(value=serv.service_id, selected= (serv.service_id==pricing.service_id) ? 'selected' : false)= serv.name
@@ -31,7 +45,7 @@ block content
                         .input-field.col.s12
                             i.material-icons.prefix people
                             .select-wrapper
-                              select.browser-default#user(name="user")
+                              select.browser-default#user(name="user")&attributes(freezepairattributes)
                                 option(value="", selected= (pricing.user_id == null) ? 'selected' : false)
                                 each usr in users
                                     option(value=usr.user_id,  selected= (usr.user_id==pricing.user_id) ? 'selected' : false)= usr.first_name + ' ' + usr.last_name
@@ -39,30 +53,31 @@ block content
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix attach_money
-                            input#price.validate(name="price" type="number" step="1" min="0" required="" aria-required="true" value=pricing.price)
+                            input#price.validate(name="price" type="number" step="1" min="0" required="" aria-required="true" value=pricing.price )&attributes(splitattributes)
                             label(for="price") Price
                             span.helper-text(data-error="Nonnegative Integer Required")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix library_music
-                            input#unit.validate(name="unit" type="number" step="1" min="0" required="" aria-required="true"  value=pricing.unit)
+                            input#unit.validate(name="unit" type="number" step="1" min="0" required="" aria-required="true"  value=pricing.unit )&attributes(splitattributes)
                             label(for="unit") Units for Given Price
                             span.helper-text(data-error="Nonnegative Integer Required")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix date_range
-                            input#valid_from.validate(name="valid_from" type="date" required="" aria-required="true" value=pricing.valid_from)
+                            input#valid_from.validate(name="valid_from" type="date" required="" aria-required="true" value=(subaction == "newcopy")?pricing.valid_till:pricing.valid_from )&attributes(freezepairattributes)
                             label(for="valid_from") Price Is Valid from Date
                             span.helper-text(data-error="Date Required")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix date_range
-                            input#valid_till.validate(name="valid_till" type="date" pattern="\d{4}-\d{2}-\d{2}" value=pricing.valid_till)
+                            input#valid_till.validate(name="valid_till" type="date" pattern="\d{4}-\d{2}-\d{2}" value=(subaction == "newcopy")?'':pricing.valid_till required=(subaction == "split")&&true autofocus=(subaction == "split")&&true)
                             label(for="valid_till") Price Is Valid till date (excluded)
                             span.helper-text(data-error="Date")
                     .row
                         .input-field.col.s6
                             input#_method(name="_method" type="hidden" value=(action=="update")?"PUT":"POST")
+                            input#subaction(name="subaction" type="hidden" value=subaction)
                             button.btn.grey.waves-effect.col.s12.white-text(type="submit")
                                 strong= (action=='update') ? 'Update Pricing' : 'Add Pricing'
                         .input-field.col.s6
