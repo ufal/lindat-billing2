@@ -32,6 +32,20 @@ exports.getServices = (userId) => {
   });
 };
 
+exports.getService = (userId, id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.service.getSingleService(id)
+    .then(data => {
+      db.user.logAction(userId, 'serviceDetail');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 exports.getUsers = (userId) => {
   logger.trace();
   return new promise((resolve, reject) => {

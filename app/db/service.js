@@ -62,3 +62,32 @@ exports.get = () => {
         });
   });
 };
+
+exports.getSingleService = (id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.one('SELECT * FROM services WHERE service_id = $1',[id])
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No service with given service_id',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};

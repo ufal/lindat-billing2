@@ -157,7 +157,7 @@ TimelineChart.prototype.loadData = function(period) {
     for(let i in self.data_lines) {
       const line = self.data_lines[i];
       self.cached_data_list[line+period] = true;
-      var ptr_loaded = data[line];
+      var ptr_loaded = data['data'][line];
       var ptr_cache = self.cached_data[line];
       var period_parts = period.split("-");
       for(let j in period_parts) {
