@@ -58,6 +58,19 @@ exports.getServices = () => {
   });
 };
 
+exports.getService = (id) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.service.getSingleService(id)
+    .then(data => {
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 exports.getUsers = (userId) => {
   logger.trace();
   return new promise((resolve, reject) => {

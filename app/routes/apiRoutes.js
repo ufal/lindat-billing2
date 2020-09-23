@@ -156,7 +156,7 @@ router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next)
         error : 'Permission Denied.'
       });
   } else {
-    service = adminController.getService(user.userId, req.params.serviceId);
+    service = dataController.getService(req.params.serviceId);
     Promise.all([service]).then(values => {
       if (req.params.filterUser != 'all') {
       // get price instead of request count and user count
