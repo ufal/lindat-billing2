@@ -17,6 +17,7 @@ function TimelineChart (div, id) {
   this.id = id;
   this.chartCanvas = null;
   this.chartTitle = null;
+  this.zoomOutBtn = null;
   this.cached_data_list = {};
   this.cached_data = {}
   this.div = div;
@@ -55,7 +56,8 @@ TimelineChart.prototype.initialize = function() {
   self.div.append(chartDiv);
 
   prevPeriod.children('a')[0].onclick = function(e){ self.prevPeriod(); }
-  zoomOut.children('a')[0].onclick = function(e){ self.zoomOut(); }
+  self.zoomOutBtn = zoomOut.children('a')[0];
+  self.zoomOutButtonEnable();
   nextPeriod.children('a')[0].onclick = function(e){ self.nextPeriod(); }
 };
 
@@ -184,10 +186,23 @@ TimelineChart.prototype.zoomOut = function() {
   var self = this;
   var period_parts = self.current_view.split('-');
   period_parts.pop();
+  if(period_parts.length <= 1){
+    self.zoomOutButtonDisable();
+  }
   self.showData(period_parts.join('-'));
 };
 
-TimelineChart.prototype.zoomIn = function(period) {this.showData(period)};
+TimelineChart.prototype.zoomOutButtonDisable = function() {jQuery(this.zoomOutBtn).prop('disabled', true).addClass('disabled').off( "onclick" )};
+TimelineChart.prototype.zoomOutButtonEnable = function() {
+  var self = this;
+  self.zoomOutBtn.onclick = function(e){ self.zoomOut(); };
+  jQuery(this.zoomOutBtn).prop('disabled', false).removeClass('disabled');
+};
+
+TimelineChart.prototype.zoomIn = function(period) {
+  this.zoomOutButtonEnable();
+  this.showData(period)
+};
 
 TimelineChart.prototype.clearUI = function() {
   var self = this;
