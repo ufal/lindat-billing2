@@ -63,12 +63,12 @@ block content
                         ids[s.name] = s.service_id
                 each d, s in data
                     .col.s12.m6.l4(id=s+'_main')
-                        .card(style="padding: 0px;")
+                        .card(style="padding: 0px; height: fit-content;")
                             .card-content
                                 .card-title.activator= s
                                     i.material-icons.right more_vert
                                 .flow=text= sum[s]
-                            .card-reveal
+                            .card-reveal(style="overflow: hidden;")
                                 .card-title= s
                                     i.material-icons.right close
                                 div(type='timeline-chart' data-url='api/data/'+filteruser+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
