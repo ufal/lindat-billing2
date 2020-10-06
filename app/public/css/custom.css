@@ -5,10 +5,19 @@
 
 .error {
     font-weight: bolder;
-    color: #f44336;    
+    color: #f44336;
 }
 
 .completed {
     font-weight: bolder;
     color: #4caf50;
 }
+
+.tabs-icon, .tabs-icon .tab {
+    line-height: inherit;
+    height: inherit;
+}
+
+.tabs-icon .tab a{
+    padding: 0;
+ }
