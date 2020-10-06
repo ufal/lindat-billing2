@@ -174,11 +174,13 @@ TimelineChart.prototype.showData = function(period) {
     });
     self.current_view = period;
     self.printDataToTable(dataset, self.period_unit);
-    self.chartCanvas[0].onclick = function(e){
-      var point = chart.getElementAtEvent(e);
-      if(!point.length) return; // not clicked on point
-      var label = chart.data.labels[point[0]._index];
-      self.zoomIn(label);
+    if(get_unit_depth(self.period_unit) < get_unit_depth('hour')) {
+      self.chartCanvas[0].onclick = function(e){
+        var point = chart.getElementAtEvent(e);
+        if(!point.length) return; // not clicked on point
+        var label = chart.data.labels[point[0]._index];
+        self.zoomIn(label);
+      }
     }
   });
 
@@ -299,6 +301,10 @@ TimelineChart.prototype.printDataToTable = function (dataset, period) {
 
 function get_period_unit(parts) {
   return ['year', 'month','day', 'hour'][parts.length];
+}
+
+function get_unit_depth(unit) {
+  return {'year': 0, 'month': 1,'day': 3, 'hour': 4}[unit];
 }
 
 function get_higher_unit(unit) {
