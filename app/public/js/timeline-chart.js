@@ -19,10 +19,13 @@ function TimelineChart (div, id) {
   this.chartTitle = null;
   this.zoomOutBtn = null;
   this.cached_data_list = {};
-  this.cached_data = {}
+  this.cached_data = {};
   this.div = div;
   this.data_url = div.attr("data-url");
   this.data_lines = JSON.parse(div.attr("data-lines"));
+  this.metadata = null;
+  this.tableT= null;
+  this.datatable = null;
   for(let elem in this.data_lines) {
   	this.cached_data[this.data_lines[elem]] = {};
   };
@@ -36,29 +39,64 @@ TimelineChart.prototype.initialize = function() {
   var self = this;
   var chartDiv = jQuery('<div class="row"></div>');
   var titleDiv = jQuery('<div class="row"></div>');
+  var tableDiv = jQuery('<div class="row"></div>');
+  var tableT = jQuery('<table class="striped"></table>');
   var prevPeriod = jQuery('<div class="col s1 m1 l1"><a class="btn-floating btn-small" title="previous period"><i class="material-icons">navigate_before</i></a></div>');
-  var zoomOut    = jQuery('<div class="col s2 m2 l2"><a class="btn-floating btn-small right"><i class="material-icons">keyboard_arrow_up</i></a></div>');
-  self.chartTitle    = jQuery('<h6 class="col s8 m8 l8"></h6>');
+  var zoomOut    = jQuery('<div class="col s1 m1 l1"><a class="btn-floating btn-small right"><i class="material-icons">keyboard_arrow_up</i></a></div>');
+  var tabButtons = jQuery('<div class="col s2 m2 l2"></div>');
+  var tabList = jQuery('<ul class="tabs tabs-icon"></ul>')
+  tabButtons.append(tabList);
+  var downloadDiv    = jQuery('<div class="col s1 m1 l1"></div>');
+  var downloadDropdown = jQuery('<a class="btn-floating btn-small right btn dropdown-trigger"><i class="material-icons">file_download</i></a>')
+  downloadDiv.append(downloadDropdown);
+  var dropdownMenu = jQuery('<ul class="dropdown-content"></ul>');
+  downloadDiv.append(dropdownMenu);
+
+  self.chartTitle    = jQuery('<h6 class="col s6 m6 l6"></h6>');
   var nextPeriod = jQuery('<div class="col s1 m1 l1"><a class="btn-floating btn-small right"  title="next period"><i class="material-icons">navigate_next</i></a></div>');
   const chartDivId = 'tlc-' + self.id;
+  const tableDivId = 'tlt-' + self.id;
   chartDiv.attr('id', chartDivId);
+  tableDiv.attr('id', tableDivId);
+
   self.chartTitle.attr('id',chartDivId + '-title');
   self.chartCanvas = jQuery('<canvas></canvas>');
   self.chartCanvas.attr('id', chartDivId+'-chart');
 
+  [[chartDivId,'show_chart'], [tableDivId,'border_all']].forEach( (d, i) => {
+    var el = jQuery('<li class="tab col s6"></li>');
+    var link = jQuery('<a href="#'+d[0]+'"><i class="material-icons">'+d[1]+'</i></a>');
+    el.append(link);
+    if(i == 0) {
+     link.attr('class', 'active');
+    }
+    tabList.append(el);
+  });
   chartDiv.append(self.chartCanvas);
-  titleDiv.append(prevPeriod);
-  titleDiv.append(zoomOut);
-  titleDiv.append(self.chartTitle);
-
-  titleDiv.append(nextPeriod);
-  self.div.append(titleDiv);
-  self.div.append(chartDiv);
+  titleDiv.append(prevPeriod, zoomOut, self.chartTitle, tabButtons, downloadDiv, nextPeriod);
+  self.div.append(titleDiv, chartDiv, tableDiv);
+  tableDiv.append(tableT);
+  self.tableT = tableT;
 
   prevPeriod.children('a')[0].onclick = function(e){ self.prevPeriod(); }
   self.zoomOutBtn = zoomOut.children('a')[0];
   self.zoomOutButtonEnable();
   nextPeriod.children('a')[0].onclick = function(e){ self.nextPeriod(); }
+
+  var dropdownId = 'down-dropdown-' + self.id;
+  downloadDropdown.attr('data-target',dropdownId);
+  dropdownMenu.attr('id', dropdownId);
+  [['csv','csv'], ['xslx','excel']].forEach(type => {
+    var downBtn = jQuery('<a href="#">' + type[0] + '</a>');
+    dropdownMenu.append(jQuery('<li></li>').append(downBtn));
+    downBtn.click( function(e) {
+      jQuery("#" + tableDivId + " .buttons-" + type[1]).click();
+    });
+
+  });
+
+  M.Dropdown.init(downloadDropdown);
+  M.Tabs.init(tabList);
 };
 
 TimelineChart.prototype.showData = function(period) {
@@ -135,6 +173,7 @@ TimelineChart.prototype.showData = function(period) {
         }
     });
     self.current_view = period;
+    self.printDataToTable(dataset, self.period_unit);
     self.chartCanvas[0].onclick = function(e){
       var point = chart.getElementAtEvent(e);
       if(!point.length) return; // not clicked on point
@@ -171,6 +210,7 @@ TimelineChart.prototype.loadData = function(period) {
       };
       ptr_cache['total'] = ptr_loaded['total'].map(function(e){return {t: Date.parse(e['interval']).valueOf() ,y: e['cnt']}});
     };
+    self.metadata = data['metadata'];
   });
 };
 
@@ -210,6 +250,52 @@ TimelineChart.prototype.clearUI = function() {
   self.chartCanvas = jQuery('#tlc-' + self.id + '-chart');
 };
 
+TimelineChart.prototype.printDataToTable = function (dataset, period) {
+  var self = this;
+  var table = self.tableT;
+
+  var row = jQuery('<tr></tr>');
+  ('start service_id name period '+self.data_lines.join(' ')).split(' ').forEach(c => row.append(jQuery('<td>' + c + '</td>')));
+
+  table.append(jQuery('<thead></thead>').append(row));
+  if ( ! self.datatable ) {
+    self.datatable = table.DataTable({
+      //"scrollY": "100%",
+      //"scrollCollapse": true,
+      "searching": false,
+      "paging": false,
+      dom: 'Bfrtip',
+      "buttons": [
+          {
+            extend: 'excel',
+            title: '',
+            filename: self.metadata['service_name'], // + moment().format("DD-MMM-YYYY"),
+          },
+          {
+            extend: 'csv',
+            filename: self.metadata['service_name'], // + moment().format("DD-MMM-YYYY"),
+          },
+        ],
+    });
+    ['excel', 'csv'].forEach( t => {jQuery("#tlt-" + self.id + " .buttons-" + t).hide()});
+  }
+
+  self.datatable.clear();
+
+  for(var i = 0; i < dataset[0].data.length; ++i ) {
+    self.datatable.row.add( // All data should be converted to string
+      [
+        print_round_format_date(dataset[0].data[i]['t'],self.period_unit),
+        self.metadata['service_id'].toString(),
+        self.metadata['service_name'],
+        period,
+        ...dataset.map(d =>d.data[i]['y'].toString())
+      ]
+    );
+  }
+  self.datatable.columns.adjust().draw();
+  self.datatable.draw();
+};
 
 function get_period_unit(parts) {
   return ['year', 'month','day', 'hour'][parts.length];
@@ -221,6 +307,10 @@ function get_higher_unit(unit) {
 
 function round_format_date(date, unit) {
   return moment(date).format({year: 'YYYY', month: 'YYYY-MM', day: 'YYYY-MM-DD', hour: 'YYYY-MM-DD'}[unit]);
+}
+
+function print_round_format_date(date, unit) {
+  return moment(date).format({year: 'YYYY', month: 'YYYY-MM', day: 'YYYY-MM-DD', hour: 'YYYY-MM-DDTHH'}[unit]);
 }
 
 function update_period(date, unit, correction) {
