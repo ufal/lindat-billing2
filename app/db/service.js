@@ -91,3 +91,23 @@ exports.getSingleService = (id) => {
         });
   });
 };
+
+exports.exists = (name) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.one('SELECT exists( SELECT 1 FROM services WHERE name = $1)',[name])
+        .then(data => {
+          logger.trace();
+          resolve(data["exists"]);
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};

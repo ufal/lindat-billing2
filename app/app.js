@@ -11,7 +11,8 @@ const methodOverride = require('method-override');
 const logger = require('./logger');
 const config = require('config');
 const routes = require('./routes');
-const logManager = require('./log-manager/importLogs')
+const logManager = require('./log-manager/importLogs');
+const db = require('./db');
 //const cors = require('cors');
 
 const app = express();
@@ -50,6 +51,17 @@ app.set('views', __dirname + '/views');
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 // app.use(cookieParser());
 
+if(config.logs.add_services_if_not_exist && Array.isArray(config.logs.new_service_list)) {
+  config.logs.new_service_list.forEach(
+    service => {
+      db.service.exists(service[0]).then( exists => {
+          if(! exists) {
+            db.service.add(...service);
+          }
+        })
+    }
+  );
+}
 
 if(config.logs.import_on_startup) {
   logManager.readAndMonitorFiles(config.logs.path);

@@ -20,7 +20,11 @@
 	"logs": {
 	  "path": "input_logs",
 	  "ignore": "\\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$",
-	  "import_on_startup": true
+	  "import_on_startup": true,
+	  "add_services_if_not_exist": true,
+	  "new_service_list": [
+	    ["translator", "^\\/services\\/translation\\/api", "A neural networks based translation service provides a simple UI and API that lets you use Transformer models trained by our experts.", "808080"]
+	  ]
 	},
 	"mail": {
 	  "smtp": {
