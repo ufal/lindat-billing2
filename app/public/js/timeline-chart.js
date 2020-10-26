@@ -40,7 +40,7 @@ TimelineChart.prototype.initialize = function() {
   var chartDiv = jQuery('<div class="row"></div>');
   var titleDiv = jQuery('<div class="row"></div>');
   var tableDiv = jQuery('<div class="row"></div>');
-  var tableT = jQuery('<table class="striped"></table>');
+  var tableT = jQuery('<table class="striped compact" style="width:100%;"></table>');
   var prevPeriod = jQuery('<div class="col s1 m1 l1"><a class="btn-floating btn-small" title="previous period"><i class="material-icons">navigate_before</i></a></div>');
   var zoomOut    = jQuery('<div class="col s1 m1 l1"><a class="btn-floating btn-small right"><i class="material-icons">keyboard_arrow_up</i></a></div>');
   var tabButtons = jQuery('<div class="col s2 m2 l2"></div>');
