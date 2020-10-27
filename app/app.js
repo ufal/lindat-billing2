@@ -3,6 +3,7 @@
  */
 
 const express = require('express');
+const favicon = require('serve-favicon');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session')
@@ -48,7 +49,8 @@ app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
 
 // uncomment after placing your favicon in /public
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.svg')));
 // app.use(cookieParser());
 
 if(config.logs.add_services_if_not_exist && Array.isArray(config.logs.new_service_list)) {
