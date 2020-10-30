@@ -7,6 +7,7 @@ const md5 = require('md5')
 const lineByLine = require("n-readlines");
 const db = require("../db");
 const logger = require('../logger');
+const _ = require('underscore');
 
 
 const parser = require('nginx-log-parser')('$remote_addr - $remote_user [$time_local] '
@@ -130,13 +131,13 @@ readLines = async (fileId, file, from) => {
 
 parseLogLine = (line) => {
   let obj = parser(line.replace(/\s\s+/g, ' '));
+  _.defaults(obj, {unit: 1, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
   req = req.replace(/^"(.+(?="$))"$/, '$1').split(' ');
   obj.method = req[0];
   obj.request = req[1];
   obj.protocol = req[2];
   obj.time_local = obj.time_local.replace(/[\[\]]/g, '');
-  obj.unit = 1; // Temporary
   return obj;
 };
 
