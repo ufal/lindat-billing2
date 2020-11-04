@@ -131,6 +131,7 @@ readLines = async (fileId, file, from) => {
 
 parseLogLine = (line) => {
   let obj = parser(line.replace(/\s\s+/g, ' '));
+  _.omit(obj, function(value, key, object) { return value === '';}); // remove empty strings
   _.defaults(obj, {unit: 1, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
   req = req.replace(/^"(.+(?="$))"$/, '$1').split(' ');
