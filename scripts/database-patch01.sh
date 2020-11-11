@@ -101,7 +101,7 @@ CREATE OR REPLACE FUNCTION log_aggr_new_entry(
   units INTEGER,
   endpoint INTEGER,
   service INTEGER,
-  unit_price DECIMAL DEFAULT 0
+  unit_price DECIMAL
   ) RETURNS BOOLEAN
 AS
 \$\$
@@ -111,6 +111,8 @@ BEGIN
   -- RAISE NOTICE '(ENDPOINT , SERVICE, price , units) = (%, %, %, %)', endpoint, service, unit_price, units;
   -- count price for service if deffined
   -- add to correct record or create new one
+  SELECT INTO units coalesce(max(units),0); -- set 0 if NULL
+  SELECT INTO unit_price coalesce(max(unit_price),0); -- set 0 if NULL
   UPDATE log_aggr
   SET
     cnt_requests = log_aggr.cnt_requests + 1,
@@ -119,7 +121,7 @@ BEGIN
   WHERE
     period_level = level
     AND period_start_date = period_start
-    AND endpoint_id = endpoint
+    AND (( (endpoint_id IS NULL) AND (endpoint IS NULL) ) OR endpoint_id = endpoint )
     AND service_id = service
   RETURNING TRUE INTO row_exists;
   IF row_exists IS NOT true THEN
