@@ -40,6 +40,8 @@ INSERT INTO services(name, prefix, description) VALUES('translator', '^\/service
 
 ALTER TABLE service_pricing ALTER COLUMN price TYPE DECIMAL(24,4);
 
+ALTER TABLE service_pricing ADD CONSTRAINT positive_unit CHECK (unit > 0);
+
 DO
 \$\$
 BEGIN

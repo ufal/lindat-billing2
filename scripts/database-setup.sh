@@ -253,5 +253,11 @@ if [ -f $DBGFILE ]; then
        psql -U $USER_NAME -p $PORT -q -v "ON_ERROR_STOP=1" $DB_NAME < $DBGFILE
 fi
 
+DBGFILEENDPOINTS="$D/debug-data-endpoints.sh"
+if [ -f $DBGFILEENDPOINTS ]; then
+       echo "ADDING ENDPOINTS, DATA AND USERS !!!"
+       psql -U $USER_NAME -p $PORT -q -v "ON_ERROR_STOP=1" $DB_NAME < $DBGFILEENDPOINTS
+       grep "^\s*--\s*SHELL" $DBGFILEENDPOINTS | sed "s/^\s*--\s*SHELL//" | sh
+fi
 
 echo 'DATABASE SUCCESSFULLY CREATED';
