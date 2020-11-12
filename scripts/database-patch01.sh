@@ -178,7 +178,7 @@ begin
             ue.endpoint_id as ep,
             sp.price / sp.unit as up
           FROM
-            (SELECT endpoint_id, user_id FROM user_endpoints WHERE ip = new.remote_addr
+            (SELECT endpoint_id, user_id FROM user_endpoints WHERE ip = new.remote_addr AND is_active IS TRUE
              UNION ALL SELECT NULL AS endpoint_id, NULL AS user_id) ue
              JOIN
             ( SELECT user_id, unit, price
