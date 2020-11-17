@@ -303,27 +303,26 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
       days_list
       + `
       SELECT
-        u.name,
-        u.color,
-        u.interval,
-        least(count(u.interval),sum(u.uniq)) AS users,
-        sum(u.uniq) as requests
-      FROM
-        (
-          SELECT
             s.name AS name,
             s.color AS color,
             intervals.interval AS interval,
-            count(l.line_number) AS uniq
+            coalesce(la.cnt_requests,0) AS requests,
+            coalesce(la.cnt_units,0) AS units
           FROM
             intervals
             cross join (SELECT * FROM services WHERE service_id = $2) s
-            left join log_file_entries l on date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
-          GROUP BY s.name, s.color, intervals.interval, l.remote_addr
-        ) AS u
-      GROUP BY u.name, u.color, u.interval
-      ORDER BY u.interval ASC`,
+            left join
+              (SELECT *
+                FROM log_aggr
+                WHERE period_level = '${interval}'::period_levels
+                  AND endpoint_id is NULL
+                  AND SERVICE_ID = $2
+                ) la
+              ON la.period_start_date = intervals.interval
+          GROUP BY s.name, s.color, intervals.interval, la.cnt_requests, la.cnt_units
+      ORDER BY interval ASC`,
       [startDate,serviceId])
+
         .then(data => {
             logger.trace();
             resolve(data); // data

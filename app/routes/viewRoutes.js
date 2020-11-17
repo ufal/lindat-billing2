@@ -208,7 +208,7 @@ async function getAdminDashboard(user, res){
   const len = 21;
   const last_date = (new Date).toISOString().slice(0,10);
   const weekly = await adminController.getWeeklyCountsByService(last_date, len);
-  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: Date.parse(last_date), initialview: (new Date).toISOString().slice(0,7), admin_dashboard_active: true, filteruser: 'all', datalines: ["users","requests"]});
+  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: Date.parse(last_date), initialview: (new Date).toISOString().slice(0,7), admin_dashboard_active: true, filteruser: 'all', datalines: ["units","requests"]});
 }
 
 async function getUserDashboard(user, res){

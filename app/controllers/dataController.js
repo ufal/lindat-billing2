@@ -22,7 +22,7 @@ exports.getPeriodCounts = (serviceId, date, duration, interval, datePath) => {
   return new promise((resolve, reject) => {
     exports.getCounts(serviceId, date, duration, interval)
     .then(data => {
-      resolve({users: data2path('users', data, datePath), requests: data2path('requests', data, datePath)});
+      resolve({units: data2path('units', data, datePath), requests: data2path('requests', data, datePath)});
     })
     .catch(err => {
       reject(err);
