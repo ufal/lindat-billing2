@@ -183,21 +183,25 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
         s.color AS color,
         d.day AS day,
         d.ord AS ord,
-        count(l.line_number) AS count
+        coalesce(cnt_requests,0) AS count
       FROM
         days d
         CROSS JOIN services s
         LEFT JOIN
             (
-              SELECT *, date_trunc('day',time_local) as day
-              FROM log_file_entries
-
-              WHERE time_local >= timestamp $1 - interval '$2 day'
-                AND time_local < timestamp $1 + interval '1 day'
+              SELECT
+                la.service_id,
+                la.period_start_date,
+                sum(coalesce(la.cnt_requests,0)) as cnt_requests
+              FROM log_aggr la
+              WHERE period_start_date >= timestamp $1 - interval '$2 day'
+                AND period_start_date < timestamp $1 + interval '1 day'
+                AND period_level = 'day'::period_levels
                  ` + query +`
+              GROUP BY la.service_id, la.period_start_date
             )  l
-         ON l.service_id=s.service_id AND l.day=d.day
-      GROUP BY name, s.service_id, color, d.day, d.ord
+         ON l.service_id=s.service_id AND l.period_start_date=d.day
+      GROUP BY name, s.service_id, color, d.day, d.ord, l.cnt_requests
       `, [date, len-1, ...values])
         .then(data => {
             logger.trace();
@@ -220,8 +224,10 @@ function createFilter(filter){
   var values=[];
   if('user_id' in filter) {
     //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
-    query = ' AND  remote_addr IN (SELECT ip FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) '; // TODO is_active !!!
+    query = ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) ';
     values.push(filter['user_id'])
+  } else { // user is not defined
+    query = 'AND endpoint_id IS NULL'
   }
   return {
     query: query,
