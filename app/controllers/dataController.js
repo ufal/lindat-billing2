@@ -36,7 +36,7 @@ exports.getPeriodPrices = (serviceId, date, duration, interval, datePath, userId
   return new promise((resolve, reject) => {
     db.logs.getPricesCounts(serviceId, date, duration, interval, userId)
     .then(data => {
-      resolve({prices: data2path('prices', data, datePath), requests: data2path('requests', data, datePath)});
+      resolve({units: data2path('units', data, datePath), prices: data2path('prices', data, datePath), requests: data2path('requests', data, datePath)});
     })
     .catch(err => {
       reject(err);

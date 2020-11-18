@@ -354,38 +354,27 @@ exports.getPricesCounts = (serviceId,startDate,duration,interval, userId) => {
       days_list
       + `
       SELECT
-        u.name,
-        u.color,
-        u.interval,
-        u.price * u.units AS prices,
-        u.units AS units,
-        sum(u.uniq) as requests
-      FROM
-        (
-          SELECT
             s.name AS name,
             s.color AS color,
             intervals.interval AS interval,
-            count(l.line_number) AS uniq,
-            coalesce(sum(l.unit),0) AS units,
-            coalesce(sp.price, 0) AS price
+            sum(coalesce(la.cnt_requests,0)) AS requests,
+            sum(coalesce(la.cnt_units,0)) AS units,
+            sum(coalesce(la.cnt_units,0) * coalesce(la.price,0)) AS price
           FROM
             intervals
             cross join (SELECT * FROM services WHERE service_id = $2) s
             left join
-              (
-                SELECT
-                  fe.*
+              (SELECT *
                 FROM
-                  log_file_entries fe
-                  JOIN user_endpoints ue ON fe.remote_addr = ue.ip
-                WHERE ue.user_id = $3
-              )  l ON date_trunc('${interval}', l.time_local) = intervals.interval AND s.service_id = l.service_id
-            LEFT OUTER JOIN service_pricing sp ON l.service_id = sp.service_id AND l.time_local >= sp.valid_from AND (sp.valid_till IS NULL OR l.time_local < sp.valid_till)
-          GROUP BY s.name, s.color, intervals.interval, sp.price
-        ) AS u
-      GROUP BY u.name, u.color, u.interval, u.price, u.units
-      ORDER BY u.interval ASC`,
+                  log_aggr
+                  JOIN user_endpoints ON log_aggr.endpoint_id = user_endpoints.endpoint_id
+                WHERE period_level = '${interval}'::period_levels
+                  AND service_id = $2
+                  AND user_id = $3
+                ) la
+              ON la.period_start_date = intervals.interval
+          GROUP BY s.name, s.color, intervals.interval
+      ORDER BY interval ASC`,
       [startDate, serviceId, userId])
         .then(data => {
             logger.trace();
