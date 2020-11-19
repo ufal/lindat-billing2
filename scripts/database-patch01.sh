@@ -221,6 +221,16 @@ LANGUAGE plpgsql;
 
 CREATE TRIGGER log_files_lines_read_aggr AFTER INSERT ON log_file_entries FOR ROW EXECUTE PROCEDURE trigger_log_entries_aggr();
 
+CREATE TABLE db_schema_version
+(
+  db_version_id     SERIAL PRIMARY KEY,
+  version           INTEGER NOT NULL,
+  create_time       TIMESTAMP DEFAULT NOW(),
+  script_path       TEXT NOT NULL
+);
+
+INSERT INTO db_schema_version(version, script_path)
+     VALUES(1, 'scripts/database-patch01.sh') ON CONFLICT DO NOTHING;
 
 
 \q

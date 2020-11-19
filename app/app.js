@@ -16,6 +16,18 @@ const logManager = require('./log-manager/importLogs');
 const db = require('./db');
 //const cors = require('cors');
 
+
+db.dbSchema.checkVersion().then(valid => {
+  if(! valid){
+    db.dbSchema.dbVersion().then(ver => {
+      logger.error("DATABASE VERSION IS NOT VALID!!! current db: " + ver['current']
+         + ", expected: " + ver['expected']
+         + ", minimal: " + ver['required']);
+      process.exit()
+    });
+  }
+})
+
 const app = express();
 
 if(!config.has('jwt.secret')){logger.error('Please set jwt.secret in your local.json file');}
