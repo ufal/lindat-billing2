@@ -11,7 +11,7 @@ const _ = require('underscore');
 
 
 const parser = require('nginx-log-parser')('$remote_addr - $remote_user [$time_local] '
-    + '"$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"');
+    + '"$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $col1 $col2 $col3 $cnt_units');
 
 var services = {};
 
@@ -132,6 +132,9 @@ readLines = async (fileId, file, from) => {
 parseLogLine = (line) => {
   let obj = parser(line.replace(/\s\s+/g, ' '));
   obj = _.omit(obj, function(value, key, object) { return value === '';}); // remove empty strings
+  _.defaults(obj, {cnt_units:'billing:'});
+  let iwc = obj.cnt_units.replace(/^billing:.*iwc=(\d+).*$/, '$1'); // fill iwc to unit if it is defined
+  if(! isNaN(iwc)) obj.unit = iwc;
   _.defaults(obj, {unit: 1, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
   req = req.replace(/^"(.+(?="$))"$/, '$1').split(' ');
