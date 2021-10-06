@@ -36,8 +36,6 @@ fi
 
 psql -U $USER_NAME -p $PORT -q -v "ON_ERROR_STOP=1" $DB_NAME << EOF
 
-INSERT INTO services(name, prefix, description) VALUES('translator', '^\/services\/translation\/api', 'A neural networks based translation service provides a simple UI and API that lets you use Transformer models trained by our experts.') ON CONFLICT DO NOTHING;
-
 ALTER TABLE service_pricing ALTER COLUMN price TYPE DECIMAL(24,4);
 
 ALTER TABLE service_pricing ADD CONSTRAINT positive_unit CHECK (unit > 0);
