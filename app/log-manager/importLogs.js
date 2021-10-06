@@ -133,8 +133,8 @@ parseLogLine = (line) => {
   let obj = parser(line.replace(/\s\s+/g, ' '));
   obj = _.omit(obj, function(value, key, object) { return value === '';}); // remove empty strings
   _.defaults(obj, {cnt_units:'billing:'});
-  let iwc = obj.cnt_units.replace(/^billing:.*iwc=(\d+).*$/, '$1'); // fill iwc to unit if it is defined
-  if(! isNaN(iwc)) obj.unit = iwc;
+  let infclen = obj.cnt_units.replace(/^billing:infclen=(\d+).*$/, '$1'); // fill infclen to unit if it is defined
+  if(! isNaN(infclen)) obj.unit = infclen;
   _.defaults(obj, {unit: 1, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
   req = req.replace(/^"(.+(?="$))"$/, '$1').split(' ');
