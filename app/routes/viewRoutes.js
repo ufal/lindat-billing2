@@ -215,7 +215,7 @@ async function getUserDashboard(user, res){
   const len = 21;
   const last_date = (new Date).toISOString().slice(0,10);
   const weekly = await userController.getWeeklyCountsByService(user.user_id, last_date , len);
-  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: last_date, initialview: (new Date).toISOString().slice(0,7), user_dashboard_active: true, filteruser: user.user_id, datalines: ["prices","units","requests"]});
+  res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: Date.parse(last_date), initialview: (new Date).toISOString().slice(0,7), user_dashboard_active: true, filteruser: user.user_id, datalines: ["prices","units","requests"]});
 }
 
 module.exports = router;
