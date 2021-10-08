@@ -15,6 +15,11 @@ function LBDataTable (table, cnt) {
   this.data_header = JSON.parse(table.attr("data-header"));
   this.table = table;
   this.column_settings = table.children('script').text();
+  this.data_type = table.attr("data-type");
+  this.data_field = table.attr("data-field");
+  if(table.attr("data-items")) {
+    this.data_items = JSON.parse(table.attr("data-items"));
+  }
 };
 
 
@@ -34,7 +39,26 @@ LBDataTable.prototype.initialize = function() {
   self.table.append(footer);
 
   self.table.DataTable( {
-        "ajax": self.data_url,
+        "ajax": {
+          "url": self.data_url,
+          ...( self.data_type
+               ? {
+                    "dataSrc": function (json) {
+                      const array = json[self.data_field].map(
+                        (row) => {
+                          return self.data_items.map(
+                            (item_label) => {
+                              return item_label ? row[item_label] : ''
+                            }
+                          )
+                        }
+                      );
+                      return array;
+                    }
+                 }
+               : {}
+             )
+        },
         "columnDefs": eval(self.column_settings)
     } );
 
