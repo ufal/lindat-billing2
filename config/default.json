@@ -23,18 +23,18 @@
 	  "import_on_startup": true,
 	  "add_services_if_not_exist": true,
 	  "new_service_list": [
-	    ["translator", "A neural networks based translation service provides a simple UI and API that lets you use Transformer models trained by our experts.", "^\/services\/(transformer|translation|machine-translation|mt)\/api", "808080"],
-	    ["SynSemClass","","^\/services\/SynSemClass", "808080"],
-	    ["Korektor","A statistical spellchecker and (occasional) grammar checker.","^\/services\/korektor\/api", "808080"],
-	    ["Parsito","A fast open-source dependency parser.","^\/services\/parsito\/api", "808080"],
-	    ["KER","A keyword extractor that was designed for scanned texts in Czech and English.","^\/services\/ker", "808080"],
-	    ["EVALD","An automatic evaluator of surface coherence (cohesion) in Czech texts written by native speakers of Czech.","^\/services\/evald", "808080"],
-	    ["EVALDforeign","An automatic evaluator of surface coherence (cohesion) in Czech texts written by non-native speakers of Czech.","^\/services\/evald-foreign", "808080"],
-	    ["TEITOK","A platform for viewing, creating, and editing corpora with both rich textual mark-up and linguistic annotation.","^\/services\/teitok", "808080"],
-	    ["Repository-handle","","^\/repository\/xmlui\/handle\/", "808080"],
-	    ["UWebASR","An ASR engine for Czech and Slovak.","^\/services\/uwebasr\/api", "808080"],
-	    ["UDPipe","A trainable pipeline for tokenization, tagging, lemmatization and dependency parsing of CoNLL-U files.","^\/services\/udpipe\/api", "808080"],
-	    ["kontext",".","^\/services\/kontext\/", "808080"]
+	    ["translator", "A neural networks based translation service provides a simple UI and API that lets you use Transformer models trained by our experts.", "^\\/services\\/(transformer|translation|machine-translation|mt)\\/api", "808080"],
+	    ["SynSemClass","","^\\/services\\/SynSemClass", "808080"],
+	    ["Korektor","A statistical spellchecker and (occasional) grammar checker.","^\\/services\\/korektor\\/api", "808080"],
+	    ["Parsito","A fast open-source dependency parser.","^\\/services\\/parsito\\/api", "808080"],
+	    ["KER","A keyword extractor that was designed for scanned texts in Czech and English.","^\\/services\\/ker", "808080"],
+	    ["EVALD","An automatic evaluator of surface coherence (cohesion) in Czech texts written by native speakers of Czech.","^\\/services\\/evald", "808080"],
+	    ["EVALDforeign","An automatic evaluator of surface coherence (cohesion) in Czech texts written by non-native speakers of Czech.","^\\/services\\/evald-foreign", "808080"],
+	    ["TEITOK","A platform for viewing, creating, and editing corpora with both rich textual mark-up and linguistic annotation.","^\\/services\\/teitok", "808080"],
+	    ["Repository-handle","","^\\/repository\\/xmlui\\/handle\\/", "808080"],
+	    ["UWebASR","An ASR engine for Czech and Slovak.","^\\/services\\/uwebasr\\/api", "808080"],
+	    ["UDPipe","A trainable pipeline for tokenization, tagging, lemmatization and dependency parsing of CoNLL-U files.","^\\/services\\/udpipe\\/api", "808080"],
+	    ["kontext",".","^\\/services\\/kontext\\/", "808080"]
 	  ]
 	},
 	"mail": {
