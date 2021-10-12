@@ -65,23 +65,50 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.svg')));
 // app.use(cookieParser());
 
+/*
 if(config.logs.add_services_if_not_exist && Array.isArray(config.logs.new_service_list)) {
   config.logs.new_service_list.forEach(
     service => {
       db.service.exists(service[0]).then( exists => {
           if(! exists) {
-            db.service.add(...service);
+            db.service.add(...service).then(())=>{logger.debug("new service imported")};
           }
+        })
+        .catch(err => {
+          logger.trace();
+          logger.error(err);
         })
     }
   );
 }
-
-if(config.logs.import_on_startup) {
-  logManager.readAndMonitorFiles(config.logs.path);
-} else {
-  logManager.filesChangesMonitor(config.logs.path);
+*/
+async function loadNewServices (new_service_list) {
+  logger.trace();
+  await Promise.all(new_service_list.map(async (service) => {
+    await db.service.exists(service[0]).then( exists => {
+          if(! exists) {
+            db.service.add(...service).then(()=>{logger.debug("new service imported")});
+          }
+        })
+        .catch(err => {
+          logger.trace();
+          logger.error(err);
+        })
+  }));
 }
+
+
+loadNewServices(
+  config.logs.add_services_if_not_exist && Array.isArray(config.logs.new_service_list)
+  ? config.logs.new_service_list
+  : [] ).then(() => {
+    logger.debug("starting import log entries");
+    if(config.logs.import_on_startup) {
+      logManager.readAndMonitorFiles(config.logs.path);
+    } else {
+      logManager.filesChangesMonitor(config.logs.path);
+    }
+    });
 
 app.use(cookeParser());
 
