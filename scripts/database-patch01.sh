@@ -69,6 +69,23 @@ CREATE INDEX ON log_aggr(period_start_date);
 
 COMMENT ON COLUMN log_aggr.endpoint_id IS 'NULL for aggregation over all ips';
 
+CREATE TABLE log_ip_aggr
+(
+ log_ip_aggr_id       SERIAL PRIMARY KEY,
+ period_start_date TIMESTAMP NOT NULL,
+ period_end_date   TIMESTAMP NOT NULL,
+ period_level      period_levels NOT NULL,
+ ip                INET,
+ service_id        INTEGER NULL REFERENCES services( service_id ),
+ cnt_requests      BIGINT NOT NULL,
+ cnt_units         BIGINT NOT NULL
+);
+
+CREATE INDEX ON log_ip_aggr(ip);
+CREATE INDEX ON log_ip_aggr(service_id);
+CREATE INDEX ON log_ip_aggr(period_level);
+CREATE INDEX ON log_ip_aggr(period_start_date);
+
 
 -- select log_aggr_period(now()::timestamp,'hour'::period_levels);
 --                log_aggr_period
@@ -154,6 +171,58 @@ END;
 LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION log_ip_aggr_new_entry(
+  level period_levels,
+  period_start TIMESTAMP,
+  period_end TIMESTAMP,
+  units INTEGER,
+  in_ip INET,
+  service INTEGER
+  ) RETURNS BOOLEAN
+AS
+\$\$
+DECLARE
+  row_exists BOOLEAN := false;
+BEGIN
+  -- add to correct record or create new one
+  RAISE NOTICE '(IP , SERVICE,  units) = (%, %, %)', in_ip, service, units;
+  UPDATE log_ip_aggr
+  SET
+    cnt_requests = log_ip_aggr.cnt_requests + 1,
+    cnt_units = log_ip_aggr.cnt_units + units
+  WHERE
+    period_level = level
+    AND period_start_date = period_start
+    AND ip = in_ip
+    AND service_id = service
+  RETURNING TRUE INTO row_exists;
+  IF row_exists IS NOT true THEN
+    INSERT INTO log_ip_aggr
+      (
+        period_start_date,
+        period_end_date,
+        period_level,
+        ip,
+        service_id,
+        cnt_requests,
+        cnt_units
+      )
+    VALUES
+      (
+        period_start,
+        period_end,
+        level,
+        in_ip,
+        service,
+        1,
+        units
+      );
+  END IF;
+  RETURN TRUE;
+END;
+\$\$
+LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION trigger_log_entries_aggr()
 RETURNS TRIGGER AS
@@ -206,6 +275,7 @@ begin
           FROM log_aggr_period(new.time_local, period.period::period_levels) p;
         -- RAISE NOTICE 'ENDPOINT ID = %', endpoint;
         PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, unit_price);
+        PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
       END LOOP;
     END LOOP;
     RETURN new;
