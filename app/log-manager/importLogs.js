@@ -130,10 +130,10 @@ readLines = async (fileId, file, from) => {
 };
 
 parseLogLine = (line) => {
-  let obj = parser(line.replace(/\s\s+/g, ' '));
+  let obj = parser(line.replace(/\s\s+/g, ' ').replace(/(billing:[^\s]*) (billing:[^\s]*)/g,'$1|$2'));
   obj = _.omit(obj, function(value, key, object) { return value === '';}); // remove empty strings
   _.defaults(obj, {cnt_units:'billing:'});
-  let infclen = obj.cnt_units.replace(/^billing:infclen=(\d+).*$/, '$1'); // fill infclen to unit if it is defined
+  let infclen = obj.cnt_units.replace(/^.*billing:infclen=(\d+).*$/, '$1'); // fill infclen to unit if it is defined
   if(! isNaN(infclen)) obj.unit = infclen;
   _.defaults(obj, {unit: 0, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
