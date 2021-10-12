@@ -135,7 +135,7 @@ parseLogLine = (line) => {
   _.defaults(obj, {cnt_units:'billing:'});
   let infclen = obj.cnt_units.replace(/^billing:infclen=(\d+).*$/, '$1'); // fill infclen to unit if it is defined
   if(! isNaN(infclen)) obj.unit = infclen;
-  _.defaults(obj, {unit: 1, body_bytes_sent: 0, request: '   '});
+  _.defaults(obj, {unit: 0, body_bytes_sent: 0, request: '   '});
   let req = obj.request;
   req = req.replace(/^"(.+(?="$))"$/, '$1').split(' ');
   obj.method = req[0];
