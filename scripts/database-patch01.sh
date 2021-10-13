@@ -139,7 +139,7 @@ BEGIN
     period_level = level
     AND period_start_date = period_start
     AND (( (endpoint_id IS NULL) AND (endpoint IS NULL) ) OR endpoint_id = endpoint )
-    AND service_id = service
+    AND (( (service_id IS NULL) AND (service IS NULL) ) OR service_id = service )
   RETURNING TRUE INTO row_exists;
   IF row_exists IS NOT true THEN
     INSERT INTO log_aggr
@@ -194,7 +194,7 @@ BEGIN
     period_level = level
     AND period_start_date = period_start
     AND ip = in_ip
-    AND service_id = service
+    AND (( (service_id IS NULL) AND (service IS NULL) ) OR service_id = service )
   RETURNING TRUE INTO row_exists;
   IF row_exists IS NOT true THEN
     INSERT INTO log_ip_aggr
@@ -275,7 +275,9 @@ begin
           FROM log_aggr_period(new.time_local, period.period::period_levels) p;
         -- RAISE NOTICE 'ENDPOINT ID = %', endpoint;
         PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, unit_price);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL, unit_price);
         PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
+        PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);
       END LOOP;
     END LOOP;
     RETURN new;
