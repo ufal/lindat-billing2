@@ -243,6 +243,22 @@ router.get('/api/users', function (req, res, next) {
   }
 });
 
+router.get('/api/ips', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (!user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    dataController.getIPs(user.user_id).then(data => {
+      res.json({"data": data});
+    }).catch();
+  }
+});
+
 // run for every request
 router.use('/api', function (req, res, next) {
   let token = req.headers['x-access-token'];

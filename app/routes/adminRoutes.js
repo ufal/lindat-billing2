@@ -87,6 +87,13 @@ router.get('/admin/user/:userId', function (req, res, next) {
   });
 });
 
+router.get('/admin/ips', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  res.render('ips', {user: user, ips_active: true});
+});
+
+
 router.get('/admin/pricing', function (req, res, next) {
   logger.trace();
   let user = req.session.user;

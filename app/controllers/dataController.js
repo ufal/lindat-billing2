@@ -86,6 +86,19 @@ exports.getUsers = (userId) => {
   });
 };
 
+exports.getIPs = (userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.ip.get()
+    .then(data => {
+      db.user.logAction(userId, 'listIPs');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
 
 exports.getPricings = (userId) => {
   logger.trace();
