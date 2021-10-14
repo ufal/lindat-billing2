@@ -1,0 +1,34 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 IPs
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            .col.s12
+                strong TODO
+                table(type='lb-datatable' data-type='json' data-field='data' data-url='api/ips' data-header='["", "IP", "Start","End", "Requests", "Units"]' data-items='["ip", "ip", "start", "end", "cnt_requests", "cnt_units"]' )
+                  script.
+                    [ {
+                      "targets": 0,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="light-green-text" href="admin/ip/'+data[0]+'"><i class="material-icons">info</i></a>';}
+                      } ,
+                      {
+                      "targets": [2,3],
+                      "data": null,
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                      }
+                    ]
+
