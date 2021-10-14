@@ -17,18 +17,14 @@ block content
                 .divider
         .row
             .col.s12
-                strong TODO
-                table(type='lb-datatable' data-type='json' data-field='data' data-url='api/ips' data-header='["", "IP", "Start","End", "Requests", "Units"]' data-items='["ip", "ip", "start", "end", "cnt_requests", "cnt_units"]' )
+                h6 Last three months IP list
+                table.striped(type='lb-datatable' data-type='json' data-field='data' data-url='api/ips' data-header='["IP", "Requests", "Units", "Requests", "Units", "Requests", "Units", "Requests", "Units"]' data-items='["ip", "m2_requests", "m2_units", "m1_requests", "m1_units", "m0_requests", "m0_units", "requests", "units"]' )
                   script.
                     [ {
                       "targets": 0,
                       "data": null,
-                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="light-green-text" href="admin/ip/'+data[0]+'"><i class="material-icons">info</i></a>';}
-                      } ,
-                      {
-                      "targets": [2,3],
-                      "data": null,
-                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                      "render": function ( data, type, row, meta ) {return '<a class="light-green-text" href="admin/ip/'+data[0]+'">'+data[0]+'</a>';}
                       }
+
                     ]
 
