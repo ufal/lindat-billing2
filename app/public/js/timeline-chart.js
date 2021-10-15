@@ -116,6 +116,7 @@ TimelineChart.prototype.showData = function(period) {
   	    data = data[period_parts[per]];
       };
       dataset.push({
+                label: line,
                 data: data["total"],
                 //backgroundColor: color, //TODO !!!
                 //borderColor: color,
@@ -141,7 +142,7 @@ TimelineChart.prototype.showData = function(period) {
                 display: false
             },
             tooltips: {
-                // mode: 'x', // show all points tooltips on x axes
+                mode: 'x', // show all points tooltips on x axes
                 intersect: false
             },
             point:{
