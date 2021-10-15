@@ -164,7 +164,7 @@ exports.getMonthlyCountsByService = (date, filter) => {
 exports.getWeeklyCountsByService = (date, len, filter) => {
   logger.trace();
   logger.debug("TODO implement filter");
-  const {query, values} = createFilter(filter);
+  const {query, values, table} = createFilter(filter);
   return new promise((resolve, reject) => {
     const days_list = `
     with days as (
@@ -193,7 +193,7 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
                 la.service_id,
                 la.period_start_date,
                 sum(coalesce(la.cnt_requests,0)) as cnt_requests
-              FROM log_aggr la
+              FROM ` + table + ` la
               WHERE period_start_date >= timestamp $1 - interval '$2 day'
                 AND period_start_date < timestamp $1 + interval '1 day'
                 AND period_level = 'day'::period_levels
@@ -222,16 +222,24 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
 function createFilter(filter){
   var query="";
   var values=[];
+  var table="";
   if('user_id' in filter) {
     //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
     query = ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) ';
-    values.push(filter['user_id'])
+    values.push(filter['user_id']);
+    table="log_aggr";
+  } else if ('ip' in filter) {
+    table="log_ip_aggr";
+    query = ' AND  ip = $3 ';
+    values.push(filter['ip']);
   } else { // user is not defined
-    query = 'AND endpoint_id IS NULL'
+    query = 'AND endpoint_id IS NULL';
+    table="log_aggr";
   }
   return {
     query: query,
-    values: values
+    values: values,
+    table: table
   }
 }
 
