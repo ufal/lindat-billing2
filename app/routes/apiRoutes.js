@@ -146,7 +146,7 @@ router.param('period',function (req, res, next, period){
   next();
 })
 
-router.get('/api/data/:filterUser/:serviceId/:period', function (req, res, next) {
+router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
   if (req.params.filterUser != user.user_id && !user.is_admin) {

@@ -1,0 +1,75 @@
+if servicecounts && Object.keys(servicecounts).length
+    - var data = {};
+    - var sum = {};
+    - var ids = {};
+    - var colors = {};
+    - var labels = Array.from(new Array(period_length),(val,index)=>  (date + 24*60*60*1000*( index + 1 - period_length)) );
+    each s in servicecounts
+        -
+            if(!data[s.name]) {
+                data[s.name] = Array.from(Array(period_length), () => 0);
+                sum[s.name] = 0;
+            }
+            if(!colors[s.name]) {
+                colors[s.name] = Array.from(Array(period_length), () => '#aaaaaa');
+            }
+            data[s.name][parseInt(s.ord)-1] = parseInt(s.count);
+            sum[s.name] = sum[s.name] + parseInt(s.count);
+            colors[s.name] = '#' + parseInt(s.color).toString(16);
+            ids[s.name] = s.service_id
+    each d, s in data
+        .col.s12.m6.l4(id=s+'_main')
+            .card(style="padding: 0px; height: fit-content;")
+                .card-content
+                    .card-title.activator= s
+                        i.material-icons.right more_vert
+                    .flow=text= sum[s]
+                .card-reveal(style="overflow: hidden;")
+                    .card-title= s
+                        i.material-icons.right close
+                    div(type='timeline-chart' data-url='api/data/'+type+'/'+filter+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
+                .card-image
+                    canvas(id=s+'_monthly')
+                script.
+                    ctx = document.getElementById('#{s}_monthly').getContext('2d');
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
+                            datasets: [{
+                                data: [#{d}],
+                                backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
+                                borderColor: '#{colors[s]}',
+                                borderWidth: 1
+                            }],
+                        },
+                        options: {
+                            showLine: false,
+                            legend: {
+                                display: false
+                            },
+                            scales: {
+                                xAxes: [{
+                                    display: false
+                                }],
+                                yAxes: [{
+                                    display: false
+                                }]
+                            },
+                            elements: { point: { radius: 0.5 } },
+                            layout: {
+                                padding: {left: 0, right: 0, top: 0, bottom: 0},
+                            }
+                        }
+                    });
+                script.
+                    $('##{s}_main .card .card-content').click(()=>{
+                        $('##{s}_main').addClass('m12').addClass('l12').removeClass('m6').removeClass('l4');
+                        $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                        $('##{s}_main .card').addClass('large');
+                    });
+                    $('##{s}_main .card .card-reveal .card-title').click(()=>{
+                        $('##{s}_main').removeClass('m12').removeClass('l12').addClass('m6').addClass('l4');
+                        $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                        $('##{s}_main .card').removeClass('large');
+                    });
