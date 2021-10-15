@@ -93,6 +93,30 @@ router.get('/admin/ips', function (req, res, next) {
   res.render('ips', {user: user, ips_active: true});
 });
 
+router.get('/admin/ip/:ip', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  const len = 21;
+  const last_date = (new Date).toISOString().slice(0,10);
+  adminController.getWeeklyCountsByService(last_date , len, {ip: req.params.ip})
+  .then(data => {
+    res.render('ip-detail',
+            {
+              user: user,
+              servicecounts: data,
+              period_length: len,
+              date: Date.parse(last_date),
+              initialview: (new Date).toISOString().slice(0,7),
+              ips_active: true,
+              type: 'ip',
+              filter: req.params.ip,
+              datalines: ["prices","units","requests"]
+            });
+  })
+  .catch(err => {
+    res.render('ip-detail', {user: user, error: 'No IP Found', ips_active: true});
+  });
+});
 
 router.get('/admin/pricing', function (req, res, next) {
   logger.trace();
