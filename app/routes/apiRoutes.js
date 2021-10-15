@@ -173,6 +173,29 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
   }
 });
 
+router.param('ip',function (req, res, next, user){
+  //TODO validate ip !!!
+  next();
+})
+
+router.get('/api/data/ip/:ip/:serviceId/:period', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (!user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    service = dataController.getService(req.params.serviceId);
+    Promise.all([service]).then(values => {
+        dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath, {ip: req.params.ip}).then(data => {
+          res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
+        }).catch();
+    });
+  }
+});
 
 router.get('/api/endpoints/:userId', function (req, res, next) {
   logger.trace();

@@ -110,7 +110,7 @@ router.get('/admin/ip/:ip', function (req, res, next) {
               ips_active: true,
               type: 'ip',
               filter: req.params.ip,
-              datalines: ["prices","units","requests"]
+              datalines: ["units","requests"]
             });
   })
   .catch(err => {

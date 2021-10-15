@@ -296,8 +296,9 @@ exports.getCountsByService = (startDate,endDate) => {
 };
 
 
-exports.getCounts = (serviceId,startDate,duration,interval) => {
+exports.getCounts = (serviceId,startDate,duration,interval, filter = {}) => {
   logger.trace();
+  const {query, values, table} = createFilter(filter);
   return new promise((resolve, reject) => {
     const days_list = `
     with intervals as (
@@ -321,15 +322,15 @@ exports.getCounts = (serviceId,startDate,duration,interval) => {
             cross join (SELECT * FROM services WHERE service_id = $2) s
             left join
               (SELECT *
-                FROM log_aggr
+                FROM ` + table +`
                 WHERE period_level = '${interval}'::period_levels
-                  AND endpoint_id is NULL
                   AND SERVICE_ID = $2
+                  `+query+`
                 ) la
               ON la.period_start_date = intervals.interval
           GROUP BY s.name, s.color, intervals.interval, la.cnt_requests, la.cnt_units
       ORDER BY interval ASC`,
-      [startDate,serviceId])
+      [startDate,serviceId,...values])
 
         .then(data => {
             logger.trace();
