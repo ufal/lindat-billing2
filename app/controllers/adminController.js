@@ -139,10 +139,10 @@ exports.getMonthlyCountsByService = (date) => {
   });
 };
 
-exports.getWeeklyCountsByService = (date, len) => {
+exports.getWeeklyCountsByService = (date, len, filter = {}) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.logs.getWeeklyCountsByService(date, len, {})
+    db.logs.getWeeklyCountsByService(date, len, filter)
     .then(data => {
       resolve(data);
     })
