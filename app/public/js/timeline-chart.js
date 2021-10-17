@@ -126,12 +126,12 @@ TimelineChart.prototype.showData = function(period) {
                 lineTension: 0,
                 borderWidth: 3
               });
-      labels = data['total'].map(function(elm,idx){return round_format_date(elm['t'],self.period_unit)});
+      labels = data['total'].map(function(elm,idx){return round_format_date(elm['x'],self.period_unit)});
     }
     self.chartTitle.text(format_date(convert_to_date(self.current_view), get_higher_unit(self.period_unit)));
     var ctx = self.chartCanvas[0].getContext('2d');
     var chart = new Chart(ctx, {
-        type: 'bar',
+        //type: 'bar',
         data: {
         	labels: labels,
             datasets: dataset,
@@ -177,9 +177,9 @@ TimelineChart.prototype.showData = function(period) {
     self.printDataToTable(dataset, self.period_unit);
     if(get_unit_depth(self.period_unit) < get_unit_depth('hour')) {
       self.chartCanvas[0].onclick = function(e){
-        var point = chart.getElementAtEvent(e);
+        var point = chart.getElementsAtEventForMode(e, 'nearest', { intersect: false }, false);
         if(!point.length) return; // not clicked on point
-        var label = chart.data.labels[point[0]._index];
+        var label = chart.data.labels[point[0].index];
         self.zoomIn(label);
       }
     }
@@ -211,7 +211,7 @@ TimelineChart.prototype.loadData = function(period) {
         ptr_cache = ptr_cache[per];
         ptr_loaded = ptr_loaded[per];
       };
-      ptr_cache['total'] = ptr_loaded['total'].map(function(e){return {t: Date.parse(e['interval']).valueOf() ,y: e['cnt']}});
+      ptr_cache['total'] = ptr_loaded['total'].map(function(e){return {x: Date.parse(e['interval']).valueOf() ,y: e['cnt']}});
     };
     self.metadata = data['metadata'];
   });
@@ -288,7 +288,7 @@ TimelineChart.prototype.printDataToTable = function (dataset, period) {
   for(var i = 0; i < dataset[0].data.length; ++i ) {
     self.datatable.row.add( // All data should be converted to string
       [
-        print_round_format_date(dataset[0].data[i]['t'],self.period_unit),
+        print_round_format_date(dataset[0].data[i]['x'],self.period_unit),
         self.metadata['service_id'].toString(),
         self.metadata['service_name'],
         period,
