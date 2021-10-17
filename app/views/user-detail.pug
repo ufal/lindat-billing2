@@ -38,9 +38,25 @@ block content
                             p TODO
                 .col.s12
                     .card
+                        .card-image
+                          a.btn-floating.halfway-fab.light-green(href='admin/endpoints----TODO/' + user_detail.user_id + '/add')
+                            i.material-icons add_circle
                         .card-content
                             .card-title Endpoints
-                            p TODO
+                            table(type='lb-datatable' data-type='json' data-field='data' data-url='api/endpoints/'+user_detail.user_id data-header='["", "IP", "Name","Created"]' data-items='["endpoint_id", "ip", "name", "create_time"]' )
+                              script.
+                                [
+                                  {
+                                    "targets": [0],
+                                    "data": null,
+                                    "render": function ( data, type, row, meta ) {return '<a class="light-green-text" href="admin/endpoint/'+row[meta['col']]+'"><i class="material-icons">info</i> (TODO)</a>';}
+                                  },
+                                  {
+                                    "targets": [3],
+                                    "data": null,
+                                    "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                                  }
+                                ]
                 .col.s12
                     .card
                         .card-content
