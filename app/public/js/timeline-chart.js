@@ -1,5 +1,6 @@
 
-
+const colors = ["#cddc39", "#ff8f00", "#039be5"];
+const yAxisPositions = ['left', 'right'];
 
 jQuery(document).ready(function (){
     var chartIdCnt = 0;
@@ -109,6 +110,7 @@ TimelineChart.prototype.showData = function(period) {
   self.loadData(period).then(function() {
   	self.current_view = period;
     var dataset = [];
+    var scales = {};
     for(let i in self.data_lines) {
       const line = self.data_lines[i];
       var data = self.cached_data[line];
@@ -118,20 +120,23 @@ TimelineChart.prototype.showData = function(period) {
       dataset.push({
                 label: line,
                 data: data["total"],
-                //backgroundColor: color, //TODO !!!
-                //borderColor: color,
-                type: 'line',
-                pointRadius: 4,
-                fill: false,
-                lineTension: 0,
-                borderWidth: 3
+                backgroundColor: colors[i],
+                borderColor: colors[i],
+                yAxisID: 'y_'+line
               });
+      scales['y_'+line] = {
+                  position: yAxisPositions[i%2],
+                  ticks: {
+                    color: colors[i],
+                  }
+                };
       labels = data['total'].map(function(elm,idx){return round_format_date(elm['x'],self.period_unit)});
     }
+
     self.chartTitle.text(format_date(convert_to_date(self.current_view), get_higher_unit(self.period_unit)));
     var ctx = self.chartCanvas[0].getContext('2d');
     var chart = new Chart(ctx, {
-        //type: 'bar',
+        type: 'bar',
         data: {
         	labels: labels,
             datasets: dataset,
@@ -141,9 +146,9 @@ TimelineChart.prototype.showData = function(period) {
             legend: {
                 display: false
             },
-            tooltips: {
-                mode: 'x', // show all points tooltips on x axes
-                intersect: false
+            interaction: {
+              intersect: false,
+              mode: 'index',
             },
             point:{
                 borderWidth: 1,
@@ -152,9 +157,11 @@ TimelineChart.prototype.showData = function(period) {
             scales: {
                 xAxes: [{
                     type: 'time',
-                    distribution: 'series',
+                    //distribution: 'series',
+                    display:true,
+
                     ticks: {
-                        source: 'data',
+                          source: 'data',
                         //autoSkip: true
                     },
                     time: {
@@ -162,11 +169,10 @@ TimelineChart.prototype.showData = function(period) {
                         unitStepSize: 1
                     }
                 }],
-                yAxes: [{
-                    scaleLabel: {
-                    	display: true
-                    }
-                }]
+                ...scales
+
+            },
+            plugins: {
             },
             layout: {
                 padding: {left: 0, right: 0, top: 0, bottom: 0},
