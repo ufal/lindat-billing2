@@ -157,13 +157,6 @@ TimelineChart.prototype.showData = function(period) {
             scales: {
                 xAxes: [{
                     type: 'time',
-                    //distribution: 'series',
-                    display:true,
-
-                    ticks: {
-                          source: 'data',
-                        //autoSkip: true
-                    },
                     time: {
                         unit: self.period_unit,
                         unitStepSize: 1
@@ -186,7 +179,7 @@ TimelineChart.prototype.showData = function(period) {
         var point = chart.getElementsAtEventForMode(e, 'nearest', { intersect: false }, false);
         if(!point.length) return; // not clicked on point
         var label = chart.data.labels[point[0].index];
-        self.zoomIn(label);
+        self.zoomIn(self.current_view+'-'+label);
       }
     }
   });
@@ -319,7 +312,7 @@ function get_higher_unit(unit) {
 }
 
 function round_format_date(date, unit) {
-  return moment(date).format({year: 'YYYY', month: 'YYYY-MM', day: 'YYYY-MM-DD', hour: 'YYYY-MM-DD'}[unit]);
+  return moment(date).format({year: 'YYYY', month: 'MM', day: 'DD', hour: 'HH'}[unit]);
 }
 
 function print_round_format_date(date, unit) {
