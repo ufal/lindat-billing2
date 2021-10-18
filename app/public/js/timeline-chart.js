@@ -155,15 +155,7 @@ TimelineChart.prototype.showData = function(period) {
 
             },
             scales: {
-                xAxes: [{
-                    type: 'time',
-                    time: {
-                        unit: self.period_unit,
-                        unitStepSize: 1
-                    }
-                }],
                 ...scales
-
             },
             plugins: {
             },
