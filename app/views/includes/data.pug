@@ -38,6 +38,7 @@ if servicecounts && Object.keys(servicecounts).length
                             labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
                             datasets: [{
                                 data: [#{d}],
+                                label: 'requests',
                                 backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
                                 borderColor: '#{colors[s]}',
                                 borderWidth: 1
