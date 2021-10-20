@@ -142,17 +142,9 @@ TimelineChart.prototype.showData = function(period) {
             datasets: dataset,
         },
         options: {
-            showLine: false,
-            legend: {
-                display: false
-            },
             interaction: {
               intersect: false,
               mode: 'index',
-            },
-            point:{
-                borderWidth: 1,
-
             },
             scales: {
                 ...scales
