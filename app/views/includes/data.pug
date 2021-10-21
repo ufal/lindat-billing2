@@ -32,11 +32,20 @@ if servicecounts && Object.keys(servicecounts).length
                     canvas(id=s+'_monthly')
                 script.
                     ctx = document.getElementById('#{s}_monthly').getContext('2d');
+                    annotation_line = {
+                      drawTime: 'beforeDatasetsDraw',
+                      type: 'line',
+                      scaleID: 'y',
+                      value: [#{d}].reduce((a, b) => a + b, 0) / [#{d}].length || 0,
+                      borderColor: 'black',
+                      borderWidth: 1,
+                    };
                     chart = new Chart(ctx, {
-                        type: 'bar',
+                        type: 'line',
                         data: {
                             labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
                             datasets: [{
+                                type: 'bar',
                                 data: [#{d}],
                                 label: 'requests',
                                 backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
@@ -46,20 +55,27 @@ if servicecounts && Object.keys(servicecounts).length
                         },
                         options: {
                             scales: {
-                                xAxes: {
+                                x: {
                                     display: false
                                 },
-                                yAxes: {
-                                    display: false
+                                y: {
+                                    display: false,
                                 }
                             },
-                            elements: { point: { radius: 0.5 } },
+
+                            //elements: { point: { radius: 0.5 } },
                             layout: {
                                 padding: {left: 0, right: 0, top: 0, bottom: 0},
                             },
                             plugins: {
-                                legend: false
+                                legend: false,
+                                annotation: {
+                                    annotations: {
+                                      annotation_line
+                                    }
+                                }
                             }
+
                         }
                     });
                 script.
