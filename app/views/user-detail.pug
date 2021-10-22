@@ -20,7 +20,7 @@ block content
                 .col.s12
                     .card
                         .card-image
-                          a.btn-floating.halfway-fab.light-green(href='admin/user/' + user_detail.user_id + '/edit')
+                          a.btn-floating.halfway-fab.clr-bg-edit(href='admin/user/' + user_detail.user_id + '/edit')
                             i.material-icons edit
                         .card-content
                             .row.card-title
@@ -39,7 +39,7 @@ block content
                 .col.s12
                     .card
                         .card-image
-                          a.btn-floating.halfway-fab.light-green(href='admin/add-endpoints?user_id=' + user_detail.user_id)
+                          a.btn-floating.halfway-fab.clr-bg-add(href='admin/add-endpoints?user_id=' + user_detail.user_id)
                             i.material-icons add_circle
                         .card-content
                             .card-title Endpoints
@@ -49,7 +49,7 @@ block content
                                   {
                                     "targets": [0],
                                     "data": null,
-                                    "render": function ( data, type, row, meta ) {return '<a class="light-green-text" href="admin/endpoint/'+row[meta['col']]+'"><i class="material-icons">info</i> (TODO)</a>';}
+                                    "render": function ( data, type, row, meta ) {return '<a class="clr-fg-link" href="admin/endpoint/'+row[meta['col']]+'"><i class="material-icons">info</i> (TODO)</a>';}
                                   },
                                   {
                                     "targets": [3],

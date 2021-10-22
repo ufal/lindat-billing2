@@ -21,3 +21,37 @@
 .tabs-icon .tab a{
     padding: 0;
  }
+
+
+
+.clr-fg-link {
+  color: #00bcd4; /* cyan darken-3 */
+}
+.clr-bg-link {
+  background-color: #00bcd4; /* cyan darken-3 */
+}
+
+
+
+.clr-fg-add {
+  color: #827717; /* lime darken-3 */
+}
+.clr-bg-add {
+  background-color: #827717; /* lime darken-3 */
+}
+
+
+.clr-fg-edit {
+  color: #4527a0; /* deep-purple darken-3 */
+}
+.clr-bg-edit {
+  background-color:  #4527a0; /* deep-purple darken-3 */
+}
+
+
+.clr-fg-delete {
+  color: #bf360c; /* deep-orange darken-3 */
+}
+.clr-bg-delete {
+  background-color:  #bf360c; /* deep-orange darken-3 */
+}

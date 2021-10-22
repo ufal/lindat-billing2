@@ -22,9 +22,9 @@ block content
                     [ {
                       "targets": 0,
                       "data": null,
-                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="light-green-text" href="admin/user/'+data[0]+'"><i class="material-icons">' +(is_admin?'info':'info_outline')+'</i></a>';}
+                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="clr-fg-link" href="admin/user/'+data[0]+'"><i class="material-icons">' +(is_admin?'info':'info_outline')+'</i></a>';}
                     } ]
 
     .fixed-action-btn
-        a.btn-floating.btn-large.red(href="admin/add-user")
+        a.btn-floating.btn-large.clr-bg-add(href="admin/add-user")
             i.material-icons.large add_circle

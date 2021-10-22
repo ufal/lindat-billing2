@@ -22,14 +22,14 @@ block content
                     [ {
                       "targets": 0,
                       "data": null,
-                      "render": function ( data, type, row, meta ) { return '<a class="light-green-text" href="admin/pricing/'+row[0]+'"><i class="material-icons">edit</i></a>';}
+                      "render": function ( data, type, row, meta ) { return '<a class="clr-fg-edit" href="admin/pricing/'+row[0]+'"><i class="material-icons">edit</i></a>';}
                     }, {
                       "targets": 2,
                       "data": null,
                       "render": function ( data, type, row, meta ) {
                             const user_id = data[6];
                             return user_id
-                              ? '<a class="light-green-text" href="admin/user/'+user_id+'">'+row[meta['col']]+'</a>'
+                              ? '<a class="clr-fg-link" href="admin/user/'+user_id+'">'+row[meta['col']]+'</a>'
                               : '<i class="material-icons">people</i>';
                           }
                     }, {
@@ -39,15 +39,15 @@ block content
                     }, {
                       "targets": [5],
                       "data": null,
-                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '<a class="light-green-text" href="admin/pricing/'+row[0]+'?action=split" title="Split"><i class="material-icons">last_page</i><i class="light-green-text material-icons">keyboard_arrow_right</i></a>';}
+                      "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '<a class="clr-fg-edit" href="admin/pricing/'+row[0]+'?action=split" title="Split"><i class="material-icons">last_page</i><i class="clr-fg-edit material-icons">keyboard_arrow_right</i></a>';}
                     }, {
                       "targets": 6,
                       "data": null,
                       "render": function ( data, type, row, meta ) {
-                            return  row[7] ? '<i class="light-green-text material-icons">directions_run</i>': '';
+                            return  row[7] ? '<i class="clr-fg-icon material-icons">directions_run</i>': '';
                           }
                     } ]
 
     .fixed-action-btn
-        a.btn-floating.btn-large.red(href="admin/add-pricing")
+        a.btn-floating.btn-large.clr-bg-add(href="admin/add-pricing")
             i.material-icons.large add_circle
