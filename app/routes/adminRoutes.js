@@ -253,4 +253,14 @@ router.get('/admin/logmanagement', function (req, res, next) {
   })
 });
 
+router.get('/admin/add-endpoint', function (req, res, next) {
+  logger.trace(req.query, req.session.user);
+  let user = req.session.user;
+  res.render('add-endpoint', {user: user, user_id: req.query.user_id, ip: req.query.ip });
+});
+
+router.post('/admin/add-service', function (req, res, next) {
+  logger.trace();
+});
+
 module.exports = router;
