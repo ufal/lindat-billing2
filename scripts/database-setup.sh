@@ -66,9 +66,11 @@ CREATE TABLE users
 	first_name TEXT NOT NULL,
 	last_name TEXT NOT NULL,
 	organization TEXT,
+	note TEXT,
 	is_admin BOOLEAN DEFAULT FALSE,
 	is_verified BOOLEAN DEFAULT FALSE,
 	is_active BOOLEAN DEFAULT FALSE,
+	is_paying BOOLEAN DEFAULT FALSE,
 	verification_code UUID DEFAULT md5(random()::TEXT)::UUID,
 	create_time TIMESTAMP DEFAULT NOW(),
 	update_time TIMESTAMP DEFAULT NOW()
