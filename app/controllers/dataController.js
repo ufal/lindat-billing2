@@ -77,8 +77,12 @@ exports.getUsers = (userId) => {
     db.user.get()
     .then(data => {
       db.user.logAction(userId, 'listUsers');
-      var table = data.map(usr => ['user_id', 'email', 'first_name', 'last_name', 'organization', 'is_admin'].map(e => usr[e]));
-      resolve(table);
+      var clean_data = data.map(e => {
+        delete e['verification_code'];
+        delete e['password'];
+        return e
+      });
+      resolve(clean_data);
     })
     .catch(err => {
       reject(err);

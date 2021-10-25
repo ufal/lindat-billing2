@@ -17,13 +17,18 @@ block content
                 .divider
         .row
             .col.s12
-                table(type='lb-datatable' data-url='api/users' data-header='["", "Email", "First Name", "Last Name", "Organization"]' )
+                table(type='lb-datatable' data-url='api/users' data-type='json' data-field='data' data-header='["","", "Email", "First Name", "Last Name", "Organization"]' data-items='["user_id","is_paying","email","first_name","last_name","organization","is_admin"]')
                   script.
                     [ {
                       "targets": 0,
                       "data": null,
-                      "render": function ( data, type, row, meta ) {const is_admin = data[5]; return '<a class="clr-fg-link" href="admin/user/'+data[0]+'"><i class="material-icons">' +(is_admin?'info':'info_outline')+'</i></a>';}
-                    } ]
+                      "render": function ( data, type, row, meta ) {const is_admin = data[6]; return '<a class="clr-fg-link" href="admin/user/'+data[0]+'"><i class="material-icons">' +(is_admin?'info':'info_outline')+'</i></a>';}
+                    },{
+                      "targets": 1,
+                      "data": null,
+                      "render": function ( data, type, row, meta ) {const is_paying = data[1]; return '<i class="material-icons">' +(is_paying?'attach_money':'money_off')+'</i>';}
+                    }
+                    ]
 
     .fixed-action-btn
         a.btn-floating.btn-large.clr-bg-add(href="admin/add-user")
