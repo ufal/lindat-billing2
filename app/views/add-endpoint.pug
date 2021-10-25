@@ -16,7 +16,7 @@ block content
                         strong= message
                 .divider
                 .section
-                form(action="add-endpoint" method="post" enctype="application/x-www-form-urlencoding")
+                form(action=(action || "add-endpoint") method="post" enctype="application/x-www-form-urlencoding")
                     .row
                         .input-field.col.s12
                             i.material-icons.prefix edit
@@ -29,11 +29,11 @@ block content
                             input#ip.validate(name="ip" type="text" required="" aria-required="true" value=ip)
                             label(for="ip") IP Address
                             span.helper-text(data-error="Required")
-                    if user.is_admin
+                    if user.is_admin && endpoints_active !== true
                         .row
                             .input-field.col.s12
                                 i.material-icons.prefix person_pin
-                                select#user(type="lb-select" data-url='api/users' data-key='user_id' data-select-template="%s %s (%s)" data-value='["last_name", "first_name", "email"]' data-field='data' data-selected=user_id)
+                                select#user(name="user_id" type="lb-select" data-url='api/users' data-key='user_id' data-select-template="%s %s (%s)" data-value='["last_name", "first_name", "email"]' data-field='data' data-selected=user_id)
                                 label(for="user") User
                                 span.helper-text(data-error="Required")
                     .row
