@@ -58,8 +58,7 @@ CREATE TABLE log_aggr
  endpoint_id       INTEGER NULL REFERENCES user_endpoints( endpoint_id ),
  service_id        INTEGER NULL REFERENCES services( service_id ),
  cnt_requests      BIGINT NOT NULL,
- cnt_units         BIGINT NOT NULL,
- price             DECIMAL(24,4) NULL
+ cnt_units         BIGINT NOT NULL
 );
 
 CREATE INDEX ON log_aggr(endpoint_id);
@@ -117,24 +116,20 @@ CREATE OR REPLACE FUNCTION log_aggr_new_entry(
   period_end TIMESTAMP,
   units INTEGER,
   endpoint INTEGER,
-  service INTEGER,
-  unit_price DECIMAL
+  service INTEGER
   ) RETURNS BOOLEAN
 AS
 \$\$
 DECLARE
   row_exists BOOLEAN := false;
 BEGIN
-  -- RAISE NOTICE '(ENDPOINT , SERVICE, price , units) = (%, %, %, %)', endpoint, service, unit_price, units;
-  -- count price for service if deffined
   -- add to correct record or create new one
   SELECT INTO units coalesce(max(units),0); -- set 0 if NULL
-  SELECT INTO unit_price coalesce(max(unit_price),0); -- set 0 if NULL
+  RAISE NOTICE 'ENDPOINT ID = %      period_start = %', endpoint, period_start;
   UPDATE log_aggr
   SET
     cnt_requests = log_aggr.cnt_requests + 1,
-    cnt_units = log_aggr.cnt_units + units,
-    price = log_aggr.price + units * unit_price
+    cnt_units = log_aggr.cnt_units + units
   WHERE
     period_level = level
     AND period_start_date = period_start
@@ -150,8 +145,7 @@ BEGIN
         endpoint_id,
         service_id,
         cnt_requests,
-        cnt_units,
-        price
+        cnt_units
       )
     VALUES
       (
@@ -161,8 +155,7 @@ BEGIN
         endpoint,
         service,
         1,
-        units,
-        units * unit_price
+        units
       );
   END IF;
   RETURN TRUE;
@@ -232,54 +225,24 @@ declare
   period_start TIMESTAMP;
   period_end TIMESTAMP;
   endpoint INTEGER;
-  unit_price DECIMAL(24,4);
 begin
   IF tg_op='INSERT' THEN
-    -- unit_price = service_pricing.price / service_pricing.unit, POZOR NA PŘESNOST VÝPOČTU !!!
-    -- loop {endpoint, null}
-    FOR endpoint, unit_price IN
-        SELECT
-          endpoint_price.ep AS endpoint,
-          endpoint_price.up AS unit_price
-        FROM
-          (
-          SELECT
-            ue.endpoint_id as ep,
-            sp.price / sp.unit as up
-          FROM
-            (SELECT endpoint_id, user_id FROM user_endpoints WHERE ip = new.remote_addr AND is_active IS TRUE
-             UNION ALL SELECT NULL AS endpoint_id, NULL AS user_id) ue
-             JOIN
-            ( SELECT user_id, unit, price
-              FROM service_pricing
-              WHERE
-                service_id = new.service_id
-                AND valid_from <= new.time_local
-                AND (valid_till IS NULL OR valid_till > new.time_local)
-            ) sp
-             ON
-               ue.user_id = sp.user_id
-               OR sp.user_id IS NULL
-          UNION ALL SELECT NULL as ep, NULL as up
-          ) endpoint_price
-        ORDER BY
-          endpoint_price.ep DESC NULLS LAST, -- defined endpoint firstly
-          endpoint_price.up DESC NULLS LAST -- defined price per unit firstly
-        LIMIT 1
+    -- loop period levels
+    FOR period IN
+      SELECT unnest(enum_range(null::period_levels)) as period
     LOOP
-      -- loop period levels
-      FOR period IN
-        SELECT unnest(enum_range(null::period_levels)) as period
+      SELECT INTO period_start,period_end p.period_start, p.period_end
+        FROM log_aggr_period(new.time_local, period.period::period_levels) p;
+      FOR endpoint IN
+        SELECT endpoint_id FROM user_endpoints WHERE ip = new.remote_addr AND is_active IS TRUE -- TODO test start_date
       LOOP
-        SELECT INTO period_start,period_end p.period_start, p.period_end
-          FROM log_aggr_period(new.time_local, period.period::period_levels) p;
-        -- RAISE NOTICE 'ENDPOINT ID = %', endpoint;
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, unit_price);
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL, unit_price);
-        PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
-        PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL);
       END LOOP;
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);
     END LOOP;
+
     RETURN new;
   ELSE
     RETURN null;

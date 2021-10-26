@@ -85,6 +85,7 @@ CREATE TABLE user_endpoints
 	is_verified BOOLEAN DEFAULT FALSE,
 	verification_code UUID DEFAULT md5(random()::TEXT)::UUID,
 	is_active BOOLEAN DEFAULT FALSE,
+	start_date TIMESTAMP,
 	create_time TIMESTAMP DEFAULT NOW(),
 	update_time TIMESTAMP DEFAULT NOW()
 );
