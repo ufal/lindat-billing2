@@ -66,8 +66,6 @@ CREATE INDEX ON log_aggr(service_id);
 CREATE INDEX ON log_aggr(period_level);
 CREATE INDEX ON log_aggr(period_start_date);
 
-COMMENT ON COLUMN log_aggr.endpoint_id IS 'NULL for aggregation over all ips';
-
 CREATE TABLE log_ip_aggr
 (
  log_ip_aggr_id       SERIAL PRIMARY KEY,
@@ -84,6 +82,8 @@ CREATE INDEX ON log_ip_aggr(ip);
 CREATE INDEX ON log_ip_aggr(service_id);
 CREATE INDEX ON log_ip_aggr(period_level);
 CREATE INDEX ON log_ip_aggr(period_start_date);
+
+COMMENT ON COLUMN log_ip_aggr.ip IS 'NULL for aggregation over all ips';
 
 
 -- select log_aggr_period(now()::timestamp,'hour'::period_levels);
@@ -241,6 +241,8 @@ begin
       END LOOP;
       PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
       PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, NULL, new.service_id);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, NULL, NULL);
     END LOOP;
 
     RETURN new;
