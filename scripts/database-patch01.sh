@@ -116,7 +116,8 @@ CREATE OR REPLACE FUNCTION log_aggr_new_entry(
   period_end TIMESTAMP,
   units INTEGER,
   endpoint INTEGER,
-  service INTEGER
+  service INTEGER,
+  requests INTEGER
   ) RETURNS BOOLEAN
 AS
 \$\$
@@ -128,7 +129,7 @@ BEGIN
   RAISE NOTICE 'ENDPOINT ID = %      period_start = %', endpoint, period_start;
   UPDATE log_aggr
   SET
-    cnt_requests = log_aggr.cnt_requests + 1,
+    cnt_requests = log_aggr.cnt_requests + requests,
     cnt_units = log_aggr.cnt_units + units
   WHERE
     period_level = level
@@ -154,7 +155,7 @@ BEGIN
         level,
         endpoint,
         service,
-        1,
+        requests,
         units
       );
   END IF;
@@ -236,8 +237,8 @@ begin
       FOR endpoint IN
         SELECT endpoint_id FROM user_endpoints WHERE ip = new.remote_addr AND is_active IS TRUE -- TODO test start_date
       LOOP
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id);
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, 1);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL, 1);
       END LOOP;
       PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
       PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);

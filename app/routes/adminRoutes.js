@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pug = require('pug');
 const session = require('express-session');
+var moment = require('moment');
 const querystring = require('querystring');
 const logger = require('../logger');
 const adminController = require('../controllers/adminController');
@@ -257,7 +258,7 @@ router.get('/admin/logmanagement', function (req, res, next) {
 router.get('/admin/add-endpoint', function (req, res, next) {
   logger.trace(req.query, req.session.user);
   let user = req.session.user;
-  res.render('add-endpoint', {user: user, user_id: req.query.user_id, ip: req.query.ip, action: '/admin/add-endpoint' });
+  res.render('add-endpoint', {user: user, user_id: req.query.user_id, ip: req.query.ip, start_date: moment(new Date).format('YYYY-MM-DD'), action: '/admin/add-endpoint' });
 });
 
 router.post('/admin/add-endpoint', function (req, res, next) {
@@ -265,13 +266,15 @@ router.post('/admin/add-endpoint', function (req, res, next) {
   let name = req.body.name;
   let IP = req.body.ip;
   let user_id = req.body.user_id;
+  let is_verified = true;
+  let is_active = req.body.start_date ? true : false;
+  let start_date = req.body.start_date;
   let user = req.session.user;
   if(!name || !IP) {
     logger.trace();
     res.render('/admin/add-endpoint', {error: 'All the fields are required', endpoints_active: true});
   }
-  logger.trace("NEFUNGUJE !!!");
-  userController.addUserEndpoint(user_id, name, IP)
+  userController.addUserEndpoint(user_id, name, IP, is_verified, is_active, start_date)
     .then(data => {
       logger.trace();
       let user = req.session.user;
@@ -284,7 +287,7 @@ router.post('/admin/add-endpoint', function (req, res, next) {
       });
     })
     .catch(err => {
-      logger.trace();
+      logger.warn(err);
       if(err.extra.constraint=='user_endpoints_ip_key') {
         res.render('add-endpoint', {user: user, endpoints_active: true, error: 'A endpoint with this IP already exists'});
       }

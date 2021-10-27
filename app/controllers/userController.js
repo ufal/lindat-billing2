@@ -59,10 +59,10 @@ exports.getUserEndpoints = (userId) => {
   });
 };
 
-exports.addUserEndpoint = (userId, name, IP) => {
+exports.addUserEndpoint = (userId, name, IP, is_verified = false, is_active = false, start_date = null) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.endpoint.add(userId, name, IP)
+    db.endpoint.add(userId, name, IP, is_verified, is_active, start_date)
     .then(data => {
       db.user.logAction(userId, 'addUserEndPoint');
       resolve(data);
