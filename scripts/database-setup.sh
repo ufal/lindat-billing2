@@ -81,7 +81,7 @@ CREATE TABLE user_endpoints
 	endpoint_id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(user_id),
 	name TEXT NOT NULL,
-	ip INET NOT NULL UNIQUE,
+	ip INET NOT NULL,
 	is_verified BOOLEAN DEFAULT FALSE,
 	verification_code UUID DEFAULT md5(random()::TEXT)::UUID,
 	is_active BOOLEAN DEFAULT FALSE,
