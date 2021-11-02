@@ -33,19 +33,19 @@
 		"n-readlines": "^1.0.0",
 		"nginx-log-parser": "0.0.4",
 		"node-nthline": "^1.0.0",
-		"nodemailer": "^4.6.8",
-		"nodemon": "^1.19.4",
+		"nodemailer": "^6.7.0",
+		"nodemon": "^2.0.14",
 		"pg-promise": "^8.5.2",
 		"pg-types": "^3.0.0",
-		"pug": "^2.0.3",
+		"pug": "^3.0.2",
 		"querystring": "^0.2.0",
 		"request-ip": "^2.1.3",
 		"serve-favicon": "^2.5.0",
-		"tracer": "^0.9.4",
-		"underscore": "^1.11.0",
+		"tracer": "^1.1.5",
+		"underscore": "^1.13.1",
 		"winston": "^3.1.0"
 	},
 	"devDependencies": {
-		"mocha": "^5.2.0"
+		"mocha": "^9.1.3"
 	}
 }
