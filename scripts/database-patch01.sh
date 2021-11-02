@@ -187,7 +187,7 @@ BEGIN
   WHERE
     period_level = level
     AND period_start_date = period_start
-    AND ip = in_ip
+    AND (( (ip IS NULL) AND (in_ip IS NULL) ) OR ip = in_ip )
     AND (( (service_id IS NULL) AND (service IS NULL) ) OR service_id = service )
   RETURNING TRUE INTO row_exists;
   IF row_exists IS NOT true THEN
