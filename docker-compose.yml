@@ -27,6 +27,7 @@ services:
     - SERVER_PORT
     - SERVER_BASE_URL
     - JWT_SECRET
+    - NODE_VERSION=16.13.0
     volumes:
       - ${LOGS_DIR:-./input_logs}:/web/input_logs
     ports:
