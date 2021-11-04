@@ -58,7 +58,8 @@ CREATE TABLE log_aggr
  endpoint_id       INTEGER NULL REFERENCES user_endpoints( endpoint_id ),
  service_id        INTEGER NULL REFERENCES services( service_id ),
  cnt_requests      BIGINT NOT NULL,
- cnt_units         BIGINT NOT NULL
+ cnt_units         BIGINT NOT NULL,
+ cnt_body_bytes_sent BIGINT NOT NULL
 );
 
 CREATE INDEX ON log_aggr(endpoint_id);
@@ -75,7 +76,8 @@ CREATE TABLE log_ip_aggr
  ip                INET,
  service_id        INTEGER NULL REFERENCES services( service_id ),
  cnt_requests      BIGINT NOT NULL,
- cnt_units         BIGINT NOT NULL
+ cnt_units         BIGINT NOT NULL,
+ cnt_body_bytes_sent BIGINT NOT NULL
 );
 
 CREATE INDEX ON log_ip_aggr(ip);
@@ -114,10 +116,11 @@ CREATE OR REPLACE FUNCTION log_aggr_new_entry(
   level period_levels,
   period_start TIMESTAMP,
   period_end TIMESTAMP,
-  units INTEGER,
+  units BIGINT,
   endpoint INTEGER,
   service INTEGER,
-  requests INTEGER
+  requests BIGINT,
+  body_bytes_sent BIGINT
   ) RETURNS BOOLEAN
 AS
 \$\$
@@ -130,7 +133,8 @@ BEGIN
   UPDATE log_aggr
   SET
     cnt_requests = log_aggr.cnt_requests + requests,
-    cnt_units = log_aggr.cnt_units + units
+    cnt_units = log_aggr.cnt_units + units,
+    cnt_body_bytes_sent = log_aggr.cnt_body_bytes_sent + body_bytes_sent
   WHERE
     period_level = level
     AND period_start_date = period_start
@@ -146,7 +150,8 @@ BEGIN
         endpoint_id,
         service_id,
         cnt_requests,
-        cnt_units
+        cnt_units,
+        cnt_body_bytes_sent
       )
     VALUES
       (
@@ -156,7 +161,8 @@ BEGIN
         endpoint,
         service,
         requests,
-        units
+        units,
+        body_bytes_sent
       );
   END IF;
   RETURN TRUE;
@@ -169,7 +175,8 @@ CREATE OR REPLACE FUNCTION log_ip_aggr_new_entry(
   level period_levels,
   period_start TIMESTAMP,
   period_end TIMESTAMP,
-  units INTEGER,
+  units BIGINT,
+  body_bytes_sent BIGINT,
   in_ip INET,
   service INTEGER
   ) RETURNS BOOLEAN
@@ -179,11 +186,12 @@ DECLARE
   row_exists BOOLEAN := false;
 BEGIN
   -- add to correct record or create new one
-  RAISE NOTICE '(IP , SERVICE,  units) = (%, %, %)', in_ip, service, units;
+  RAISE NOTICE '(IP , SERVICE,  units, body_bytes_sent) = (%, %, %, %)', in_ip, service, units, body_bytes_sent;
   UPDATE log_ip_aggr
   SET
     cnt_requests = log_ip_aggr.cnt_requests + 1,
-    cnt_units = log_ip_aggr.cnt_units + units
+    cnt_units = log_ip_aggr.cnt_units + units,
+    cnt_body_bytes_sent = log_ip_aggr.cnt_body_bytes_sent + body_bytes_sent
   WHERE
     period_level = level
     AND period_start_date = period_start
@@ -199,7 +207,8 @@ BEGIN
         ip,
         service_id,
         cnt_requests,
-        cnt_units
+        cnt_units,
+        cnt_body_bytes_sent
       )
     VALUES
       (
@@ -209,7 +218,8 @@ BEGIN
         in_ip,
         service,
         1,
-        units
+        units,
+        body_bytes_sent
       );
   END IF;
   RETURN TRUE;
@@ -237,13 +247,13 @@ begin
       FOR endpoint IN
         SELECT endpoint_id FROM user_endpoints WHERE ip = new.remote_addr AND is_active IS TRUE -- TODO test start_date
       LOOP
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, 1);
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL, 1);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, new.service_id, 1, new.body_bytes_sent);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, endpoint, NULL, 1, new.body_bytes_sent);
       END LOOP;
-      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, new.service_id);
-      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.remote_addr, NULL);
-      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, NULL, new.service_id);
-      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, NULL, NULL);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.body_bytes_sent, new.remote_addr, new.service_id);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.body_bytes_sent, new.remote_addr, NULL);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.body_bytes_sent, NULL, new.service_id);
+      PERFORM log_ip_aggr_new_entry(period.period::period_levels, period_start, period_end, new.unit, new.body_bytes_sent, NULL, NULL);
     END LOOP;
 
     RETURN new;

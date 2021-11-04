@@ -42,20 +42,22 @@ RETURNS TRIGGER AS
 declare
   start TIMESTAMP;
   service INTEGER;
-  requests INTEGER;
-  units INTEGER;
+  requests BIGINT;
+  units BIGINT;
+  body_bytes_sent BIGINT;
   period RECORD;
   period_start TIMESTAMP;
   period_end TIMESTAMP;
 begin
   IF tg_op='INSERT' THEN
     -- loop over all ip records for hour level, newer than endpoint.start_date
-    FOR start, service, requests, units IN
+    FOR start, service, requests, units, body_bytes_sent IN
         SELECT
           ip_log.period_start_date,
           ip_log.service_id,
           ip_log.cnt_requests,
-          ip_log.cnt_units
+          ip_log.cnt_units,
+          ip_log.cnt_body_bytes_sent
         FROM
           log_ip_aggr ip_log
         WHERE
@@ -71,7 +73,7 @@ begin
       LOOP
         SELECT INTO period_start,period_end p.period_start, p.period_end
           FROM log_aggr_period(start, period.period::period_levels) p;
-        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, units, new.endpoint_id, service, requests);
+        PERFORM log_aggr_new_entry(period.period::period_levels, period_start, period_end, units, new.endpoint_id, service, requests, body_bytes_sent);
       END LOOP;
     END LOOP;
     RETURN new;
