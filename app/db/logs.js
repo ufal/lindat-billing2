@@ -233,8 +233,8 @@ function createFilter(filter){
     query = ' AND  ip = $3 ';
     values.push(filter['ip']);
   } else { // user is not defined
-    query = 'AND endpoint_id IS NULL';
-    table="log_aggr";
+    query = 'AND ip IS NULL';
+    table="log_ip_aggr";
   }
   return {
     query: query,
