@@ -4,8 +4,8 @@ const logger = require('../logger');
 const db = require('./connection');
 
 
-const currentSchemaVersion = 1;     // keep it updated !!!
-const minimalRequiredVersion = 1;   // keep it updated !!!
+const currentSchemaVersion = 2;     // keep it updated !!!
+const minimalRequiredVersion = 2;   // keep it updated !!!
 
 exports.dbVersion = () => {
   logger.trace();

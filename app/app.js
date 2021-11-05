@@ -41,7 +41,9 @@ if(!config.has('jwt.secret')){logger.error('Please set jwt.secret in your local.
 app.use(allowCrossDomain);*/
 
 const base_url = config.has('server.base_url') ? config.server.base_url : '/';
+logger.info('base url: %s', base_url);
 const server_url = config.server.host + (config.has('server.port') ? ':' + config.server.port : '');
+logger.info('server url: %s', server_url);
 
 if(base_url.match(/.*(?<!\/)$/)){logger.error('POSSIBLE ROUTING PROBLEM: server.base_url should end with "/"');}
 
@@ -85,6 +87,7 @@ if(config.logs.add_services_if_not_exist && Array.isArray(config.logs.new_servic
 async function loadNewServices (new_service_list) {
   logger.trace();
   await Promise.all(new_service_list.map(async (service) => {
+    logger.info('service from config: %s', service[0]);
     await db.service.exists(service[0]).then( exists => {
           if(! exists) {
             db.service.add(...service).then(()=>{logger.debug("new service imported")});

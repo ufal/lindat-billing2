@@ -14,7 +14,7 @@ pgp.pg.types.setTypeParser(types.builtins.INT8, parseInt);
 
 // Database connection details;
 let db = pgp(config.db);
-
+logger.info('Connecting to database');
 db.connect()
     .then(obj => {
       logger.trace();
@@ -25,4 +25,12 @@ db.connect()
       logger.error('Error connecting to database [%s:%s]:', config.db.host, config.db.port, error);
 });
 
+async function testConnection() {
+    const c = await db.connect(); // try to connect
+    c.done(); // success, release connection
+    logger.info("database connection test: OK");
+    return c.client.serverVersion; // return server version
+}
+
+testConnection();
 module.exports = db;
