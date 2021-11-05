@@ -112,7 +112,7 @@ router.get('/admin/ip/:ip', function (req, res, next) {
               ips_active: true,
               type: 'ip',
               filter: req.params.ip,
-              datalines: ["units","requests"]
+              datalines: ["units", "requests", "body_bytes_sent"]
             });
   })
   .catch(err => {

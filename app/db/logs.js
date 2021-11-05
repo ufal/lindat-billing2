@@ -316,7 +316,8 @@ exports.getCounts = (serviceId,startDate,duration,interval, filter = {}) => {
             s.color AS color,
             intervals.interval AS interval,
             coalesce(la.cnt_requests,0) AS requests,
-            coalesce(la.cnt_units,0) AS units
+            coalesce(la.cnt_units,0) AS units,
+            coalesce(la.cnt_body_bytes_sent,0) AS body_bytes_sent
           FROM
             intervals
             cross join (SELECT * FROM services WHERE service_id = $2) s
@@ -328,7 +329,7 @@ exports.getCounts = (serviceId,startDate,duration,interval, filter = {}) => {
                   `+query+`
                 ) la
               ON la.period_start_date = intervals.interval
-          GROUP BY s.name, s.color, intervals.interval, la.cnt_requests, la.cnt_units
+          GROUP BY s.name, s.color, intervals.interval, la.cnt_requests, la.cnt_units, la.cnt_body_bytes_sent
       ORDER BY interval ASC`,
       [startDate,serviceId,...values])
 
