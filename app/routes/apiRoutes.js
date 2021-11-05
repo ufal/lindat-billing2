@@ -158,17 +158,22 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
   } else {
     service = dataController.getService(req.params.serviceId);
     Promise.all([service]).then(values => {
-      if (req.params.filterUser != 'all') {
-      // get price instead of request count and user count
-        dataController.getPeriodPrices(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath, req.params.filterUser).then(data => {
+      dataController.getPeriodCounts(
+          req.params.serviceId,
+          req.params.date,
+          req.params.duration,
+          req.params.interval,
+          req.params.datePath,
+          {
+            ...(
+               req.params.filterUser != 'all'
+               ? {user_id: req.params.filterUser}
+               : {}
+               )
+          }
+        ).then( data => {
           res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
         }).catch();
-      } else {
-        // TODO get prices !!!
-        dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath).then(data => {
-          res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
-        }).catch();
-      }
     });
   }
 });
