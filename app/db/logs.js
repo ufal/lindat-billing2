@@ -322,7 +322,6 @@ exports.getCounts = (startDate,duration,interval, filter = {}) => {
             coalesce(la.cnt_body_bytes_sent,0) AS body_bytes_sent
           FROM
             intervals
-            -- cross join (SELECT * FROM services WHERE service_id = $2) s
             left join
               (SELECT *
                 FROM ` + table +`
