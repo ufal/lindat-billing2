@@ -3,11 +3,11 @@ const logger = require('../logger');
 const db = require('../db');
 
 
-exports.getCounts = (serviceId, date, duration, interval, filter = {}) => {
+exports.getCounts = (date, duration, interval, filter = {}) => {
   logger.trace();
   const startDate = date;
   return new promise((resolve, reject) => {
-    db.logs.getCounts(serviceId, startDate, duration, interval, filter)
+    db.logs.getCounts(startDate, duration, interval, filter)
     .then(data => {
       resolve(data);
     })
@@ -17,10 +17,10 @@ exports.getCounts = (serviceId, date, duration, interval, filter = {}) => {
   });
 };
 
-exports.getPeriodCounts = (serviceId, date, duration, interval, datePath, filter = {}) => {
+exports.getPeriodCounts = (date, duration, interval, datePath, filter = {}) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    exports.getCounts(serviceId, date, duration, interval, filter)
+    exports.getCounts(date, duration, interval, filter)
     .then(data => {
       resolve({units: data2path('units', data, datePath), requests: data2path('requests', data, datePath), body_bytes_sent: data2path('body_bytes_sent', data, datePath)});
     })

@@ -164,7 +164,7 @@ exports.getMonthlyCountsByService = (date, filter) => {
 exports.getWeeklyCountsByService = (date, len, filter) => {
   logger.trace();
   logger.debug("TODO implement filter");
-  const {query, values, table} = createFilter(filter);
+  const {query, values, table} = createFilter(filter,2);
   return new promise((resolve, reject) => {
     const days_list = `
     with days as (
@@ -219,22 +219,26 @@ exports.getWeeklyCountsByService = (date, len, filter) => {
 };
 
 
-function createFilter(filter){
+function createFilter(filter, add=1){
   var query="";
   var values=[];
   var table="";
   if('user_id' in filter) {
     //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
-    query = ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE user_id=$3 AND is_verified=TRUE) ';
     values.push(filter['user_id']);
-    table="log_aggr";
+    query += ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE user_id=$'+ (values.length+add) +' AND is_verified=TRUE) ';
+    table = "log_aggr";
   } else if ('ip' in filter) {
     table="log_ip_aggr";
-    query = ' AND  ip = $3 ';
     values.push(filter['ip']);
+    query += ' AND  ip = $'+ (values.length+add) +' ';
   } else { // user is not defined
-    query = 'AND ip IS NULL';
-    table="log_ip_aggr";
+    query += 'AND ip IS NULL ';
+    table = "log_ip_aggr";
+  }
+  if('service_id' in filter) {
+    values.push(filter['service_id']);
+    query += ' AND service_id = $'+ (values.length+add) +' ';
   }
   return {
     query: query,
@@ -296,7 +300,7 @@ exports.getCountsByService = (startDate,endDate) => {
 };
 
 
-exports.getCounts = (serviceId,startDate,duration,interval, filter = {}) => {
+exports.getCounts = (startDate,duration,interval, filter = {}) => {
   logger.trace();
   const {query, values, table} = createFilter(filter);
   return new promise((resolve, reject) => {
@@ -312,26 +316,23 @@ exports.getCounts = (serviceId,startDate,duration,interval, filter = {}) => {
       days_list
       + `
       SELECT
-            s.name AS name,
-            s.color AS color,
             intervals.interval AS interval,
             coalesce(la.cnt_requests,0) AS requests,
             coalesce(la.cnt_units,0) AS units,
             coalesce(la.cnt_body_bytes_sent,0) AS body_bytes_sent
           FROM
             intervals
-            cross join (SELECT * FROM services WHERE service_id = $2) s
+            -- cross join (SELECT * FROM services WHERE service_id = $2) s
             left join
               (SELECT *
                 FROM ` + table +`
                 WHERE period_level = '${interval}'::period_levels
-                  AND SERVICE_ID = $2
                   `+query+`
                 ) la
               ON la.period_start_date = intervals.interval
-          GROUP BY s.name, s.color, intervals.interval, la.cnt_requests, la.cnt_units, la.cnt_body_bytes_sent
+          GROUP BY intervals.interval, la.cnt_requests, la.cnt_units, la.cnt_body_bytes_sent
       ORDER BY interval ASC`,
-      [startDate,serviceId,...values])
+      [startDate,...values])
 
         .then(data => {
             logger.trace();

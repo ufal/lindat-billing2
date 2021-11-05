@@ -159,7 +159,6 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
     service = dataController.getService(req.params.serviceId);
     Promise.all([service]).then(values => {
       dataController.getPeriodCounts(
-          req.params.serviceId,
           req.params.date,
           req.params.duration,
           req.params.interval,
@@ -169,7 +168,8 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
                req.params.filterUser != 'all'
                ? {user_id: req.params.filterUser}
                : {}
-               )
+               ),
+            service_id: req.params.serviceId
           }
         ).then( data => {
           res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
@@ -195,7 +195,7 @@ router.get('/api/data/ip/:ip/:serviceId/:period', function (req, res, next) {
   } else {
     service = dataController.getService(req.params.serviceId);
     Promise.all([service]).then(values => {
-        dataController.getPeriodCounts(req.params.serviceId, req.params.date, req.params.duration, req.params.interval, req.params.datePath, {ip: req.params.ip}).then(data => {
+        dataController.getPeriodCounts(req.params.date, req.params.duration, req.params.interval, req.params.datePath, {ip: req.params.ip, service_id: req.params.serviceId}).then(data => {
           res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
         }).catch();
     });
