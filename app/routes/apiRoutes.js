@@ -125,8 +125,8 @@ router.param('filterUser',function (req, res, next, user){
 })
 
 router.param('serviceId',function (req, res, next, serviceId){
-  const value = Math.floor(Number(serviceId));
-  if(value === Infinity || String(value) !== serviceId || value < 0){
+  const value = Number(serviceId);
+  if(serviceId != 'all' && (isNaN(value) || value === Infinity || String(Math.floor(value)) !== serviceId || value < 0)){
     throw new Error('Invalid Service id.');
   }
   next();
@@ -156,7 +156,11 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
         error : 'Permission Denied.'
       });
   } else {
-    service = dataController.getService(req.params.serviceId);
+    if (req.params.serviceId != 'all') {
+      service = dataController.getService(req.params.serviceId);
+    } else {
+      service = {name: 'all', service_id: 'all'};
+    }
     Promise.all([service]).then(values => {
       dataController.getPeriodCounts(
           req.params.date,
@@ -169,7 +173,11 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
                ? {user_id: req.params.filterUser}
                : {}
                ),
-            service_id: req.params.serviceId
+            ...(
+               req.params.serviceId != 'all'
+               ? {service_id: req.params.serviceId}
+               : {}
+               )
           }
         ).then( data => {
           res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
@@ -193,9 +201,25 @@ router.get('/api/data/ip/:ip/:serviceId/:period', function (req, res, next) {
         error : 'Permission Denied.'
       });
   } else {
-    service = dataController.getService(req.params.serviceId);
+    if (req.params.serviceId != 'all') {
+      service = dataController.getService(req.params.serviceId);
+    } else {
+      service = {name: 'all', service_id: 'all'};
+    }
     Promise.all([service]).then(values => {
-        dataController.getPeriodCounts(req.params.date, req.params.duration, req.params.interval, req.params.datePath, {ip: req.params.ip, service_id: req.params.serviceId}).then(data => {
+        dataController.getPeriodCounts(
+          req.params.date,
+          req.params.duration,
+          req.params.interval,
+          req.params.datePath,
+          {
+            ip: req.params.ip,
+            ...(
+               req.params.serviceId != 'all'
+               ? {service_id: req.params.serviceId}
+               : {}
+            )
+          }).then(data => {
           res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
         }).catch();
     });

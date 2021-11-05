@@ -239,6 +239,8 @@ function createFilter(filter, add=1){
   if('service_id' in filter) {
     values.push(filter['service_id']);
     query += ' AND service_id = $'+ (values.length+add) +' ';
+  } else {
+    query += ' AND service_id IS NULL ';
   }
   return {
     query: query,
