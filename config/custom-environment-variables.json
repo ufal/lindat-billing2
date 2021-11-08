@@ -1,4 +1,7 @@
 {
+	"logger": {
+	  "level": "BILLING_LOGGER_LEVEL"
+	},
 	"db": {
 	  "host": "DB_HOST",
 	  "database": "DB_NAME",
