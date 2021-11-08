@@ -14,7 +14,7 @@ pgp.pg.types.setTypeParser(types.builtins.INT8, parseInt);
 
 // Database connection details;
 let db = pgp(config.db);
-logger.info('Connecting to database');
+logger.info('Connecting to database [%s:%s]: DB: %s, USER %s',config.db.host, config.db.port, config.db.database, config.db.user);
 db.connect()
     .then(obj => {
       logger.trace();
