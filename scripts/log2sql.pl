@@ -84,8 +84,8 @@ for my $log_file_path (@logfiles) {
   while(my $line = <LOG>){
     $lines_read++;
     $line =~ s/\n$//;
-    my ($remote_addr,$time_local, $remote_user, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit) =
-        $line =~ /^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) - ([^\s]+) \[(\d{2})\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2} \+\d{4}\] +"([A-Z]+) ([^" ]*) ([^" ]*)" (2\d\d) ([-\d]*) "([^"]*)" "([^"]*)" [^\s]* [^\s]* [^\s](?: .*billing:infclen=(\d+))?/;
+    my ($remote_addr, $remote_user, $time_local, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit) =
+        $line =~ /^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) - ([^\s]+) \[(\d{2}\/\w{3}\/\d{4}:\d{2}:\d{2}:\d{2} \+\d{4})\] +"([A-Z]+) ([^" ]*) ([^" ]*)" (2\d\d) ([-\d]*) "([^"]*)" "([^"]*)" [^\s]* [^\s]* [^\s](?: .*billing:infclen=(\d+))?/;
     $unit //=0;
     if($status && $request !~ /$ignore/){
       $last_read_line_checksum = Digest::MD5::md5_hex($line);
@@ -112,10 +112,7 @@ INSERT
 INTO log_files(file_id, file_name, first_line_checksum, last_read_line_checksum, lines_read, lines_valid, tail)
 VALUES($file_id,'$log_file','$first_line_checksum', '$last_read_line_checksum', $lines_read, $lines_valid,FALSE);
 
-COPY log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit)
-FROM '$dump_file'
-WITH
-   DELIMITER AS '\\t';
+\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'
 ";
   close FILE;
 }
