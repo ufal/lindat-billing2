@@ -129,7 +129,7 @@ DECLARE
 BEGIN
   -- add to correct record or create new one
   SELECT INTO units coalesce(max(units),0); -- set 0 if NULL
-  RAISE NOTICE 'ENDPOINT ID = %      period_start = %', endpoint, period_start;
+  -- RAISE NOTICE 'ENDPOINT ID = %      period_start = %', endpoint, period_start;
   UPDATE log_aggr
   SET
     cnt_requests = log_aggr.cnt_requests + requests,
@@ -186,7 +186,7 @@ DECLARE
   row_exists BOOLEAN := false;
 BEGIN
   -- add to correct record or create new one
-  RAISE NOTICE '(IP , SERVICE,  units, body_bytes_sent) = (%, %, %, %)', in_ip, service, units, body_bytes_sent;
+  -- RAISE NOTICE '(IP , SERVICE,  units, body_bytes_sent) = (%, %, %, %)', in_ip, service, units, body_bytes_sent;
   UPDATE log_ip_aggr
   SET
     cnt_requests = log_ip_aggr.cnt_requests + 1,

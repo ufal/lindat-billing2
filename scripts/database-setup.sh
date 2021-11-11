@@ -174,7 +174,7 @@ CREATE OR REPLACE FUNCTION trigger_update_log_files()
 RETURNS TRIGGER AS
 	\$\$
 	BEGIN
-	  RAISE NOTICE 'Updating file : % ', NEW.file_id;
+	  -- RAISE NOTICE 'Updating file : % ', NEW.file_id;
       UPDATE log_files
       SET
         last_read_line_checksum = NEW.line_checksum,

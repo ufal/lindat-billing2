@@ -18,7 +18,7 @@ my (@logfiles,$dbuser,$dbhost,$dbdatabase,$dbpassword);
 my $dbport = 5432;
 my $ignore = qr/\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$/;
 my @services;
-
+my @print_sql;
 
 GetOptions (
             'in-files=s{1,}' => \@logfiles,
@@ -75,12 +75,14 @@ for my $log_file_path (@logfiles) {
     next;
   }
   $file_id++;
+  push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'LOG FILE ($log_file) ID=$file_id'; END; \$\$; \n";
+
   my ($file_name) = $log_file =~ m/^(.*)\./;
   my $sql_file = "$file_name.sql";
-  my $dump_file = "$file_name.dump";
+###  my $dump_file = "$file_name.dump";
   my ($first_line_checksum, $last_read_line_checksum, $lines_read, $lines_valid) = (undef, undef, 0, 0);
   open LOG, "<$log_file_path" or die "Could not open $log_file_path: $!";
-  open DUMP, ">".File::Spec->catfile($outdir,$dump_file) or die "Could not open $dump_file: $!";
+  my $prev_date='';
   while(my $line = <LOG>){
     $lines_read++;
     $line =~ s/\n$//;
@@ -100,6 +102,28 @@ for my $log_file_path (@logfiles) {
         }
       }
       next unless defined $service_id;
+      my ($act_date) = join('-',split('/',substr($time_local,0,11)));
+      unless($act_date eq $prev_date){
+
+        unless($lines_valid){
+          close DUMP;
+        }
+        my $dump_file = "$file_name.$act_date.dump";
+        push @print_sql,"
+DO
+\$\$
+BEGIN
+  RAISE NOTICE '\%', NOW();
+  RAISE NOTICE 'starting importing from $dump_file';
+  RAISE NOTICE 'log file line: $lines_read';
+END;
+\$\$;
+";
+        push @print_sql,"\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'";
+        open DUMP, ">".File::Spec->catfile($outdir,$dump_file) or die "Could not open $dump_file: $!";
+        $prev_date = $act_date;
+      }
+
       $lines_valid++;
 ##      print STDERR "$service_id: $request\n";
       print DUMP join("\t", ($file_id,$service_id,$lines_valid,$last_read_line_checksum,$remote_addr,$remote_user,$time_local, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit)),"\n";
@@ -108,15 +132,24 @@ for my $log_file_path (@logfiles) {
   close DUMP;
   close LOG;
 
-  open FILE, ">".File::Spec->catfile($outdir,$sql_file) or die "Could not open $sql_file: $!";
-  print FILE " -- $log_file sql dump
+  open SQL, ">".File::Spec->catfile($outdir,$sql_file) or die "Could not open $sql_file: $!";
+  print SQL " -- $log_file sql dump
+ALTER TABLE log_file_entries DISABLE TRIGGER log_files_lines_read;
+ALTER TABLE log_file_entries DISABLE TRIGGER log_files_lines_read_aggr;
+
+
 INSERT
 INTO log_files(file_id, file_name, first_line_checksum, last_read_line_checksum, lines_read, lines_valid, tail)
 VALUES($file_id,'$log_file','$first_line_checksum', '$last_read_line_checksum', $lines_read, $lines_valid,FALSE);
-
-\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'
 ";
-  close FILE;
+  print SQL "$_\n" for @print_sql;
+
+  print SQL "
+ALTER TABLE log_file_entries ENABLE TRIGGER log_files_lines_read;
+ALTER TABLE log_file_entries ENABLE TRIGGER log_files_lines_read_aggr;
+";
+  print SQL "DO \$\$ BEGIN RAISE NOTICE 'TODO: run aggregations for:::  SELECT * FROM log_files_entries WHERE file_id=$file_id'; END; \$\$; \n";
+  close SQL;
 }
 
 $dbi->disconnect();
