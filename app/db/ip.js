@@ -58,8 +58,8 @@ exports.getRecent = () => { /* return only last three months*/
               ml1.cnt_units AS m1_units,
               ml0.cnt_requests AS m0_requests,
               ml0.cnt_units AS m0_units,
-              (coalesce(ml0.cnt_requests,0) + coalesce(ml2.cnt_requests,0) + coalesce(ml2.cnt_requests,0)) AS requests,
-              (coalesce(ml0.cnt_units,0) + coalesce(ml2.cnt_units,0) + coalesce(ml2.cnt_units,0)) AS units
+              (coalesce(ml0.cnt_requests,0) + coalesce(ml1.cnt_requests,0) + coalesce(ml2.cnt_requests,0)) AS requests,
+              (coalesce(ml0.cnt_units,0) + coalesce(ml1.cnt_units,0) + coalesce(ml2.cnt_units,0)) AS units
             FROM
               (
                 SELECT m.ip
