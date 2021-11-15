@@ -29,6 +29,7 @@ services:
     - JWT_SECRET
     - BILLING_LOGGER_LEVEL=info
     - NODE_VERSION=10.24.1
+    - STARTUP_IMPORT
     volumes:
       - ${LOGS_DIR:-./input_logs}:/web/input_logs
     ports:
