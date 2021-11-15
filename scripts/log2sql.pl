@@ -19,7 +19,6 @@ my (@logfiles,$dbuser,$dbhost,$dbdatabase,$dbpassword);
 my $dbport = 5432;
 my $ignore = qr/\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$/;
 my @services;
-my @print_sql;
 
 my $strp = DateTime::Format::Strptime->new(
   pattern => '%d/%b/%Y:%H:%M:%S %z',
@@ -72,6 +71,7 @@ while(my $result = $sth->fetchrow_hashref){
 }
 
 for my $log_file_path (@logfiles) {
+  my @print_sql;
   my $log_file = basename($log_file_path);
   my $sql="SELECT 1 FROM log_files WHERE file_name='$log_file';";
   my $sth = $dbi->prepare($sql);
