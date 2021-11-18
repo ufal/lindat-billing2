@@ -4,3 +4,6 @@ scripts/create-debug-user.sh
 scripts/debug-data*
 config/local*.json
 .env
+.*
+node_modules
+*input_logs*
