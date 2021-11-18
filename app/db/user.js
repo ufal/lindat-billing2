@@ -184,3 +184,33 @@ exports.getSingleUser = (id) => {
         });
   });
 };
+
+exports.add = (first_name, last_name, email, organization, note, is_paying, is_active, is_admin, is_verified, password) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.one('INSERT INTO users(first_name, last_name, email, organization, note, is_paying, is_active, is_admin, is_verified, password) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, crypt($10, gen_salt(\'bf\'))) RETURNING user_id, verification_code',
+        [first_name, last_name, email.toLowerCase(), organization, note, is_paying, is_active, is_admin, is_verified, password])
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No user_id returned',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};

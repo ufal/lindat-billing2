@@ -1,0 +1,92 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Add New User
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+                .section
+                form(action="admin/add-user" method="post" enctype="application/x-www-form-urlencoding")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix person
+                            input#first_name.validate(name="first_name" type="text" required="" aria-required="true")
+                            label(for="first_name") First Name
+                            span.helper-text(data-error="Required")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix person
+                            input#last_name.validate(name="last_name" type="text" required="" aria-required="true")
+                            label(for="last_name") Last Name
+                            span.helper-text(data-error="Required")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix mail_outline
+                            input#email.validate(name="email" type="text" required="" aria-required="true")
+                            label(for="email") Email Address
+                            span.helper-text(data-error="Invalid Email")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix account_balance
+                            input#organization.validate(name="organization" type="text" )
+                            label(for="organization") Organization
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix description
+                            textarea.materialize-textarea#note.validate(name="note" type="text")
+                            label(for="note") Note
+                    .row
+                        .col.s1
+                          i.material-icons.prefix attach_money
+                        .col.s3
+                            .switch
+                                    label
+                                        span No
+                                        input.is_paying(name="is_paying" type="checkbox")
+                                        span.lever
+                                        span Yes
+                        .col.s3
+                            span Is Paying?
+                    .row
+                        .col.s1
+                          i.material-icons.prefix directions_run
+                        .col.s3
+                            .switch
+                                    label
+                                        span No
+                                        input.is_active(name="is_active" type="checkbox" checked="")
+                                        span.lever
+                                        span Yes
+                        .col.s3
+                            span Is Active?
+                    .row
+                        .col.s1
+                          i.material-icons.prefix settings
+                        .col.s3
+                            .switch
+                                    label
+                                        span No
+                                        input.is_active(name="is_admin" type="checkbox")
+                                        span.lever
+                                        span Yes
+                        .col.s3
+                            span Is Admin?
+                    .row
+                        .input-field.col.s6
+                            button.btn.grey.waves-effect.col.s12.white-text(type="submit")
+                                strong Add User
+                        .input-field.col.s6
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="admin/users")
+                                strong Cancel
+                .section
+

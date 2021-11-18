@@ -46,6 +46,20 @@ exports.getUsers = (userId) => {
   });
 };
 
+exports.addUser = (userId, first_name, last_name, email, organization, note, is_paying, is_active, is_admin, is_verified, password) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.user.add(first_name, last_name, email, organization, note, is_paying, is_active, is_admin, is_verified, password)
+    .then(data => {
+      db.user.logAction(userId, 'addUser');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 exports.getUser = (userId, id) => {
   logger.trace();
   return new promise((resolve, reject) => {

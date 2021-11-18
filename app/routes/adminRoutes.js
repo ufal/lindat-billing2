@@ -77,6 +77,45 @@ router.get('/admin/users', function (req, res, next) {
   res.render('users', {user: user, users_active: true});
 });
 
+
+router.get('/admin/add-user', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  res.render('add-user', {user: user, users_active: true});
+});
+
+router.post('/admin/add-user', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  let first_name = req.body.first_name;
+  let last_name = req.body.last_name;
+  let email = req.body.email;
+  let organization = req.body.organization;
+  let note = req.body.note;
+  let is_paying = (typeof req.body.is_paying !== 'undefined');
+  let is_active = (typeof req.body.is_active !== 'undefined');
+  let is_admin = (typeof req.body.is_admin !== 'undefined');
+  let is_verified = true;
+  let password = (Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2).toUpperCase()).split('').sort(function(){return 0.5-Math.random()}).join('');;
+  if(!first_name || !last_name || !email ) {
+    logger.trace();
+    res.render('/admin/add-user', {users_active: true, error: 'All the fields are required'});
+  }
+  logger.info("ADDING USER", first_name, last_name, email, organization, note, is_paying, is_active, is_admin);
+  adminController.addUser(user.user_id, first_name, last_name, email, organization, note, is_paying, is_active, is_admin, is_verified, password)
+    .then(data => {
+      logger.trace();
+        res.render("users", {user: user, users_active: true, message: 'User added successfully'});
+    })
+    .catch(err => {
+      logger.trace();
+      if(err.extra.constraint=='services_name_key' || err.extra.constraint=='services_prefix_key') {
+        res.render('add-service', {user: user, services_active: true, error: 'A service with this name or prefix already exists'});
+      }
+    });
+});
+
+
 router.get('/admin/user/:userId', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
