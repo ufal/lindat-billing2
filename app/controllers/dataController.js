@@ -76,10 +76,10 @@ exports.getUsers = (userId) => {
   });
 };
 
-exports.getIPs = (userId) => {
+exports.getTopIPs = (userId) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.ip.getRecent()
+    db.ip.getTop()
     .then(data => {
       db.user.logAction(userId, 'listIPs');
       resolve(data);

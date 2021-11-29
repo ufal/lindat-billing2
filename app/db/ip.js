@@ -2,6 +2,18 @@ const config = require('config');
 const promise = require('bluebird');
 const logger = require('../logger');
 const db = require('./connection');
+const moment = require('moment');
+
+const date2string_def = {
+  'month': {
+    'full': 'YYYY-MM-01 00:00:00',
+    'header': 'YYYY-MM'
+  },
+  'day': {
+    'full': 'YYYY-MM-DD 00:00:00',
+    'header': 'YYYY-MM-DD'
+  }
+};
 
 exports.get = () => {
   logger.trace();
@@ -24,6 +36,143 @@ exports.get = () => {
           logger.trace();
           if (data) {
               resolve(data); // data
+          }
+          else {
+            reject({
+              state: 'failure',
+              reason: 'No IPs returned',
+              extra: null
+            });
+          }
+        })
+        .catch(error => {
+          logger.trace();
+          logger.error(error);
+          reject({
+              state: 'failure',
+              reason: 'Database error',
+              extra: error
+          });
+        });
+  });
+};
+
+
+function date2string(date=new Date(), level='month', type='full'){
+  return date.format(date2string_def[level][type])
+}
+
+
+function createFilter(filter){
+
+  logger.warn('IP filter is not implemented');
+  var query={
+    'pivot_ip': {
+      'filter_ip' : '',
+      'filter_period' : '',
+      'filter_service' : ' AND lg.service_id IS NULL '
+    },
+    'pivot_val': { // change to row !!!
+      'filter_service' : ' AND data.service_id IS NULL '
+    },
+    'pivot_col': {
+      'names': ' ip INET ',
+      'values': ''
+    }
+  };
+  var values={};
+  var header=['ip'];
+
+  values.level = filter.period.level;
+  values.period_interval = '1 ' + values.level;
+  query.pivot_ip.filter_period = ' AND lg.period_start_date >= \'$<filter.period_start>\'  AND lg.period_end_date < \'$<filter.period_end>\' ';
+  values.period_start = date2string(filter.period.start,filter.period.level,'full');
+  values.period_end = date2string(filter.period.end,filter.period.level,'full');
+  query.pivot_col.values = `generate_series(
+              date_trunc(\'$<filter.level>\', timestamp \'$<filter.period_start>\'),
+              date_trunc(\'$<filter.level>\', timestamp \'$<filter.period_end>\' - interval \'$<filter.period_interval>\'),
+              \'$<filter.period_interval>\'::interval
+            )`;
+
+  var date_i = filter.period.start;
+  while(date_i < filter.period.end){
+    var date_str = date2string(date_i,filter.period.level,'header');
+    query.pivot_col.names += ', "'+date_str+'" BIGINT ';
+    header.push(date_str);
+    date_i = date_i.add(1,filter.period.level+'s');
+  }
+  if(typeof filter.service_id !== 'undefined'){
+    logger.warn('result contains only single/all services');
+    query.pivot_ip.filter_service  = ' AND lg.service_id = $<filter.service_id> ';
+    query.pivot_val.filter_service = ' AND data.service_id = $<filter.service_id> ';
+    values.service_id = filter.service_id;
+  }
+
+  return {
+    query: query,
+    values: values,
+    header: header
+  }
+}
+
+
+
+exports.getTop = (filter={},
+                  period_start = (new Date().getFullYear())+'-01-01 00:00:00',
+                  period_end = (new Date().getFullYear() + 1)+'-01-01 00:00:00',
+                  measure='units',
+                  level='month',
+                  min_exist = 0
+                ) => {
+  logger.trace();
+  logger.warn('db.ip.getTop() uses only default settings !!!');
+  const {query, values, header} = createFilter({
+                                        'period': {
+                                          'start': moment(period_start),
+                                          'end': moment(period_end),
+                                          'level': level
+                                        },
+                                        'value':{
+                                          'measure': measure,
+                                          'min_exist': min_exist
+                                        },
+                                        ...filter
+                                      });
+  return new promise((resolve, reject) => {
+    db.any(`
+SELECT *
+FROM crosstab(
+      'SELECT top.ip,to_char(data.period_start_date,''YYYY-MM-DD 00:00:00''),COALESCE(data.cnt_${measure},0)
+       FROM
+         ( SELECT DISTINCT ip
+           FROM log_ip_aggr lg
+           WHERE
+             lg.cnt_${measure} > $<min_exist>
+             AND lg.period_level=\'$<filter.level>\'::period_levels
+             ${query.pivot_ip.filter_ip}
+             ${query.pivot_ip.filter_period}  -- AND lg.period_start_date >= ''2021-01-01 00:00:00''  AND lg.period_end_date < ''2022-01-01 00:00:00''
+             ${query.pivot_ip.filter_service} -- AND lg.service_id IS NULL
+          ) AS top
+         JOIN log_ip_aggr data
+           ON data.ip = top.ip
+       WHERE data.period_level=\'$<filter.level>\'::period_levels
+         ${query.pivot_val.filter_service}  -- AND data.service_id IS NULL
+       ORDER BY 1,2',
+      'SELECT s::timestamp
+       FROM
+            ${query.pivot_col.values} s'
+       ) as pivot (
+               -- column names
+               ${query.pivot_col.names}
+               );
+        `, {
+          'min_exist': min_exist,
+          'filter': values
+        })
+        .then(data => {
+          logger.trace();
+          if (data) {
+              resolve({data: data, header: header}); // data
           }
           else {
             reject({

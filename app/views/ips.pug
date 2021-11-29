@@ -18,13 +18,12 @@ block content
         .row
             .col.s12
                 h6 Last three months IP list
-                table.striped(type='lb-datatable' data-type='json' data-field='data' data-url='api/ips' data-header='["IP", "Requests", "Units", "Requests", "Units", "Requests", "Units", "Requests", "Units"]' data-items='["ip", "m2_requests", "m2_units", "m1_requests", "m1_units", "m0_requests", "m0_units", "requests", "units"]' )
+                table.striped(type='lb-datatable' data-type='json' data-field='data' data-url='api/ips' data-header-field='header' data-items-field='header' )
                   script.
                     [ {
                       "targets": 0,
                       "data": null,
                       "render": function ( data, type, row, meta ) {return '<a class="clr-bg-add btn-floating btn-small" href="admin/add-endpoint?ip='+data[0]+'" title="create endpoint from IP address"><i class="material-icons tiny">settings_input_component</i></a>  <a class="clr-fg-link" href="admin/ip/'+data[0]+'">'+data[0]+'</a>';}
                       }
-
                     ]
 

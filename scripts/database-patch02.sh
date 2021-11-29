@@ -87,6 +87,7 @@ LANGUAGE plpgsql;
 
 CREATE TRIGGER user_endpoints_copy_ip_aggr AFTER INSERT ON user_endpoints FOR ROW EXECUTE PROCEDURE trigger_add_endpoint_copy_ip_aggr();
 
+CREATE EXTENSION IF NOT EXISTS tablefunc;
 
 INSERT INTO db_schema_version(version, script_path)
      VALUES(2, 'scripts/database-patch02.sh') ON CONFLICT DO NOTHING;

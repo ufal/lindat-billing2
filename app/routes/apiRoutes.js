@@ -305,8 +305,8 @@ router.get('/api/ips', function (req, res, next) {
         error : 'Permission Denied.'
       });
   } else {
-    dataController.getIPs(user.user_id).then(data => {
-      res.json({"data": data});
+    dataController.getTopIPs(user.user_id).then(data => {
+      res.json(data);
     }).catch();
   }
 });
