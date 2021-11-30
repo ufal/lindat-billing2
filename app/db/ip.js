@@ -117,12 +117,12 @@ function createFilter(filter){
 
 
 
-exports.getTop = (filter={},
-                  period_start = (new Date().getFullYear())+'-01-01 00:00:00',
-                  period_end = (new Date().getFullYear() + 1)+'-01-01 00:00:00',
-                  measure='units',
-                  level='month',
-                  min_exist = 0
+exports.getTop = (filter,
+                  period_start,
+                  period_end,
+                  measure,
+                  level,
+                  min_exist
                 ) => {
   logger.trace();
   logger.warn('db.ip.getTop() uses only default settings !!!');

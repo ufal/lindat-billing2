@@ -76,10 +76,17 @@ exports.getUsers = (userId) => {
   });
 };
 
-exports.getTopIPs = (userId) => {
+exports.getTopIPs = ( userId,
+                      filter={},
+                      period_start = (new Date().getFullYear())+'-01-01 00:00:00',
+                      period_end = (new Date().getFullYear() + 1)+'-01-01 00:00:00',
+                      measure='units',
+                      level='month',
+                      min_exist = 0
+                    ) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.ip.getTop()
+    db.ip.getTop(filter,period_start,period_end,measure,level,min_exist)
     .then(data => {
       db.user.logAction(userId, 'listIPs');
       resolve(data);
