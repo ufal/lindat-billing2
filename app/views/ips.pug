@@ -23,7 +23,13 @@ block content
                     [ {
                       "targets": 0,
                       "data": null,
+                      "type": 'html',
+                      "searchable": true,
                       "render": function ( data, type, row, meta ) {return '<a class="clr-bg-add btn-floating btn-small" href="admin/add-endpoint?ip='+data[0]+'" title="create endpoint from IP address"><i class="material-icons tiny">settings_input_component</i></a>  <a class="clr-fg-link" href="admin/ip/'+data[0]+'">'+data[0]+'</a>';}
+                      },
+                      {
+                      "targets": '_all',
+                      "searchable": false
                       }
                     ]
 
