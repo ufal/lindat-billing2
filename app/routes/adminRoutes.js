@@ -139,11 +139,9 @@ router.get('/admin/ips', function (req, res, next) {
                 min_exist: req.query.min_exist ||  0
             };
   var table_params = [];
-logger.error('post ws get !!! ',req);
 
   for (const [k,v] of Object.entries(val)){
     table_params.push(`${k}=${v}`);
-    logger.error(`${k}=${v}`);
   }
   res.render('ips', {
                       user: user,

@@ -125,7 +125,6 @@ exports.getTop = (filter,
                   min_exist
                 ) => {
   logger.trace();
-  logger.warn('db.ip.getTop() uses only default settings !!!');
   min_exist = parseInt(min_exist);
   const {query, values, header} = createFilter({
                                         'period': {
