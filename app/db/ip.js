@@ -64,7 +64,7 @@ function date2string(date=new Date(), level='month', type='full'){
 
 
 function createFilter(filter){
-
+  logger.warn('TODO: validate input');
   logger.warn('IP filter is not implemented');
   var query={
     'pivot_ip': {
@@ -81,7 +81,7 @@ function createFilter(filter){
     }
   };
   var values={};
-  var header=['ip'];
+  var header=[];
 
   values.level = filter.period.level;
   values.period_interval = '1 ' + values.level;
@@ -126,6 +126,7 @@ exports.getTop = (filter,
                 ) => {
   logger.trace();
   logger.warn('db.ip.getTop() uses only default settings !!!');
+  min_exist = parseInt(min_exist);
   const {query, values, header} = createFilter({
                                         'period': {
                                           'start': moment(period_start),
@@ -138,11 +139,15 @@ exports.getTop = (filter,
                                         },
                                         ...filter
                                       });
+
   return new promise((resolve, reject) => {
     db.any(`
-SELECT *
+SELECT
+  ip,
+  `+ header.map(v => `COALESCE("${v}",0)`).join('+') +` AS sum,
+  `+ header.map(v => `"${v}"`).join(',') +`
 FROM crosstab(
-      'SELECT top.ip,to_char(data.period_start_date,''YYYY-MM-DD 00:00:00''),COALESCE(data.cnt_${measure},0)
+      'SELECT top.ip, to_char(data.period_start_date,''YYYY-MM-DD 00:00:00''), data.cnt_${measure}
        FROM
          ( SELECT DISTINCT ip
            FROM log_ip_aggr lg
@@ -172,7 +177,7 @@ FROM crosstab(
         .then(data => {
           logger.trace();
           if (data) {
-              resolve({data: data, header: header}); // data
+              resolve({data: data, header: ['ip','sum',...header]}); // data
           }
           else {
             reject({

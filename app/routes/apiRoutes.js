@@ -298,6 +298,7 @@ router.get('/api/users', function (req, res, next) {
 router.get('/api/ips', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
+
   if (!user.is_admin) {
       res.status(403);
       res.send({
@@ -305,7 +306,14 @@ router.get('/api/ips', function (req, res, next) {
         error : 'Permission Denied.'
       });
   } else {
-    dataController.getTopIPs(user.user_id).then(data => {
+    dataController.getTopIPs(user.user_id,
+                            {},
+                            (req.query.start ||  (new Date().getFullYear())+'-01-01')+' 00:00:00',
+                            (req.query.end ||  (new Date().getFullYear()+1)+'-01-01')+' 00:00:00',
+                            req.query.measure || 'units',
+                            req.query.level || 'month',
+                            req.query.min_exist || 0
+                            ).then(data => {
       res.json(data);
     }).catch();
   }

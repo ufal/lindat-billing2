@@ -131,7 +131,28 @@ router.get('/admin/user/:userId', function (req, res, next) {
 router.get('/admin/ips', function (req, res, next) {
   logger.trace();
   let user = req.session.user;
-  res.render('ips', {user: user, ips_active: true});
+  let val = {
+                measure: req.query.measure || 'units',
+                level: req.query.level || 'month',
+                start: req.query.start ||  (new Date().getFullYear())+'-01-01',
+                end: req.query.end ||  (new Date().getFullYear()+1)+'-01-01',
+                min_exist: req.query.min_exist ||  0
+            };
+  var table_params = [];
+logger.error('post ws get !!! ',req);
+
+  for (const [k,v] of Object.entries(val)){
+    table_params.push(`${k}=${v}`);
+    logger.error(`${k}=${v}`);
+  }
+  res.render('ips', {
+                      user: user,
+                      ips_active: true,
+                      measures: ["units", "requests", "body_bytes_sent"],
+                      levels: ["month", "day"],
+                      val: val,
+                      table_params: table_params.join('&')
+                    });
 });
 
 router.get('/admin/ip/:ip', function (req, res, next) {
