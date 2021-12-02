@@ -20,24 +20,24 @@ block content
                 form(method="get")
                     .row
                         .input-field.col.s12
+                            i.material-icons.prefix compare
+                            .select-wrapper
+                              select.browser-default#measure(name="measure")
+                                each m in measures
+                                    option(value=m.val,  selected= (m.val==val.measure) ? 'selected' : false)= m.text
+                            label(for="measure") Measure
+                    .row
+                        .input-field.col.s6
                             i.material-icons.prefix format_size
                             .select-wrapper
                               select.browser-default#level(name="level")
                                 each l in levels
                                     option(value=l,  selected= (l==val.level) ? 'selected' : false)= l
                             label(for="level") Period level size (table column)
-                    .row
-                        .input-field.col.s6
-                            i.material-icons.prefix compare
-                            .select-wrapper
-                              select.browser-default#measure(name="measure")
-                                each m in measures
-                                    option(value=m,  selected= (m==val.measure) ? 'selected' : false)= m
-                            label(for="measure") Measure
                         .input-field.col.s6
                             i.material-icons.prefix chevron_right
                             input#min_exist.validate(name="min_exist" type="number" step="1" min="0" required="" aria-required="true" value=val.min_exist )
-                            label(for="min_exist") minimum required value
+                            label(for="min_exist") minimum required value in any period
                             span.helper-text(data-error="Number Required")
                     .row
                         .input-field.col.s6

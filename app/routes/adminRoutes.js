@@ -146,7 +146,20 @@ router.get('/admin/ips', function (req, res, next) {
   res.render('ips', {
                       user: user,
                       ips_active: true,
-                      measures: ["units", "requests", "body_bytes_sent"],
+                      measures: [
+                        {
+                          val: "units",
+                          text: "Input NFC lenght (infclen)"
+                        },
+                        {
+                          val: "requests",
+                          text: "Number of requests"
+                        },
+                        {
+                          val:  "body_bytes_sent",
+                          text:  "Output 'body bytes sent' (includes overhead)"
+                        }
+                      ],
                       levels: ["month", "day"],
                       val: val,
                       table_params: table_params.join('&')
