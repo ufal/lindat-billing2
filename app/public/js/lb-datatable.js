@@ -60,11 +60,41 @@ LBDataTable.prototype.initialize = function() {
         self.table.append(footer);
         const array = self.prepareData(json);
         self.table.DataTable( {
+            dom: '<"search col s8"f><"download col s4"B>rtip',
             data: array,
-            columnDefs: eval(self.column_settings)
+            columnDefs: eval(self.column_settings),
+            buttons: [
+              {
+                extend: 'excel',
+                title: '',
+                filename: 'data',
+              },
+              {
+                extend: 'csv',
+                filename: 'data',
+              },
+            ],
           });
+        ['excel', 'csv'].forEach( t => {jQuery("#" + self.id + "_wrapper .buttons-" + t).hide()});
+
+        var downloadDropdown = jQuery('<a class="btn-floating right btn dropdown-trigger"><i class="material-icons">file_download</i></a>')
+        jQuery('div.download').append(downloadDropdown);
+        dropdownMenu = jQuery('<ul class="dropdown-content"></ul>');
+        jQuery('div.download').append(dropdownMenu);
+        var dropdownId = 'down-dropdown-' + self.id;
+        downloadDropdown.attr('data-target',dropdownId);
+        dropdownMenu.attr('id', dropdownId);
+        [['csv','csv'], ['xslx','excel']].forEach(type => {
+          var downBtn = jQuery('<a>' + type[0] + '</a>');
+          dropdownMenu.append(jQuery('<li></li>').append(downBtn));
+          downBtn.click( function(e) {
+            jQuery("#" + self.id + "_wrapper .buttons-" + type[1]).click();
+          });
+        });
+        M.Dropdown.init(downloadDropdown);
+      }
     }
-  });
+  );
 };
 
 
