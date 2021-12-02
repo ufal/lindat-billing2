@@ -149,7 +149,7 @@ router.get('/admin/ips', function (req, res, next) {
                       measures: [
                         {
                           val: "units",
-                          text: "Input NFC lenght (infclen)"
+                          text: "Input NFC length (infclen)"
                         },
                         {
                           val: "requests",
