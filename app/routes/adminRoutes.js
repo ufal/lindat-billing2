@@ -136,7 +136,7 @@ router.get('/admin/ips', function (req, res, next) {
                 level: req.query.level || 'month',
                 start: req.query.start ||  (new Date().getFullYear())+'-01-01',
                 end: req.query.end ||  (new Date().getFullYear()+1)+'-01-01',
-                min_exist: req.query.min_exist ||  0
+                min_exist: req.query.min_exist ||  8000
             };
   var table_params = [];
 

@@ -82,7 +82,7 @@ exports.getTopIPs = ( userId,
                       period_end = (new Date().getFullYear() + 1)+'-01-01 00:00:00',
                       measure='units',
                       level='month',
-                      min_exist = 0
+                      min_exist = 8000
                     ) => {
   logger.trace();
   return new promise((resolve, reject) => {
