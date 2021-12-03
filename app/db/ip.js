@@ -101,11 +101,11 @@ function createFilter(filter){
     header.push(date_str);
     date_i = date_i.add(1,filter.period.level+'s');
   }
-  if(typeof filter.service_id !== 'undefined'){
+  if(typeof filter.service !== 'undefined'){
     logger.warn('result contains only single/all services');
-    query.pivot_ip.filter_service  = ' AND lg.service_id = $<filter.service_id> ';
-    query.pivot_val.filter_service = ' AND data.service_id = $<filter.service_id> ';
-    values.service_id = filter.service_id;
+    query.pivot_ip.filter_service  = ' AND lg.service_id = $<filter.service> ';
+    query.pivot_val.filter_service = ' AND data.service_id = $<filter.service> ';
+    values.service = filter.service;
   }
 
   return {

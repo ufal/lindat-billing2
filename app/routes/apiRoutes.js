@@ -306,8 +306,16 @@ router.get('/api/ips', function (req, res, next) {
         error : 'Permission Denied.'
       });
   } else {
+    var filter = {};
+    ['service', 'service_exc'].forEach( key => {
+      var value = Number(req.query[key]);
+      if(!(isNaN(value) || value === Infinity || String(Math.floor(value)) !== req.query[key])){
+        filter[key] = value;
+      }
+    });
+
     dataController.getTopIPs(user.user_id,
-                            {},
+                            filter,
                             (req.query.start ||  (new Date().getFullYear())+'-01-01')+' 00:00:00',
                             (req.query.end ||  (new Date().getFullYear()+1)+'-01-01')+' 00:00:00',
                             req.query.measure || 'units',

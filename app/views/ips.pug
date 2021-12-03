@@ -51,6 +51,23 @@ block content
                             label(for="end") End date (excluded)
                             span.helper-text(data-error="Date Required")
                     .row
+                        .input-field.col.s6
+                            i.material-icons.prefix important_devices
+                            .select-wrapper
+                              select.browser-default#service(name="service")
+                                option(value="",  selected= (typeof val.service=='undefined' || val.service=='') ? 'selected' : false) ALL
+                                each s in services
+                                    option(value=s[0],  selected= (s[0]==val.service) ? 'selected' : false)= s[1]
+                            label(for="service") Service include
+                        .input-field.col.s6
+                            i.material-icons.prefix delete
+                            .select-wrapper
+                              select.browser-default#service_exc(name="service_exc" disabled='disabled')
+                                option(value="",  selected= (typeof val.service_exc=='undefined' || val.service_exc=='') ? 'selected' : false) NONE
+                                each s in services
+                                    option(value=s[0],  selected= (s[0]==val.service_exc) ? 'selected' : false)= s[1]
+                            label(for="service_exc") Service exclude
+                    .row
                         .input-field.col.s12
                             button.btn.grey.waves-effect.col.s12.white-text(type="submit")
                                 strong Update table

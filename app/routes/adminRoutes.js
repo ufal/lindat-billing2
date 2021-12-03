@@ -136,14 +136,22 @@ router.get('/admin/ips', function (req, res, next) {
                 level: req.query.level || 'month',
                 start: req.query.start ||  (new Date().getFullYear())+'-01-01',
                 end: req.query.end ||  (new Date().getFullYear()+1)+'-01-01',
-                min_exist: req.query.min_exist ||  8000
+                min_exist: req.query.min_exist ||  8000,
+                service: req.query.service,
+                service_exc: req.query.service_exc
             };
   var table_params = [];
-
+logger.error(val);
   for (const [k,v] of Object.entries(val)){
-    table_params.push(`${k}=${v}`);
+    logger.warn(typeof v);
+    if(v != '' && typeof v !== 'undefined') {
+      table_params.push(`${k}=${v}`);
+    } else {
+      val[k] = undefined;
+    }
   }
-  res.render('ips', {
+  adminController.getServices(user.user_id).then(services => {
+    res.render('ips', {
                       user: user,
                       ips_active: true,
                       measures: [
@@ -161,9 +169,11 @@ router.get('/admin/ips', function (req, res, next) {
                         }
                       ],
                       levels: ["month", "day"],
+                      services: services.map(s => [s.service_id, s.name]),
                       val: val,
                       table_params: table_params.join('&')
                     });
+  })
 });
 
 router.get('/admin/ip/:ip', function (req, res, next) {
