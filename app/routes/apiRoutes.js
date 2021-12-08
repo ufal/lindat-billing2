@@ -186,7 +186,7 @@ router.get('/api/data/user/:filterUser/:serviceId/:period', function (req, res, 
   }
 });
 
-router.param('ip',function (req, res, next, user){
+router.param('ip',function (req, res, next, ip){
   //TODO validate ip !!!
   next();
 })
@@ -214,6 +214,51 @@ router.get('/api/data/ip/:ip/:serviceId/:period', function (req, res, next) {
           req.params.datePath,
           {
             ip: req.params.ip,
+            ...(
+               req.params.serviceId != 'all'
+               ? {service_id: req.params.serviceId}
+               : {}
+            )
+          }).then(data => {
+          res.json({data: data, metadata: {service_name: values[0].name, service_id: values[0].service_id  }});
+        }).catch();
+    });
+  }
+});
+
+router.param('endpointId',function (req, res, next, endpointId){
+  logger.trace(endpointId);
+  const value = Number(endpointId);
+  if(endpointId != 'all' && (isNaN(value) || value === Infinity || String(Math.floor(value)) !== endpointId || value < 0)){
+    throw new Error('Invalid Endpoint id.');
+  }
+  next();
+})
+
+router.get('/api/data/endpoint/:endpointId/:serviceId/:period', function (req, res, next) {
+  logger.trace();
+  logger.warn(req.params);
+  let user = req.session.user;
+  if (!user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    if (req.params.serviceId != 'all') {
+      service = dataController.getService(req.params.serviceId);
+    } else {
+      service = {name: 'all', service_id: 'all'};
+    }
+    Promise.all([service]).then(values => {
+        dataController.getPeriodCounts(
+          req.params.date,
+          req.params.duration,
+          req.params.interval,
+          req.params.datePath,
+          {
+            endpoint_id: req.params.endpointId,
             ...(
                req.params.serviceId != 'all'
                ? {service_id: req.params.serviceId}

@@ -44,13 +44,13 @@ block content
                             i.material-icons add_circle
                         .card-content
                             .card-title Endpoints
-                            table(type='lb-datatable' data-type='json' data-field='data' data-url='api/endpoints/'+user_detail.user_id data-header='["", "IP", "Name","Created"]' data-items='["endpoint_id", "ip", "name", "create_time"]' )
+                            table(type='lb-datatable' data-type='json' data-field='data' data-url='api/endpoints/'+user_detail.user_id data-header='["", "IP", "Name","Start"]' data-items='["endpoint_id", "ip", "name", "start_date"]' )
                               script.
                                 [
                                   {
                                     "targets": [0],
                                     "data": null,
-                                    "render": function ( data, type, row, meta ) {return '<a class="clr-fg-link" href="admin/endpoint/'+row[meta['col']]+'"><i class="material-icons">info</i> (TODO)</a>';}
+                                    "render": function ( data, type, row, meta ) {return '<a class="clr-fg-link" href="admin/endpoint/'+row[meta['col']]+'"><i class="material-icons">info</i></a>';}
                                   },
                                   {
                                     "targets": [3],

@@ -228,6 +228,11 @@ function createFilter(filter, add=1){
     values.push(filter['user_id']);
     query += ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE user_id=$'+ (values.length+add) +' AND is_verified=TRUE) ';
     table = "log_aggr";
+  } else if('endpoint_id' in filter) {
+    //JOIN (SELECT service_id FROM service_pricing WHERE user_id=$2) p ON l.service_id = p.service_id
+    values.push(filter['endpoint_id']);
+    query += ' AND  endpoint_id IN (SELECT endpoint_id FROM user_endpoints WHERE endpoint_id=$'+ (values.length+add) +' AND is_verified=TRUE) ';
+    table = "log_aggr";
   } else if ('ip' in filter) {
     table="log_ip_aggr";
     values.push(filter['ip']);
@@ -236,6 +241,7 @@ function createFilter(filter, add=1){
     query += 'AND ip IS NULL ';
     table = "log_ip_aggr";
   }
+
   if('service_id' in filter) {
     values.push(filter['service_id']);
     query += ' AND service_id = $'+ (values.length+add) +' ';

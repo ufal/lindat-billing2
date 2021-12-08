@@ -121,7 +121,6 @@ router.get('/admin/user/:userId', function (req, res, next) {
   let user = req.session.user;
   adminController.getUser(user.user_id, req.params.userId)
   .then(data => {
-    //res.render('user-detail', {user: user, user_detail: data, users_active: true});
     const len = 21;
     const last_date = (new Date).toISOString().slice(0,10);
     userController.getWeeklyCountsByService(req.params.userId, last_date , len).then(weekly => {
@@ -391,6 +390,31 @@ router.post('/admin/add-endpoint', function (req, res, next) {
         res.render('add-endpoint', {user: user, endpoints_active: true, error: 'A endpoint with this IP already exists'});
       }
     });
+});
+
+router.get('/admin/endpoint/:endpoint', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  const len = 21;
+  const last_date = (new Date).toISOString().slice(0,10);
+  adminController.getWeeklyCountsByService(last_date , len, {endpoint_id: req.params.endpoint})
+  .then(data => {
+    res.render('endpoint-detail',
+            {
+              user: user,
+              servicecounts: data,
+              period_length: len,
+              date: Date.parse(last_date),
+              initialview: (new Date).toISOString().slice(0,7),
+              users_active: true,
+              type: 'endpoint',
+              filter: req.params.endpoint,
+              datalines: ["units", "requests", "body_bytes_sent"]
+            });
+  })
+  .catch(err => {
+    res.render('endpoint-detail', {user: user, error: 'No Endpoint Found', users_active: true});
+  });
 });
 
 module.exports = router;
