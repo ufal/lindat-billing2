@@ -7,7 +7,11 @@ block content
     .container
         .row
             .col.s12
-                h5 IP Detail
+                h5= filter + " Detail"
+                a.btn-small.right.blue(href="https://www.iplocation.net/ip-lookup?query="+filter+"&submit=IP+Lookup" target="_blank")
+                    i.material-icons.right open_in_new
+                    span IP location
+
                 if error
                     .red-text
                         strong= error
