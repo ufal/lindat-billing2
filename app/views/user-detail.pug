@@ -31,11 +31,12 @@ block content
                                     i.material-icons= user_detail.is_admin ? 'settings' : ''
                             .divider
                             p= user_detail.email +" | " + user_detail.organization
-                .col.s12
+                .col.s12.hide
                     .card
                         .card-content
                             .card-title Service Pricing
                             p TODO
+                include includes/data.pug
                 .col.s12
                     .card
                         .card-image
@@ -57,7 +58,7 @@ block content
                                     "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
                                   }
                                 ]
-                .col.s12
+                .col.s12.hide
                     .card
                         .card-content
                             .card-title Activity Log

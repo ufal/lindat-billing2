@@ -121,12 +121,30 @@ router.get('/admin/user/:userId', function (req, res, next) {
   let user = req.session.user;
   adminController.getUser(user.user_id, req.params.userId)
   .then(data => {
-    res.render('user-detail', {user: user, user_detail: data, users_active: true});
+    //res.render('user-detail', {user: user, user_detail: data, users_active: true});
+    const len = 21;
+    const last_date = (new Date).toISOString().slice(0,10);
+    userController.getWeeklyCountsByService(req.params.userId, last_date , len).then(weekly => {
+      res.render('user-detail', {
+                           user: user,
+                           servicecounts: weekly,
+                           period_length: len,
+                           date: Date.parse(last_date),
+                           initialview: (new Date).toISOString().slice(0,7),
+                           users_active: true,
+                           user_detail: data,
+                           type: 'user',
+                           filter: req.params.userId,
+                           datalines: ["units", "requests", "body_bytes_sent"]
+                         });
+     })
   })
   .catch(err => {
     res.render('user-detail', {user: user, error: 'No User Found', users_active: true});
   });
 });
+
+
 
 router.get('/admin/ips', function (req, res, next) {
   logger.trace();
