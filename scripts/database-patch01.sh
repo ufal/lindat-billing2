@@ -55,8 +55,8 @@ CREATE TABLE log_aggr
  period_start_date TIMESTAMP NOT NULL,
  period_end_date   TIMESTAMP NOT NULL,
  period_level      period_levels NOT NULL,
- endpoint_id       INTEGER NULL REFERENCES user_endpoints( endpoint_id ),
- service_id        INTEGER NULL REFERENCES services( service_id ),
+ endpoint_id       INTEGER NULL REFERENCES user_endpoints( endpoint_id ) ON DELETE CASCADE,
+ service_id        INTEGER NULL REFERENCES services( service_id ) ON DELETE CASCADE,
  cnt_requests      BIGINT NOT NULL,
  cnt_units         BIGINT NOT NULL,
  cnt_body_bytes_sent BIGINT NOT NULL
@@ -74,7 +74,7 @@ CREATE TABLE log_ip_aggr
  period_end_date   TIMESTAMP NOT NULL,
  period_level      period_levels NOT NULL,
  ip                INET,
- service_id        INTEGER NULL REFERENCES services( service_id ),
+ service_id        INTEGER NULL REFERENCES services( service_id ) ON DELETE CASCADE,
  cnt_requests      BIGINT NOT NULL,
  cnt_units         BIGINT NOT NULL,
  cnt_body_bytes_sent BIGINT NOT NULL
