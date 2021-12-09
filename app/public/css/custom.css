@@ -1,3 +1,22 @@
+.container {
+  margin: 0 auto;
+  max-width: 1450px;
+  width: 95%;
+}
+
+@media only screen and (min-width: 601px) {
+  .container {
+    width: 93%;
+  }
+}
+
+@media only screen and (min-width: 993px) {
+  .container {
+    width: 90%;
+  }
+}
+
+
 .importing {
     font-weight: bolder;
     color: #f57f17;

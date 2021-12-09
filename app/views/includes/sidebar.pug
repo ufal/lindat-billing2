@@ -1,8 +1,20 @@
-ul.sidenav.sidenav-fixed
+ul#slide-out.sidenav.sidenav-fixed
     li
         nav.grey.darken-1.row
             .nav-wrapper.col.s12
                 a.brand-logo.hide-on-med-and-down(href=".") Lindat Billing
+    if user
+        li.hide-on-large-only
+            ul.collapsible.collapsible-accordion
+                li.bold.active
+                    a.collapsible-header.waves-effect(href="#")
+                        span(style="font-weight: bolder;")= user.first_name + ' ' + user.last_name
+                    .collapsible-body
+                        ul
+                            li
+                                a(href="logout")
+                                    i.material-icons logout
+                                    span LogOut
     li
         ul.collapsible.collapsible-accordion
             li.bold.active
@@ -52,3 +64,6 @@ ul.sidenav.sidenav-fixed
                                 a.waves-effect(href="admin/logmanagement")
                                     i.material-icons list
                                     span Log Management
+
+
+

@@ -7,6 +7,7 @@ jQuery(document).ready(function () {
 
         });
     });
-    //// jQuery('.sidenav').sidenav();
+    M.Sidenav.init(jQuery('.sidenav'), {});
+
 });
 

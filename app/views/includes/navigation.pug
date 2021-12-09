@@ -2,6 +2,8 @@ block navigation
     .navbar
         nav.grey.darken-1.row
             .nav-wrapper.col.s12
+                a.hide-on-large-only(href="#" data-target="slide-out" class="sidenav-trigger")
+                    i.material-icons menu
                 a.brand-logo.hide-on-large-only(href=".") Lindat Billing
                 ul.right.hide-on-med-and-down
                     if user
