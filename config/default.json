@@ -37,7 +37,7 @@
 	    ["kontext",".","^\\/services\\/kontext\\/", "808080"],
 	    ["U2U-cs2uk", "", "^\\/translation\\/api(?=.*\\bsrc=cs\\b)(?=.*\\btgt=uk\\b)", "808080"],
 	    ["U2U-uk2cs", "", "^\\/translation\\/api(?=.*\\bsrc=uk\\b)(?=.*\\btgt=cs\\b)", "808080"],
-	    ["U2U-..2..", "", "^\\/translation\\/api", "808080"]
+	    ["U2U-UNKNOWN", "", "^\\/translation\\/api", "808080"]
 	  ]
 	},
 	"mail": {
