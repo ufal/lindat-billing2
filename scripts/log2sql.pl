@@ -19,6 +19,7 @@ my (@logfiles,$dbuser,$dbhost,$dbdatabase,$dbpassword);
 my $dbport = 5432;
 my $ignore = qr/\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$/;
 my @services;
+my $import_log_entries;
 
 my $strp = DateTime::Format::Strptime->new(
   pattern => '%d/%b/%Y:%H:%M:%S %z',
@@ -33,6 +34,7 @@ GetOptions (
             'db-database=s' => \$dbdatabase,
             'db-password=s' => \$dbpassword,
             'db-port=i' => \$dbport,
+            'import-log-entries' => \$import_log_entries,
         );
 
 
@@ -120,7 +122,7 @@ for my $log_file_path (@logfiles) {
 
       unless($act_date eq $prev_date){
         unless($lines_valid){
-          close DUMP;
+          close DUMP if $import_log_entries;
           close DUMP_AGGR;
         }
         print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_date,'day');
@@ -133,13 +135,15 @@ DO
 \$\$
 BEGIN
   RAISE NOTICE '--------------[\%]----------------', NOW();
-  RAISE NOTICE 'starting importing from $dump_file';
+  ".($import_log_entries ? "RAISE NOTICE 'starting importing from $dump_file';" : '')."
   RAISE NOTICE 'log file line: $lines_read';
 END;
 \$\$;
 ";
-        push @print_sql,"\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'";
-        open DUMP, ">".File::Spec->catfile($outdir,$dump_file) or die "Could not open $dump_file: $!";
+        if($import_log_entries){
+          push @print_sql,"\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'";
+          open DUMP, ">".File::Spec->catfile($outdir,$dump_file) or die "Could not open $dump_file: $!";
+        }
 
         push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AND DAY AGGR--------------[\%]----------------', NOW();END;\$\$;";
         push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent) from '$dump_aggr_file'";
@@ -158,7 +162,9 @@ END;
 
       $lines_valid++;
 ##      print STDERR "$service_id: $request\n";
-      print DUMP join("\t", ($file_id,$service_id,$lines_valid,$last_read_line_checksum,$remote_addr,$remote_user,$time_local, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit)),"\n";
+      if($import_log_entries){
+        print DUMP join("\t", ($file_id,$service_id,$lines_valid,$last_read_line_checksum,$remote_addr,$remote_user,$time_local, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit)),"\n";
+      }
       for my $ip ($remote_addr, '\N') {
         for my $service ($service_id, '\N'){
           aggregate_data($aggr_data, $ip, $service, 1, $unit, $body_bytes_sent);
@@ -169,7 +175,7 @@ END;
 
   print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_time,'hour');
   print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_date,'day');
-  close DUMP;
+  close DUMP if $import_log_entries;
   close DUMP_AGGR;
   close LOG;
 
