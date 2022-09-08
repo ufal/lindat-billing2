@@ -82,11 +82,12 @@ exports.getTopIPs = ( userId,
                       period_end = (new Date().getFullYear() + 1)+'-01-01 00:00:00',
                       measure='units',
                       level='month',
-                      min_exist = 8000
+                      min_exist = 8000,
+                      tokens_incl = 0
                     ) => {
   logger.trace();
   return new promise((resolve, reject) => {
-    db.ip.getTop(filter,period_start,period_end,measure,level,min_exist)
+    db.ip.getTop(filter,period_start,period_end,measure,level,min_exist, tokens_incl)
     .then(data => {
       db.user.logAction(userId, 'listIPs');
       resolve(data);

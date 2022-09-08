@@ -70,10 +70,12 @@ function createFilter(filter){
     'pivot_ip': {
       'filter_ip' : '',
       'filter_period' : '',
-      'filter_service' : ' AND lg.service_id IS NULL '
+      'filter_service' : ' AND lg.service_id IS NULL ',
+      'filter_used_token': ' AND lg.token_used = FALSE ',
     },
     'pivot_val': { // change to row !!!
-      'filter_service' : ' AND data.service_id IS NULL '
+      'filter_service' : ' AND data.service_id IS NULL ',
+      'filter_used_token': ' AND data.token_used = FALSE ',
     },
     'pivot_col': {
       'names': ' ip INET ',
@@ -107,6 +109,11 @@ function createFilter(filter){
     query.pivot_val.filter_service = ' AND data.service_id = $<filter.service> ';
     values.service = filter.service;
   }
+  if(filter.token){
+    query.pivot_ip.filter_used_token = ' AND lg.token_used = TRUE ';
+    query.pivot_val.filter_used_token = ' AND data.token_used = TRUE ';
+  }
+
 
   return {
     query: query,
@@ -122,7 +129,8 @@ exports.getTop = (filter,
                   period_end,
                   measure,
                   level,
-                  min_exist
+                  min_exist,
+                  tokens_incl
                 ) => {
   logger.trace();
   min_exist = parseInt(min_exist);
@@ -136,6 +144,7 @@ exports.getTop = (filter,
                                           'measure': measure,
                                           'min_exist': min_exist
                                         },
+                                        'token': tokens_incl,
                                         ...filter
                                       });
 
@@ -156,11 +165,13 @@ FROM crosstab(
              ${query.pivot_ip.filter_ip}
              ${query.pivot_ip.filter_period}  -- AND lg.period_start_date >= ''2021-01-01 00:00:00''  AND lg.period_end_date < ''2022-01-01 00:00:00''
              ${query.pivot_ip.filter_service} -- AND lg.service_id IS NULL
+             ${query.pivot_ip.filter_used_token}
           ) AS top
          JOIN log_ip_aggr data
            ON data.ip = top.ip
        WHERE data.period_level=\'$<filter.level>\'::period_levels
          ${query.pivot_val.filter_service}  -- AND data.service_id IS NULL
+         ${query.pivot_val.filter_used_token} --
        ORDER BY 1,2',
       'SELECT s::timestamp
        FROM

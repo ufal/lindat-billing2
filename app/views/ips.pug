@@ -19,13 +19,24 @@ block content
             .col.s12
                 form(method="get")
                     .row
-                        .input-field.col.s12
+                        .input-field.col.s6
                             i.material-icons.prefix compare
                             .select-wrapper
                               select.browser-default#measure(name="measure")
                                 each m in measures
                                     option(value=m.val,  selected= (m.val==val.measure) ? 'selected' : false)= m.text
                             label(for="measure") Measure
+                        .input-field.col.s6
+                            i.material-icons.prefix stars
+                            .select-wrapper
+                              label Include requests with tokens
+                              .switch
+                                label
+                                  | No
+                                  input#tokens_incl(type='checkbox' name="tokens_incl" checked=(val.tokens_incl == 'on') ? 'checked' : false)
+                                  span.lever
+                                  |Yes
+
                     .row
                         .input-field.col.s6
                             i.material-icons.prefix format_size

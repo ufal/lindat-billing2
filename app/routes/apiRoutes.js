@@ -358,14 +358,15 @@ router.get('/api/ips', function (req, res, next) {
         filter[key] = value;
       }
     });
-
+console.log(req.query);
     dataController.getTopIPs(user.user_id,
                             filter,
                             (req.query.start ||  (new Date().getFullYear())+'-01-01')+' 00:00:00',
                             (req.query.end ||  (new Date().getFullYear()+1)+'-01-01')+' 00:00:00',
                             req.query.measure || 'units',
                             req.query.level || 'month',
-                            req.query.min_exist || 0
+                            req.query.min_exist || 0,
+                            (req.query.tokens_incl && req.query.tokens_incl == 'on') || 0
                             ).then(data => {
       res.json(data);
     }).catch();

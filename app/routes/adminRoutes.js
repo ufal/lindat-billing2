@@ -154,13 +154,13 @@ router.get('/admin/ips', function (req, res, next) {
                 start: req.query.start ||  (new Date().getFullYear())+'-01-01',
                 end: req.query.end ||  (new Date().getFullYear()+1)+'-01-01',
                 min_exist: req.query.min_exist ||  8000,
+                tokens_incl: req.query.tokens_incl,
                 service: req.query.service,
                 service_exc: req.query.service_exc
             };
   var table_params = [];
-logger.error(val);
+
   for (const [k,v] of Object.entries(val)){
-    logger.warn(typeof v);
     if(v != '' && typeof v !== 'undefined') {
       table_params.push(`${k}=${v}`);
     } else {
