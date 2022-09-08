@@ -198,7 +198,7 @@ router.get('/admin/ip/:ip', function (req, res, next) {
   let user = req.session.user;
   const len = 21;
   const last_date = (new Date).toISOString().slice(0,10);
-  adminController.getWeeklyCountsByService(last_date , len, {ip: req.params.ip})
+  adminController.getWeeklyCountsByService(last_date , len, {ip: req.params.ip, tokens_incl: 0})
   .then(data => {
     res.render('ip-detail',
             {

@@ -242,6 +242,12 @@ function createFilter(filter, add=1){
     table = "log_ip_aggr";
   }
 
+  if(table == 'log_ip_aggr') {
+    query += ('tokens_incl' in filter && filter.tokens_incl)
+             ? ' AND token_used = TRUE '
+             : ' AND token_used = FALSE ';
+  }
+
   if('service_id' in filter) {
     values.push(filter['service_id']);
     query += ' AND service_id = $'+ (values.length+add) +' ';
