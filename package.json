@@ -35,7 +35,7 @@
 		"node-nthline": "^1.0.0",
 		"nodemailer": "^6.7.0",
 		"nodemon": "^2.0.14",
-		"pg-promise": "^8.5.2",
+		"pg-promise": "^10.12.0",
 		"pg-types": "^3.0.0",
 		"pug": "^3.0.2",
 		"querystring": "^0.2.0",
