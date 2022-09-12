@@ -19,7 +19,6 @@ my (@logfiles,$dbuser,$dbhost,$dbdatabase,$dbpassword);
 my $dbport = 5432;
 my $ignore = qr/\.(gif|jpg|jpeg|tiff|png|js|css|eot|ico|svg)$/;
 my @services;
-my $import_log_entries;
 
 my $strp = DateTime::Format::Strptime->new(
   pattern => '%d/%b/%Y:%H:%M:%S %z',
@@ -34,7 +33,6 @@ GetOptions (
             'db-database=s' => \$dbdatabase,
             'db-password=s' => \$dbpassword,
             'db-port=i' => \$dbport,
-            'import-log-entries' => \$import_log_entries,
         );
 
 
@@ -83,11 +81,12 @@ for my $log_file_path (@logfiles) {
     next;
   }
   $file_id++;
+  push @print_sql,'\cd :workingdir';
+
   push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'LOG FILE ($log_file) ID=$file_id'; END; \$\$; \n";
 
   my ($file_name) = $log_file =~ m/^(.*)\./;
   my $sql_file = "$file_name.sql";
-###  my $dump_file = "$file_name.dump";
   my ($first_line_checksum, $last_read_line_checksum, $lines_read, $lines_valid) = (undef, undef, 0, 0);
   open LOG, "<$log_file_path" or die "Could not open $log_file_path: $!";
   my $prev_date='';
@@ -122,28 +121,12 @@ for my $log_file_path (@logfiles) {
 
       unless($act_date eq $prev_date){
         unless($lines_valid){
-          close DUMP if $import_log_entries;
           close DUMP_AGGR;
         }
         print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_date,'day');
         $aggr_data->{day}={};
         my $date_filename = join('-',split('/',substr($act_date,0,11)));
-        my $dump_file = "$file_name.$date_filename.dump";
-        my $dump_aggr_file = "$file_name.$date_filename.aggr.dump";
-        push @print_sql,"
-DO
-\$\$
-BEGIN
-  RAISE NOTICE '--------------[\%]----------------', NOW();
-  ".($import_log_entries ? "RAISE NOTICE 'starting importing from $dump_file';" : '')."
-  RAISE NOTICE 'log file line: $lines_read';
-END;
-\$\$;
-";
-        if($import_log_entries){
-          push @print_sql,"\\copy log_file_entries(file_id, service_id, line_number, line_checksum, remote_addr, remote_user, time_local, method, request, protocol, status, body_bytes_sent, http_referer, http_user_agent, unit) from '$dump_file'";
-          open DUMP, ">".File::Spec->catfile($outdir,$dump_file) or die "Could not open $dump_file: $!";
-        }
+        my $dump_aggr_file = "$file_name.ip_aggr.dump";
 
         push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AND DAY AGGR--------------[\%]----------------', NOW();END;\$\$;";
         push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent) from '$dump_aggr_file'";
@@ -161,10 +144,6 @@ END;
 
 
       $lines_valid++;
-##      print STDERR "$service_id: $request\n";
-      if($import_log_entries){
-        print DUMP join("\t", ($file_id,$service_id,$lines_valid,$last_read_line_checksum,$remote_addr,$remote_user,$time_local, $method, $request, $protocol, $status, $body_bytes_sent,$http_referer, $http_user_agent, $unit)),"\n";
-      }
       for my $ip ($remote_addr, '\N') {
         for my $service ($service_id, '\N'){
           aggregate_data($aggr_data, $ip, $service, 1, $unit, $body_bytes_sent);
@@ -175,21 +154,96 @@ END;
 
   print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_time,'hour');
   print_aggregated_data(\*DUMP_AGGR, $aggr_data,$prev_date,'day');
-  close DUMP if $import_log_entries;
   close DUMP_AGGR;
   close LOG;
 
-  my $dump_aggr_file = "$file_name.aggr.dump";
-  open DUMP_AGGR, ">".File::Spec->catfile($outdir,$dump_aggr_file) or die "Could not open $dump_aggr_file: $!";
-  my $act_month = $prev_date; $act_month =~ s/^../01/;
-  print_aggregated_data(\*DUMP_AGGR, $aggr_data,$act_month,'month');
-  push @print_sql,"
-DO \$\$
-BEGIN RAISE NOTICE 'IMPORTING MONTH AGGR--------------[\%]----------------', NOW();
-RAISE NOTICE 'importing month aggregations $act_month'; END; \$\$;";
-  push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent) from '$dump_aggr_file'";
-  close DUMP_AGGR;
 
+  my $act_month = $prev_date; $act_month =~ s/^../01/;
+  my $month_aggr_sql = add_aggregate_data_string($aggr_data,$act_month,'month');
+  push @print_sql,"$month_aggr_sql";
+
+  # generating endpoints data
+  push @print_sql," -- aggregating endpoints data
+-- hour + day aggregations
+INSERT INTO log_aggr
+(
+        period_start_date,
+        period_end_date,
+        period_level,
+        endpoint_id,
+        service_id,
+        cnt_requests,
+        cnt_units,
+        cnt_body_bytes_sent
+)
+SELECT li.period_start_date,li.period_end_date,li.period_level,ue.endpoint_id,li.service_id,li.cnt_requests,li.cnt_units,li.cnt_body_bytes_sent
+FROM
+  log_ip_aggr li
+  JOIN
+  user_endpoints ue
+  ON li.ip = ue.ip
+WHERE
+  li.period_start_date >= '$first_datetime'
+  AND ue.start_date >= li.period_start_date
+  AND (li.period_level = 'hour' OR li.period_level = 'day')
+  AND ue.is_active = TRUE;
+
+-- remove month aggregations
+DELETE FROM log_aggr
+WHERE
+  period_level = 'month'
+  AND period_end_date > '$first_datetime';
+
+-- insert new month aggregations
+
+
+INSERT INTO log_aggr
+(
+        period_start_date,
+        period_end_date,
+        period_level,
+        endpoint_id,
+        service_id,
+        cnt_requests,
+        cnt_units,
+        cnt_body_bytes_sent
+)
+SELECT
+  li.period_start_date,
+  li.period_end_date,
+  li.period_level,
+  la.endpoint_id,
+  la.service_id,
+  sum(la.cnt_requests),
+  sum(la.cnt_units),
+  sum(la.cnt_body_bytes_sent)
+FROM
+  log_ip_aggr li
+  JOIN
+  user_endpoints ue
+  ON
+    li.ip = ue.ip
+  JOIN
+  log_aggr la
+  ON
+    ue.endpoint_id = la.endpoint_id
+    AND li.service_id = la.service_id
+    AND la.period_start_date >= li.period_start_date
+    AND la.period_end_date <= li.period_end_date
+WHERE
+  la.period_start_date >= '$first_datetime'
+  AND li.period_level = 'month'
+  AND la.period_level = 'day'
+GROUP BY
+  li.period_start_date,
+  li.period_end_date,
+  li.period_level,
+  la.endpoint_id,
+  la.service_id;
+";
+
+
+  # writting sql commands
   open SQL, ">".File::Spec->catfile($outdir,$sql_file) or die "Could not open $sql_file: $!";
   print SQL " -- $log_file sql dump
 DO \$\$ BEGIN RAISE NOTICE 'STARTED--------------[\%]----------------', NOW(); END; \$\$;
@@ -266,4 +320,38 @@ sub aggregate_data{
     $data->{$period}->{$ip}->{$service}->[1] += $unit; ## units
     $data->{$period}->{$ip}->{$service}->[2] += $body_bytes_sent; ## body_bytes_sent
   }
+}
+
+sub add_aggregate_data_string{
+  my ($aggr_data, $start_time, $period) = @_;
+  return unless $start_time;
+  my $str = '';
+  my $end_time = $strp->parse_datetime($start_time);
+  $end_time->add("${period}s" => 1);
+  $end_time = $end_time->strftime('%d/%b/%Y:%H:%M:%S %z');
+  for my $ip (keys %{$aggr_data->{$period}}) {
+    for my $service (keys %{$aggr_data->{$period}->{$ip}}){
+      my $restrictions = sprintf(" WHERE period_start_date='%s' "
+                      ."AND period_level='%s' "
+                      ."AND %s "
+                      ."AND %s ", $start_time, $period, sql_equal_statement('ip',$ip), sql_equal_statement('service_id', $service));
+      $str .= sprintf("UPDATE log_ip_aggr SET cnt_requests = cnt_requests + %d, cnt_units = cnt_units + %d, cnt_body_bytes_sent = cnt_body_bytes_sent + %d "
+                      ."%s;\n", @{$aggr_data->{$period}->{$ip}->{$service}}, $restrictions);
+      $str .= sprintf("INSERT INTO log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent)"
+                      ."SELECT '%s', '%s', '%s', "
+                      ."%s, %s, %d, %d, %d "
+                      ."WHERE NOT EXISTS (SELECT 1 FROM log_ip_aggr %s);\n",
+                      $start_time, $end_time, $period,
+                      ($ip eq '\N')?"NULL":"'$ip'",
+                      ($service eq '\N')?"NULL":"'$service'",
+                      @{$aggr_data->{$period}->{$ip}->{$service}},
+                      $restrictions),
+    }
+  }
+  return $str;
+}
+
+sub sql_equal_statement{
+  my ($field,$value) = @_;
+  return $value eq '\N' ? "$field IS NULL" : sprintf("%s='%s'",$field,$value);
 }
