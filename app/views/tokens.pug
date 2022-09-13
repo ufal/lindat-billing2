@@ -1,0 +1,24 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 User Tokens
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+        .row
+            .col.s12
+                +alert('TODO', 'Show list of tokens (load).', 'error')
+
+    .fixed-action-btn
+        a.btn-floating.btn-large.clr-bg-add(href="add-token")
+            i.material-icons.large add_circle

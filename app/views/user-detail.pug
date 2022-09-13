@@ -58,6 +58,27 @@ block content
                                     "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
                                   }
                                 ]
+                .col.s12
+                    .card
+                        .card-image
+                          a.btn-floating.halfway-fab.clr-bg-add(href='admin/add-token?user_id=' + user_detail.user_id)
+                            i.material-icons add_circle
+                        .card-content
+                            .card-title Tokens
+                            table(type='lb-datatable' data-type='json' data-field='data' data-url='api/tokens/'+user_detail.user_id data-header='["", "token", "Name","Start", "End"]' data-items='["token_id", "token", "name", "start_date"]' )
+                              script.
+                                [
+                                  {
+                                    "targets": [0],
+                                    "data": null,
+                                    "render": function ( data, type, row, meta ) {return '<a class="clr-fg-link" href="admin/token/'+row[meta['col']]+'"><i class="material-icons">info</i></a>';}
+                                  },
+                                  {
+                                    "targets": [3,4],
+                                    "data": null,
+                                    "render": function ( data, type, row, meta ) { return row[meta['col']] ? moment(row[meta['col']]).format('YYYY-MM-DD') : '';}
+                                  }
+                                ]
                 .col.s12.hide
                     .card
                         .card-content

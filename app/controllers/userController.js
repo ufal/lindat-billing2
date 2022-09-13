@@ -88,6 +88,34 @@ exports.verifyEndpoint = (endpointId, IP, code) => {
 };
 
 
+exports.getUserTokens = (userId) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.token.get(userId)
+    .then(data => {
+      db.user.logAction(userId, 'getUserTokens');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
+exports.addUserToken = (userId, name, start_date, end_date, token) => {
+  logger.trace();
+  return new promise((resolve, reject) => {
+    db.token.add(userId, name, start_date, end_date, token)
+    .then(data => {
+      db.user.logAction(userId, 'addUserToken');
+      resolve(data);
+    })
+    .catch(err => {
+      reject(err);
+    });
+  });
+};
+
 
 exports.logout = (userId) => {
   db.user.logAction(userId, 'logout');

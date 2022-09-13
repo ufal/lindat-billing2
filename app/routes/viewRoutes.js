@@ -204,6 +204,37 @@ router.post('/add-endpoint', function (req, res, next) {
 });
 
 
+router.get('/tokens', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  userController.getUserTokens(user.user_id)
+  .then(data => {
+    res.render("tokens", {user: user, tokens: data, tokens_active: true});
+  })
+  .catch(err => {
+    res.render('tokens', {user: user, error: 'No Tokens Found', tokens_active: true});
+  });
+});
+
+router.get('/add-token', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  res.render('add-token', {user: user, tokens_active: true});
+});
+
+router.post('/add-token', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  userController.addUserToken(user.user_id)
+    .then(data => {
+      res.render('tokens', {user: user, error: 'TODO - token generating', tokens_active: true});
+    })
+    .catch(err => {
+      res.render('tokens', {user: user, error: 'adding new token failed', tokens_active: true});
+    })
+});
+
+
 async function getAdminDashboard(user, res){
   const len = 21;
   const last_date = (new Date).toISOString().slice(0,10);

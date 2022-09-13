@@ -1,0 +1,58 @@
+extends dashboard.pug
+
+block title
+    title Login Billing: Dashboard
+
+block content
+    .container
+        .row
+            .col.s12
+                h5 Add New Token
+                if error
+                    .red-text
+                        strong= error
+                if message
+                    .green-text
+                        strong= message
+                .divider
+                .section
+                form(action="admin/add-token" method="post" enctype="application/x-www-form-urlencoding")
+                    .row
+                        .input-field.col.s12
+                            i.material-icons.prefix edit
+                            input#name.validate(name="name" type="text" required="" aria-required="true")
+                            label(for="name") Token Name
+                            span.helper-text(data-error="Required")
+                    if user.is_admin && tokens_active !== true
+                        .row
+                            .input-field.col.s12
+                                i.material-icons.grey-text.prefix stars
+                                input#token.validate(name="token" type="text" value=token)
+                                label(for="token") Token (will be generated automatically if empty)
+                                span.helper-text(data-error="Required")
+                        .row
+                            .input-field.col.s12
+                                i.material-icons.prefix person_pin
+                                select#user(name="user_id" type="lb-select" data-url='api/users' data-key='user_id' data-select-template="%s %s (%s)" data-value='["last_name", "first_name", "email"]' data-field='data' data-selected=user_id)
+                                label(for="user") User
+                                span.helper-text(data-error="Required")
+                        .row
+                            .input-field.col.s12
+                                i.material-icons.prefix date_range
+                                input#start_date.validate(name="start_date" type="date" required="" aria-required="true" value=start_date)
+                                label(for="start_date") Active from Date
+                                span.helper-text(data-error="Date Required")
+                        .row
+                            .input-field.col.s12
+                                i.material-icons.prefix date_range
+                                input#start_date.validate(name="end_date" type="date" value=end_date)
+                                label(for="start_date") Active to Date
+                    .row
+                        .input-field.col.s6
+                            button.btn.grey.waves-effect.col.s12.white-text(type="submit")
+                                strong Create Token
+                        .input-field.col.s6
+                            a.btn.red.lighten-2.waves-effect.col.s12.white-text(href="tokens")
+                                strong Cancel
+                .section
+

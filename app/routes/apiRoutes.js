@@ -289,6 +289,23 @@ router.get('/api/endpoints/:userId', function (req, res, next) {
 });
 
 
+router.get('/api/tokens/:userId', function (req, res, next) {
+  logger.trace();
+  let user = req.session.user;
+  if (req.params.filterUser != user.user_id && !user.is_admin) {
+      res.status(403);
+      res.send({
+        status : false,
+        error : 'Permission Denied.'
+      });
+  } else {
+    userController.getUserTokens(req.params.userId)
+    .then(data => {
+      res.json({"data":data})
+    }).catch();
+  }
+});
+
 
 router.get('/api/pricings', function (req, res, next) {
   logger.trace();

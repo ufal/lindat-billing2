@@ -31,6 +31,10 @@ ul#slide-out.sidenav.sidenav-fixed
                             a.waves-effect(href="endpoints")
                                 i.material-icons settings_input_component
                                 span Endpoints
+                        li(class=tokens_active?'active':'')
+                            a.waves-effect(href="tokens")
+                                i.material-icons stars
+                                span Tokens
     if user && user.is_admin
         li
             ul.collapsible.collapsible-accordion

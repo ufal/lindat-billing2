@@ -418,4 +418,44 @@ router.get('/admin/endpoint/:endpoint', function (req, res, next) {
   });
 });
 
+
+router.get('/admin/add-token', function (req, res, next) {
+  logger.trace(req.query, req.session.user);
+  let user = req.session.user;
+  res.render('add-token', {user: user, user_id: req.query.user_id, token: req.query.token, start_date: moment(new Date).format('YYYY-MM-DD'), action: 'new' });
+});
+
+router.post('/admin/add-token', function (req, res, next) {
+  logger.trace();
+  let name = req.body.name;
+  let token = req.body.ip;
+  let user_id = req.body.user_id;
+  let start_date = req.body.start_date;
+  let end_date = req.body.end_date;
+  let user = req.session.user;
+  if(!name) {
+    logger.trace();
+    res.render('/admin/add-token', {error: 'All the fields are required', tokens_active: true});
+  }
+  userController.addUserToken(user_id, name, start_date, end_date, token)
+    .then(data => {
+      logger.trace();
+      let user = req.session.user;
+      adminController.getUser(user.user_id, user_id)
+      .then(data => {
+        res.render('user-detail', {user: user, user_detail: data, users_active: true});
+      })
+      .catch(err => {
+        res.render('user-detail', {user: user, error: 'No User Found', users_active: true});
+      });
+    })
+    .catch(err => {
+      logger.warn(err);
+      if(err.extra.constraint=='unique_token') {
+        res.render('/admin/add-token', {user: user, tokens_active: true, error: 'A token already exists'});
+      }
+    });
+});
+
+
 module.exports = router;
