@@ -42,8 +42,8 @@ CREATE TABLE user_tokens
   user_id INTEGER NOT NULL REFERENCES users(user_id),
   name TEXT NOT NULL,
   token VARCHAR(43) NOT NULL,
-  is_active BOOLEAN DEFAULT TRUE,
   start_date TIMESTAMP,
+  end_date TIMESTAMP,
   create_time TIMESTAMP DEFAULT NOW(),
   update_time TIMESTAMP DEFAULT NOW()
 );
