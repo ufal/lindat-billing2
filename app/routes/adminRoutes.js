@@ -134,7 +134,8 @@ router.get('/admin/user/:userId', function (req, res, next) {
                            user_detail: data,
                            type: 'user',
                            filter: req.params.userId,
-                           datalines: ["units", "requests", "body_bytes_sent"]
+                           datalines: ["units", "requests", "body_bytes_sent"],
+                           hide_services: 1
                          });
      })
   })

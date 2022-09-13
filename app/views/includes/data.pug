@@ -20,75 +20,82 @@ if servicecounts && Object.keys(servicecounts).length
             sum[s.name] = sum[s.name] + parseInt(s.count);
             colors[s.name] = '#' + parseInt(s.color).toString(16);
             ids[s.name] = s.service_id
-    each d, s in data
-        .col.s12.m6.l4(id=s+'_main')
-            .card(style="padding: 0px; height: fit-content;")
-                .card-content
-                    .card-title.activator= s
-                        i.material-icons.right more_vert
-                    .flow=text='requests: ' + sum[s]
-                .card-reveal(style="overflow: hidden;")
-                    .card-title= s
-                        i.material-icons.right close
-                    div(type='timeline-chart' data-url='api/data/'+type+'/'+filter+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
-                .card-image
-                    canvas(id=s+'_monthly')
-                script.
-                    ctx = document.getElementById('#{s}_monthly').getContext('2d');
-                    annotation_line = {
-                      drawTime: 'beforeDatasetsDraw',
-                      type: 'line',
-                      scaleID: 'y',
-                      value: [#{d}].reduce((a, b) => a + b, 0) / [#{d}].length || 0,
-                      borderColor: 'black',
-                      borderWidth: 1,
-                    };
-                    chart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
-                            datasets: [{
-                                type: 'bar',
-                                data: [#{d}],
-                                label: 'requests',
-                                backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
-                                borderColor: '#{colors[s]}',
-                                borderWidth: 1
-                            }],
-                        },
-                        options: {
-                            scales: {
-                                x: {
-                                    display: false
-                                },
-                                y: {
-                                    display: false,
-                                }
-                            },
+    ul.collapsible.popout
+        li(class=!hide_services && 'active')
+            .collapsible-header
+                strong Usage of Services
+            .collapsible-body
+                .row
+                    .col.s12.m12.l12
+                        each d, s in data
+                            .col.s12.m6.l4(id=s+'_main')
+                                .card(style="padding: 0px; height: fit-content;")
+                                    .card-content
+                                        .card-title.activator= s
+                                            i.material-icons.right more_vert
+                                        .flow=text='requests: ' + sum[s]
+                                    .card-reveal(style="overflow: hidden;")
+                                        .card-title= s
+                                            i.material-icons.right close
+                                        div(type='timeline-chart' data-url='api/data/'+type+'/'+filter+'/'+ids[s] data-initview=initialview data-lines=JSON.stringify(datalines))
+                                    .card-image
+                                        canvas(id=s+'_monthly')
+                                    script.
+                                        ctx = document.getElementById('#{s}_monthly').getContext('2d');
+                                        annotation_line = {
+                                          drawTime: 'beforeDatasetsDraw',
+                                          type: 'line',
+                                          scaleID: 'y',
+                                          value: [#{d}].reduce((a, b) => a + b, 0) / [#{d}].length || 0,
+                                          borderColor: 'black',
+                                          borderWidth: 1,
+                                        };
+                                        chart = new Chart(ctx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: Array.from([#{labels}], (val,index) => moment(val).format('DD. MM. YYYY')),
+                                                datasets: [{
+                                                    type: 'bar',
+                                                    data: [#{d}],
+                                                    label: 'requests',
+                                                    backgroundColor: Array.from([#{labels}], (val,index) =>  '#{colors[s]}' + (moment(val).isoWeekday() < 6 ? 'ff' : 'aa')),
+                                                    borderColor: '#{colors[s]}',
+                                                    borderWidth: 1
+                                                }],
+                                            },
+                                            options: {
+                                                scales: {
+                                                    x: {
+                                                        display: false
+                                                    },
+                                                    y: {
+                                                        display: false,
+                                                    }
+                                                },
 
-                            //elements: { point: { radius: 0.5 } },
-                            layout: {
-                                padding: {left: 0, right: 0, top: 0, bottom: 0},
-                            },
-                            plugins: {
-                                legend: false,
-                                annotation: {
-                                    annotations: {
-                                      annotation_line
-                                    }
-                                }
-                            }
+                                                //elements: { point: { radius: 0.5 } },
+                                                layout: {
+                                                    padding: {left: 0, right: 0, top: 0, bottom: 0},
+                                                },
+                                                plugins: {
+                                                    legend: false,
+                                                    annotation: {
+                                                        annotations: {
+                                                          annotation_line
+                                                        }
+                                                    }
+                                                }
 
-                        }
-                    });
-                script.
-                    $('##{s}_main .card .card-content').click(()=>{
-                        $('##{s}_main').addClass('m12').addClass('l12').removeClass('m6').removeClass('l4');
-                        $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
-                        $('##{s}_main .card').addClass('large');
-                    });
-                    $('##{s}_main .card .card-reveal .card-title').click(()=>{
-                        $('##{s}_main').removeClass('m12').removeClass('l12').addClass('m6').addClass('l4');
-                        $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
-                        $('##{s}_main .card').removeClass('large');
-                    });
+                                            }
+                                        });
+                                    script.
+                                        $('##{s}_main .card .card-content').click(()=>{
+                                            $('##{s}_main').addClass('m12').addClass('l12').removeClass('m6').removeClass('l4');
+                                            $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                                            $('##{s}_main .card').addClass('large');
+                                        });
+                                        $('##{s}_main .card .card-reveal .card-title').click(()=>{
+                                            $('##{s}_main').removeClass('m12').removeClass('l12').addClass('m6').addClass('l4');
+                                            $('html, body').animate({scrollTop: $('##{s}_main').offset().top }, 500);
+                                            $('##{s}_main .card').removeClass('large');
+                                        });
