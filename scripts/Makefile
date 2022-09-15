@@ -1,5 +1,5 @@
 DATE := $(shell date +"%Y%m%dT%H%M%S")
-IN := ./data/in/sample.log
+IN := ./data/in/sample-tokens.log
 OUT := ./data/out
 DIR := $(OUT)/import-$(DATE)
 
@@ -24,7 +24,6 @@ convert:
 import:
 	export PGPASSWORD=$(PASSWORD); ls $(DIR)/*.sql \
 	  | sort \
-	  |head -n 3 \
 	  | xargs -I {} \
 	      psql \
 	      -vworkingdir="$(DIR)"\
