@@ -52,24 +52,6 @@ CREATE INDEX ON user_tokens(token);
 ALTER TABLE user_tokens ADD CONSTRAINT unique_token UNIQUE (token);
 
 
-CREATE TABLE log_token_aggr
-(
- log_ip_aggr_id       SERIAL PRIMARY KEY,
- period_start_date TIMESTAMP NOT NULL,
- period_end_date   TIMESTAMP NOT NULL,
- period_level      period_levels NOT NULL,
- token_id          INTEGER NULL REFERENCES user_tokens( token_id ) ON DELETE CASCADE,
- service_id        INTEGER NULL REFERENCES services( service_id ) ON DELETE CASCADE,
- cnt_requests      BIGINT NOT NULL,
- cnt_units         BIGINT NOT NULL,
- cnt_body_bytes_sent BIGINT NOT NULL
-);
-
-CREATE INDEX ON log_token_aggr(token_id);
-CREATE INDEX ON log_token_aggr(service_id);
-CREATE INDEX ON log_token_aggr(period_level);
-CREATE INDEX ON log_token_aggr(period_start_date);
-
 
 ALTER TABLE log_ip_aggr ADD token_used BOOLEAN DEFAULT FALSE;
 
