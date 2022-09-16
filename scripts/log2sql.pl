@@ -222,7 +222,7 @@ FROM
   ON li.ip = ue.ip
 WHERE
   li.period_start_date >= '$first_datetime'
-  AND ue.start_date >= li.period_start_date
+  AND ue.start_date <= li.period_start_date
   AND (li.period_level = 'hour' OR li.period_level = 'day')
   AND ue.is_active = TRUE
   AND li.token_used = FALSE;
