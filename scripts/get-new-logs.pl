@@ -28,6 +28,7 @@ my (@logfiles,$dbuser,$dbhost,$dbdatabase,$dbpassword);
 my $dbport = 5432;
 
 my $first_day_to_import;
+my $last_day_in_db_str;
 
 GetOptions (
             'in-files=s{1,}' => \@logfiles,
@@ -63,16 +64,38 @@ if(my $result = $sth->fetchrow_hashref){
   $sth->finish();
 }
 
+$sql='
+SELECT max(period_start_date) AS first
+FROM log_ip_aggr
+WHERE period_level=\'day\';
+';
+
+$sth = $dbi->prepare($sql);
+$sth->execute;
+if(my $result = $sth->fetchrow_hashref){
+  $last_day_in_db_str = $strp2->parse_datetime($result->{first});
+  $last_day_in_db_str = $last_day_in_db_str->strftime('[%d/%b/%Y:');
+  $sth->finish();
+}
+
 print STDERR "First day to import: $first_day_to_import\n";
 
 my %logfile_daterange = map {$_ => get_range($_) } @logfiles;
-my @logfiles_sorted = sort {$logfile_daterange{$a}->{from} <=> $logfile_daterange{$b}->{from}} @logfiles;
+my @logfiles_sorted = map {[$_,$logfile_daterange{$_}->{from} < $first_day_to_import]} sort {$logfile_daterange{$a}->{from} <=> $logfile_daterange{$b}->{from}} @logfiles;
 
 
 my $last_date = '';
-for my $log_file_in (@logfiles_sorted) {
+for my $lf (@logfiles_sorted) {
+	my ($log_file_in,$fast) = @$lf;
   open IN, "<$log_file_in" or die "Could not open $log_file_in: $!";
+  my $line_cnt=0;
   while(my $line = <IN>){
+  	if($fast){
+  		$line_cnt++;
+      next if index($line, $last_day_in_db_str) < 0;
+      print STDERR "switching to regex search: $line_cnt\n";
+      $fast = 0;
+  	}
     my $date = get_datetime($line);
     next unless $date;
     next if $date < $first_day_to_import;
