@@ -266,12 +266,12 @@ FROM
   log_aggr la
   ON
     ue.endpoint_id = la.endpoint_id
-    AND li.service_id = la.service_id
+    AND (li.service_id = la.service_id OR (li.service_id IS NULL AND la.service_id IS NULL))
     AND la.period_start_date >= li.period_start_date
     AND la.period_end_date <= li.period_end_date
     AND la.token_id IS NULL
 WHERE
-  la.period_start_date >= '$first_datetime'
+  li.period_end_date >= '$first_datetime'
   AND li.period_level = 'month'
   AND la.period_level = 'day'
 GROUP BY
