@@ -236,14 +236,14 @@ router.post('/add-token', function (req, res, next) {
 
 
 async function getAdminDashboard(user, res){
-  const len = 21;
+  const len = 28;
   const last_date = (new Date).toISOString().slice(0,10);
   const weekly = await adminController.getWeeklyCountsByService(last_date, len);
   res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: Date.parse(last_date), initialview: (new Date).toISOString().slice(0,7), admin_dashboard_active: true,type: 'user', filter: 'all', datalines: ["units", "requests", "body_bytes_sent"]});
 }
 
 async function getUserDashboard(user, res){
-  const len = 21;
+  const len = 28;
   const last_date = (new Date).toISOString().slice(0,10);
   const weekly = await userController.getWeeklyCountsByService(user.user_id, last_date , len);
   res.render('dashboard', {user: user, servicecounts: weekly, period_length: len, date: Date.parse(last_date), initialview: (new Date).toISOString().slice(0,7), user_dashboard_active: true, type: 'user', filter: user.user_id, datalines: ["units", "requests", "body_bytes_sent"]});

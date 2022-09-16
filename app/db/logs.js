@@ -164,6 +164,8 @@ exports.getMonthlyCountsByService = (date, filter) => {
 exports.getWeeklyCountsByService = (date, len, filter) => {
   logger.trace();
   logger.debug("TODO implement filter");
+  filter['overview'] = 1;
+  filter['tokens_incl'] = 1;
   const {query, values, table} = createFilter(filter,2);
   return new promise((resolve, reject) => {
     const days_list = `
@@ -251,7 +253,7 @@ function createFilter(filter, add=1){
   if('service_id' in filter) {
     values.push(filter['service_id']);
     query += ' AND service_id = $'+ (values.length+add) +' ';
-  } else {
+  } else if(!('overview' in filter)){
     query += ' AND service_id IS NULL ';
   }
   return {
