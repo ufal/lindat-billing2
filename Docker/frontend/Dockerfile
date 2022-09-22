@@ -1,4 +1,4 @@
-FROM node:10
+FROM node:17.5.0
 
 
 COPY package.json /web/package.json
