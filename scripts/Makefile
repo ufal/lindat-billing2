@@ -13,6 +13,11 @@ get-new-logs: $(DATE)
 	                       --out-dir $(DIR) \
 	                       --in-files $(IN)
 	ls -l $(DIR)
+
+remove-new-log-files:
+	echo "INFO: removing " $(DIR)/*.log
+	rm $(DIR)/*.log
+
 convert:
 	perl ./log2sql.pl --db-host $(DB_HOST) \
 	                       --db-database $(DB_NAME) \
