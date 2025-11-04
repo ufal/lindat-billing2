@@ -26,6 +26,14 @@ convert:
 	                       --out-dir $(DIR) \
 	                       --in-files $(DIR)/*.log
 
+convert-single-logfile: $(LOGFILE)
+	perl ./log2sql.pl --db-host $(DB_HOST) \
+	                       --db-database $(DB_NAME) \
+	                       --db-user $(USER_NAME) \
+	                       --db-password='$(PASSWORD)' \
+	                       --out-dir $(DIR) \
+	                       --in-files $(LOGFILE)
+
 import:
 	export PGPASSWORD=$(PASSWORD); ls $(DIR)/*.sql \
 	  | sort \
