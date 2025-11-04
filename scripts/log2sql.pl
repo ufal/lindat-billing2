@@ -104,6 +104,7 @@ for my $log_file_path (@logfiles) {
   my ($file_name) = $log_file =~ m/^(.*)\./;
   my $sql_file = "$file_name.sql";
   my ($first_line_checksum, $last_read_line_checksum, $lines_read, $lines_valid) = (undef, undef, 0, 0);
+  print STDERR "INFO: Start processing $log_file_path\n";
   open LOG, "<$log_file_path" or die "Could not open $log_file_path: $!";
   my $prev_date='';
   my $prev_time='';
@@ -188,7 +189,7 @@ for my $log_file_path (@logfiles) {
       }
     }
   }
-
+  print STDERR "INFO: Finished processing $log_file_path\n";
   print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_time,'hour');
   print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_date,'day');
   close DUMP_IP_AGGR;
