@@ -219,7 +219,7 @@ VALUES($file_id,'$log_file','$first_line_checksum', '$last_read_line_checksum', 
   
   #my $month_aggr_sql = add_aggregate_data_string($aggr_ip_data,$act_month,'month');
   #push @print_sql,"$month_aggr_sql";
-  print_aggregate_data(*SQL, $aggr_ip_data,$act_month,'month')
+  print_aggregate_data(*SQL, $aggr_ip_data,$act_month,'month');
   print STDERR "INFO: Finished month aggregation on $log_file_path\n";
 
   # generating endpoints data
