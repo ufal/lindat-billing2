@@ -146,6 +146,7 @@ for my $log_file_path (@logfiles) {
       $act_time =~ s/:\d{2}:\d{2} \+/:00:00 \+/;
       $token_id = get_token_id($token,$strp->parse_datetime($time_local));
       unless($act_date eq $prev_date){
+        print STDERR "INFO: Starting processing new day $act_date\n";
         unless($lines_valid){
           close DUMP_IP_AGGR;
         }
@@ -170,6 +171,7 @@ for my $log_file_path (@logfiles) {
         $last_datetime = $time_local;
       }
       unless($act_time eq $prev_time){
+        print STDERR "INFO: Starting processing new hour $act_date\n";
         print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data, $prev_time,'hour');
         print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data, $prev_time,'hour');
         $aggr_ip_data->{hour}={};
