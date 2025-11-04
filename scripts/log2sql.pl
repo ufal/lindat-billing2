@@ -189,7 +189,6 @@ for my $log_file_path (@logfiles) {
       }
     }
   }
-  print STDERR "INFO: Finished processing $log_file_path\n";
   print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_time,'hour');
   print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_date,'day');
   close DUMP_IP_AGGR;
@@ -197,11 +196,13 @@ for my $log_file_path (@logfiles) {
   print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data,$prev_date,'day');
   close DUMP_TOKEN_AGGR;
   close LOG;
+  print STDERR "INFO: Finished processing $log_file_path\n";
 
-
+  print STDERR "INFO: Start month aggregation on $log_file_path\n";
   my $act_month = $prev_date; $act_month =~ s/^../01/;
   my $month_aggr_sql = add_aggregate_data_string($aggr_ip_data,$act_month,'month');
   push @print_sql,"$month_aggr_sql";
+  print STDERR "INFO: Finished month aggregation on $log_file_path\n";
 
   # generating endpoints data
   push @print_sql," -- aggregating endpoints data
