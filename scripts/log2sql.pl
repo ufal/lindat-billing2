@@ -171,7 +171,7 @@ for my $log_file_path (@logfiles) {
         $last_datetime = $time_local;
       }
       unless($act_time eq $prev_time){
-        print STDERR "INFO: Starting processing new hour $act_date\n";
+        print STDERR "INFO: Starting processing new hour $act_time\n";
         print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data, $prev_time,'hour');
         print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data, $prev_time,'hour');
         $aggr_ip_data->{hour}={};
