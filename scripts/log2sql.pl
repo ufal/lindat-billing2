@@ -149,7 +149,8 @@ for my $log_file_path (@logfiles) {
       unless($act_date eq $prev_date){
         print STDERR "INFO: Starting processing new day $act_date\n";
         unless($lines_valid){
-          close DUMP_IP_AGGR;
+          close DUMP_HOUR_IP_AGGR;
+          close DUMP_DAY_IP_AGGR;
         }
         print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_date,'day');
         print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data,$prev_date,'day');
@@ -157,13 +158,17 @@ for my $log_file_path (@logfiles) {
         $aggr_token_data->{day}={};
         my $date_filename = join('-',split('/',substr($act_date,0,11)));
 
-        my $dump_ip_aggr_file = "$file_name.ip_aggr.dump";
-        push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AND DAY AGGR--------------[\%]----------------', NOW();END;\$\$;";
-        push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent, token_used) from '$dump_ip_aggr_file'";
-        open DUMP_IP_AGGR, ">".File::Spec->catfile($outdir,$dump_ip_aggr_file) or die "Could not open $dump_ip_aggr_file: $!";
+        my $dump_day_ip_aggr_file = "$file_name.day.ip_aggr.dump";
+        my $dump_hour_ip_aggr_file = "$file_name.hour.ip_aggr.dump";
+        push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AGGR--------------[\%]----------------', NOW();END;\$\$;";
+        push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent, token_used) from '$dump_hour_ip_aggr_file'";
+        push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING DAY AGGR--------------[\%]----------------', NOW();END;\$\$;";
+        push @print_sql,"\\copy log_ip_aggr(period_start_date, period_end_date, period_level, ip, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent, token_used) from '$dump_day_ip_aggr_file'";
+        open DUMP_HOUR_IP_AGGR, ">".File::Spec->catfile($outdir,$dump_hour_ip_aggr_file) or die "Could not open $dump_hour_ip_aggr_file: $!";
+        open DUMP_DAY_IP_AGGR, ">".File::Spec->catfile($outdir,$dump_day_ip_aggr_file) or die "Could not open $dump_day_ip_aggr_file: $!";
 
         my $dump_token_aggr_file = "$file_name.token_aggr.dump";
-        push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AND DAY AGGR--------------[\%]----------------', NOW();END;\$\$;";
+        push @print_sql,"DO \$\$ BEGIN RAISE NOTICE 'IMPORTING HOUR AND DAY TOKEN AGGR--------------[\%]----------------', NOW();END;\$\$;";
         push @print_sql,"\\copy log_aggr(period_start_date, period_end_date, period_level, token_id, service_id, cnt_requests, cnt_units, cnt_body_bytes_sent) from '$dump_token_aggr_file'";
         open DUMP_TOKEN_AGGR, ">".File::Spec->catfile($outdir,$dump_token_aggr_file) or die "Could not open $dump_token_aggr_file: $!";
 
@@ -173,7 +178,7 @@ for my $log_file_path (@logfiles) {
       }
       unless($act_time eq $prev_time){
         print STDERR "INFO: Starting processing new hour $act_time\n";
-        print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data, $prev_time,'hour');
+        print_aggregated_ip_data(\*DUMP_HOUR_IP_AGGR, $aggr_ip_data, $prev_time,'hour');
         print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data, $prev_time,'hour');
         $aggr_ip_data->{hour}={};
         $aggr_token_data->{hour}={};
@@ -189,9 +194,10 @@ for my $log_file_path (@logfiles) {
       }
     }
   }
-  print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_time,'hour');
-  print_aggregated_ip_data(\*DUMP_IP_AGGR, $aggr_ip_data,$prev_date,'day');
-  close DUMP_IP_AGGR;
+  print_aggregated_ip_data(\*DUMP_HOUR_IP_AGGR, $aggr_ip_data,$prev_time,'hour');
+  print_aggregated_ip_data(\*DUMP_DAY_IP_AGGR, $aggr_ip_data,$prev_date,'day');
+  close DUMP_HOUR_IP_AGGR;
+  close DUMP_DAY_IP_AGGR;
   print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data,$prev_time,'hour');
   print_aggregated_token_data(\*DUMP_TOKEN_AGGR, $aggr_token_data,$prev_date,'day');
   close DUMP_TOKEN_AGGR;
@@ -213,6 +219,7 @@ INTO log_files(file_id, file_name, first_line_checksum, last_read_line_checksum,
 VALUES($file_id,'$log_file','$first_line_checksum', '$last_read_line_checksum', $lines_read, $lines_valid,FALSE);
 ";
 
+  print SQL "$_\n" for @print_sql;
 
   print STDERR "INFO: Start month aggregation on $log_file_path\n";
   my $act_month = $prev_date; $act_month =~ s/^../01/;
